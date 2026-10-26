@@ -1,3 +1,19 @@
+# Security / Credentials
 .clasprc.json
-.DS_Store
+.clasp.json
+
+# Dependencies
 node_modules/
+
+# OS-generated files (Windows & Mac)
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code settings & workspace files
+.vscode/
+*.code-workspace
+
+# Log files
+*.log
+npm-debug.log*
