@@ -1,5 +1,7 @@
 # Progressive Overload Tracker 2.0
 
+> **Status:** Active Development (Phase 1: Core Foundation & Data Architecture)
+
 An automated, data-driven Google Sheets ecosystem powered by Google Apps Script for tracking strength training, automated 1RM analytics, custom workout log aggregation, and progressive overload tracking.
 
 ## Developer Setup & Clasp Workflow
@@ -14,6 +16,18 @@ To connect your local workspace to your Google Sheet's Apps Script backend, ensu
 {
   "scriptId": "YOUR_APPS_SCRIPT_ID_HERE",
   "rootDir": "./src"
+  "scriptExtensions": [
+    ".js",
+    ".gs"
+  ],
+  "htmlExtensions": [
+    ".html"
+  ],
+  "jsonExtensions": [
+    ".json"
+  ],
+  "filePushOrder": [],
+  "skipSubdirectories": false
 }
 ```
 
