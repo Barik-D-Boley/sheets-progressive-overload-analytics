@@ -1,0 +1,30 @@
+{
+  "name": "sheets-progressive-overload-analytics",
+  "version": "1.0.0",
+  "description": "Google Apps Script backend for Progressive Overload Tracker 2.0",
+  "main": "./src/backend/Main.js",
+  "scripts": {
+    "start": "clasp push --watch",
+    "push": "clasp push",
+    "pull": "clasp pull --force",
+    "pull:clean": "clasp pull --force --deleteUnusedFiles",
+    "open": "clasp open",
+    "status": "clasp status"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Barik-D-Boley/sheets-progressive-overload-analytics.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Barik-D-Boley/sheets-progressive-overload-analytics/issues"
+  },
+  "homepage": "https://github.com/Barik-D-Boley/sheets-progressive-overload-analytics#readme",
+  "devDependencies": {
+    "@google/clasp": "^3.4.1",
+    "@types/google-apps-script": "^2.0.13"
+  }
+}

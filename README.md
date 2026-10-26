@@ -6,16 +6,24 @@ An automated, data-driven Google Sheets ecosystem powered by Google Apps Script 
 
 ## Developer Setup & Clasp Workflow
 
-This project uses Google's [clasp](https://github.com/google/clasp) (Command Line Apps Script Projects) tool to enable local development in VS Code with Git version control.
+This project uses Google's [clasp](https://github.com/google/clasp) (Command Line Apps Script Projects) tool and Node.js to enable local development in VS Code with Git version control and full Google Apps Script TypeScript/IntelliSense autocompletion.
 
-### 1. Local Configuration
+### 1. Dependency Installation
+
+After cloning the repository, install all required developer dependencies (including `@google/clasp` and `@types/google-apps-script`) from `package.json` by running:
+
+```bash
+npm install
+```
+
+### 2. Local Configuration
 
 To connect your local workspace to your Google Sheet's Apps Script backend, ensure your `.clasp.json` file in the root folder is configured as follows (this file is ignored by Git to keep your script ID private):
 
 ```json
 {
   "scriptId": "YOUR_APPS_SCRIPT_ID_HERE",
-  "rootDir": "./src"
+  "rootDir": "./src",
   "scriptExtensions": [
     ".js",
     ".gs"
@@ -31,36 +39,44 @@ To connect your local workspace to your Google Sheet's Apps Script backend, ensu
 }
 ```
 
-### 2. Clasp Developer Commands
+### 3. Developer Commands & Workflows
 
-* **Live File Watching & Auto-Push:**
-  Watch local files for edits and automatically push changes to Google Apps Script every time you save:
+You can run the core developer workflows using standard `npm` script shortcuts defined in `package.json`:
+
+* **Live Watch & Auto-Push (Development Mode):**
+  Actively monitors local files in `./src` and pushes changes to Google Apps Script in real-time on every save:
   ```bash
-  clasp push --watch
+  npm start
   ```
 
 * **Manual Code Push:**
   Push all local files from `./src` to Google Apps Script:
   ```bash
-  clasp push
+  npm run push
   ```
 
-* **Force Pull Remote Code:**
-  Pull code from Google Apps Script down to your local `./src` directory (overwriting local files):
+* **Safe Pull Remote Code:**
+  Pull code from Google Apps Script down to your local `./src` directory without deleting untracked local files:
   ```bash
-  clasp pull --force
+  npm run pull
+  ```
+
+* **Full Clean Pull (Deletes Local Obsolete Files):**
+  Pull remote changes and force-delete local files that no longer exist on Google Apps Script:
+  ```bash
+  npm run pull:clean
   ```
 
 * **Check Synchronization Status:**
   View which local files differ from the remote Apps Script project:
   ```bash
-  clasp status
+  npm run status
   ```
 
-* **Open Project in Web Editor:**
+* **Open Project in Browser:**
   Quickly launch the Google Apps Script web editor for this sheet in your default browser:
   ```bash
-  clasp open
+  npm run open
   ```
 
 ## Spreadsheet vs. Fitness Apps
