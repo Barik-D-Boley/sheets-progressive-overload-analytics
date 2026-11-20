@@ -20,11 +20,74 @@ These decisions were confirmed before implementation planning:
 
 The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Master`, a hidden `Q4 2026` tab, and `All Data - Unorganized`. Its entry sheet already has workout date/gym/workout controls, three set columns, notes, and exercise-navigation controls. `Compiled Data` contains workout fields and per-set 1RM columns alongside search/summary content. Migration must inventory the actual populated cells and formulas in these tabs before finalizing field mappings; do not infer a complete schema from the visible headers alone. Preserve the existing quarter-tab raw-data purpose and use `Compiled Data` for the consolidated presentation.
 
+### Confirmed Implementation Decisions (Round 2)
+
+`FEATURES.md` is the single source of truth. `PLAN.md` is superseded and may be deleted.
+
+**Set data**
+- Each working set stores: load, load unit, reps, assisted reps, partial reps, and RIR/RPE. Warm-up sets are **not** stored.
+- Warm-up guidance on `Workout Entry` is derived from the previous session of the same exercise (no warm-up data is logged).
+- In quarter tabs, all of a set's data is packed into **one cell per set** (compact raw form). `Compiled Data` expands it into readable columns.
+- The default is 3 working sets. The Master `Num of sets` setting controls how many set slots the form shows, which allows extra sets and drop sets.
+
+**1RM**
+- Default formula is Epley; Brzycki, Lombardi, Mayhew, O'Conner, Wathan, and Lander are selectable on Master.
+- Reps above 12 are capped at 12 for the 1RM calculation (a 15-rep set is calculated as 12 reps). The logged reps are unchanged.
+- Negative (assisted) loads produce an estimated 1RM of 0.
+
+**Registries (all on Master, each with stable IDs)**
+- Exercises, Workouts (Push/Pull/Legs/…), Gyms, and saved Routines (a routine = ordered list of exercises for a workout, savable from the sheet).
+
+**Cardio**
+- Cardio records store mainly distance and speed (with units), linked to the workout date, in the `Cardio` tab.
+
+**Quarter tabs**
+- Named `Q1 <year>` … `Q4 <year>`, covering calendar quarters (Q1 = Jan–Mar). They are hidden.
+- A new quarter tab is created automatically when the first workout of that quarter is submitted.
+
+**Migration**
+- `All Data - Unorganized` is the only legacy source (its data matches the older "Progressive Overload Chart" workbook). It is imported once.
+- Unparseable cells are flagged in the preview and left for manual correction later. They are never silently dropped.
+- The user reviews and approves the legacy-name → exercise mapping (`migration/exercise-name-map.csv`) before import.
+
+**Workout Entry (mobile-first)**
+- Shows one exercise at a time. "Next" advances Set 1 → Set 2 → Set 3 → next exercise in the routine, Set 1, and so on.
+- "Choose workout" loads a saved routine.
+- "Previous date" and "Goal weight/reps" rows are filled from the logged history of the same exercise (last date it was done).
+- Buttons are checkboxes styled to fill a gray cell (drawings with assigned scripts do not work in the Sheets mobile app). Checking a box runs the action and the script unchecks it.
+
+**Compiled Data**
+- Read-only, rebuilt from the hidden quarter tabs. Shows weights **converted to the Master preferred unit** (presentation only). Corrections are made in the quarter tabs, never in `Compiled Data`.
+
+**Monthly gain**
+- For each exercise: best estimated 1RM this calendar month vs. best estimated 1RM last calendar month. The largest percentage gain wins; ties break by the largest absolute gain, then by the exercise done most often this month. Exercises missing either month are excluded; if none qualify, no gain is shown.
+
+### Draft Progression Rules (awaiting approval)
+
+All modes share these settings on Master: rep range (min–max), load increment (default 5 lb / 2.5 kg; 10 lb / 5 kg for lower-body compounds), target RIR, and stall threshold (default 3 sessions).
+
+- **Bodybuilding: double progression.** Rep range 8–12 at RIR 1–2.
+  - When every working set reaches the top of the range at or above the target RIR, the next session's goal is +1 increment with reps reset to the bottom of the range.
+  - Otherwise, keep the load and aim for +1 rep on the weakest set.
+- **Powerlifting: percentage-based.** Rep range 3–6. The goal load is the Master "Strength goal" percentage (e.g. 85–93%) of the current best estimated 1RM, rounded to the increment.
+  - When RIR comes in above the target, the next session's goal is +1 increment.
+- **Custom:** the user sets the rep range, increment, and target RIR. It uses the double-progression logic.
+- **Stall / reset (all modes):** if estimated 1RM does not improve for the stall threshold of consecutive sessions, recommend a 10% load reduction and rebuild. Deload-week frequency (Master) is surfaced in the weekly prompt.
+- Recommendations are shown as "Goal" values on `Workout Entry` and are never written as recorded results.
+
+### Open Questions (Round 3)
+
+1. **Plate notation in legacy data:** `2*45+25` means two 45s plus a 25. Is that the **total** plate load, or **per side**? Should the import store the summed number (115) and keep the original text in notes?
+2. **`+N` reps** (e.g. `120 for 10+1`): is the `+1` an assisted rep or a partial rep?
+3. **Other legacy notes:** `(neg)`, `(?)`, `for ?`, `12 for -24` (reversed order), and timed sets like `Static hold 315 for 26 sec`. Should these be flagged, or is there a rule for each?
+4. **Packed cell format** for quarter tabs. Proposed: `205x8 a1 p2 @2` (load × reps, assisted, partial, RIR), unit stored in its own column per row. OK?
+5. **Popups on mobile:** the Sheets mobile app does not show script popups (dialogs/alerts) and does not run `onOpen`. Proposed: on mobile, the weekly bodyweight prompt, monthly celebration, and new-exercise prompt appear as a banner/input area on `Workout Entry` instead; on desktop they show as popups. OK?
+
 ### Decisions to Approve Before the Related Implementation
 
-- **Progression recommendations:** Propose a configurable rep-range approach for Powerlifting, Bodybuilding, and Custom modes. Define and approve the exact target-rep, load-increase, and reset/stall rules before implementing recommendations.
-- **Display conversion:** Decide whether `Compiled Data` should show canonical logged units as recorded or optionally convert displayed values to the current Master preference. Any conversion must be view-only and must preserve the original values and units in quarter logs.
-- **Monthly strength gain:** Use per-exercise estimated 1RM change as the comparison metric. Define the within-month baseline/comparison window and tie-breaking behavior before implementing the celebration.
+- **Progression recommendations:** See "Draft Progression Rules" above; approve or adjust before implementation.
+- **Display conversion:** Resolved — `Compiled Data` converts to the Master preferred unit (view-only).
+- **Monthly strength gain:** Resolved — see "Monthly gain" above.
 
 ### Cross-Feature Acceptance Criteria
 
@@ -69,7 +132,7 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 - [ ] **Bodyweight History:** Record each prompted or manual bodyweight update with its date; use that history for date-matched ratios and show the latest value in the Master profile.
 
 ### 2.3 Hidden Backend Architecture
-- [ ] **Canonical Quarter Logs:** Store raw workout records in quarter-specific tabs, with one record per set and fields for date, gym, workout, exercise ID, set number, load as logged, load unit, reps, notes, estimated 1RM, and source/provenance. Preserve valid signed loads and fractional reps found in assisted exercises or the legacy data. New records are written to the quarter matching their workout date.
+- [ ] **Canonical Quarter Logs:** Store raw workout records in quarter-specific tabs, with one row per exercise per date: date, gym ID, workout ID, exercise ID, load unit, one packed cell per set (load, reps, assisted reps, partial reps, RIR/RPE), notes, and source/provenance. Estimated 1RM is computed in `Compiled Data`. Preserve valid signed loads and fractional reps found in assisted exercises or the legacy data. New records are written to the quarter matching their workout date.
 - [ ] **Weekly Bodyweight Log:** Store dated bodyweight observations and their units in a history log; do not overwrite older entries when the current profile weight changes.
 - [ ] **Compiled Data View:** Build `Compiled Data` as a read-only consolidated presentation sourced from the canonical quarter logs, retaining its search, summary, and chart functionality. It must not write back or become a second source of truth.
 - [ ] **Unit-Safe Display:** Show the recorded value and unit in `Compiled Data`, or offer an explicitly view-only conversion to the current preferred unit. Never rewrite canonical quarter-log values when settings change.
