@@ -83,9 +83,21 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Packed set cell format:** `<load>x<reps>[ a<assisted>][ p<partial>][ @<rir>][ @rpe<rpe>]`, e.g. `205x8 a1 p2 @2`. The unit is stored in its own column per row.
 - **Popups:** desktop shows popups; on mobile, the weekly bodyweight prompt, monthly celebration, and new-exercise prompt appear as an input/banner area on `Workout Entry`.
 
+### Exercise Naming Format (Round 4)
+
+- **Format:** `<Movement> (<Equipment tag>[, <Detail>])`, e.g. `Bench press (BB)`, `Tricep pushdowns (Cable, Rope)`, `Decline press (PL)`, `Pull-ups (BW)`.
+- **Movement** is sentence case: only the first word is capitalized, except proper nouns (`Romanian deadlifts (BB)`, `Bulgarian split squats (DB)`, `Nordic hamstring curls (BW)`). Names stay plural.
+- **Equipment tags** (always present for lifts, even when obvious): Barbell `BB`, Dumbbell `DB`, Plate-loaded `PL`, Cable `Cable`, Machine `Machine`, Smith machine `Smith`, EZ bar `EZ`, T-bar `TB`, Bodyweight `BW`.
+  - Iso-lateral machines are `PL`, and "iso" is dropped from the name (`Bench press (PL)`, not `Iso-lateral bench press (PL)`).
+  - Dips and pull-ups are `BW`; added weight (dip belt) is a positive load, and assistance is a negative load.
+- **Details** (attachments, angles) follow the tag after a comma and are capitalized: `Pullovers (Cable, Bar)`, `Pec flys (Cable, Low-to-high)`.
+- **Cardio** is a separate list on Master (not in the exercise list). Incline goes in parentheses: `Treadmill (15°)`.
+- **New exercises** added from the entry form are formatted automatically: the user picks equipment from a dropdown and enters the movement, and the name is built from the format.
+- **Configurable for buyers:** the template, separator, equipment tags, and proper nouns are settings (`NAMING_DEFAULTS` in `src/backend/naming.js`). Module 2 adds an editable equipment/tag table on Master that overrides the defaults. Existing exercises can be renamed in the registry at any time because records reference IDs.
+
 ### Implementation Notes (Module 1)
 
-- **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G, Workouts at N, Gyms at Q. These are configurable in `src/backend/config.js`.
+- **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at N, Gyms at Q, Cardio at T. These are configurable in `src/backend/config.js`.
 - **Legacy layout:** blocks are detected per row because column positions shift around row 424. Anchors are a date (new session), the gym (row after the date, including a lone cell under the date), `date, gym` in one cell, or a session note such as `Deload`. Column X holds cardio calories; X1 holds a bodyweight (imported dated to the first legacy workout).
 - **Date checks:** a session date in the future, or earlier than the previous date in the same block, is blocked until it is fixed in the legacy tab (currently `S239`: 8/27/27).
 - **Workflow:** menu *Overload Tracker → Legacy migration*: 1) Build name review (`Migration Review` tab; approve or edit each legacy name), 2) Preview import (`Migration Preview` tab), 3) Run import.
@@ -115,10 +127,10 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ### 1.1 Data Schema & Exercise Management
 - [ ] **Master Exercise Binding:** Maintain one exercise registry on `Master` with a stable unique exercise ID. Store the ID in workout records and resolve the current display name from the registry so renames update historical and future views without rewriting identity.
 - [x] **Sheet Origin Tracking:** Add dedicated provenance fields to canonical quarter-log records identifying the source sheet/version of each imported record.
-- [ ] **Exercise Name Cleaning:** Standardize naming conventions across legacy data:
-  - [ ] Convert shorthand terms (e.g., prefix `PL` for Plate-Loaded exercises).
-  - [ ] Standardize pluralization and casing across all movements (e.g., "Lat Pulldowns", "Bicep Curls").
-  - [ ] Review ambiguous names through an explicit legacy-name-to-exercise mapping; do not apply unsafe blanket pluralization or merge distinct exercises based only on similar text.
+- [x] **Exercise Name Cleaning:** Standardize naming conventions across legacy data (see "Exercise Naming Format"):
+  - [x] Equipment shorthand goes in a trailing tag, e.g. `(PL)` for plate-loaded; iso-lateral machines are `PL`.
+  - [x] Plural movement names in sentence case (e.g. "Lat pulldowns (Cable)", "Bicep curls (DB)").
+  - [ ] Review ambiguous names through an explicit legacy-name-to-exercise mapping (`Migration Review` tab); do not apply unsafe blanket pluralization or merge distinct exercises based only on similar text.
 
 ### 1.2 Legacy Import Pipeline
 - [x] **Data Ingestion:** Build a Google Apps Script migration utility to preview and import the legacy `All Data - Unorganized` and other confirmed source ranges into the appropriate canonical quarter logs. Preserve existing quarter-tab data, including hidden tabs; detect overlaps before importing to avoid duplicate records.
@@ -202,7 +214,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 
 ### 7.2 Documentation & User Onboarding
 - [ ] **User Onboarding Guide:** Create a dedicated documentation sheet detailing:
-  - Naming conventions (`PL`, pluralization).
+  - Naming conventions (`<Movement> (<Equipment tag>)`, equipment tags, pluralization).
   - Machine consistency guidelines (using identical equipment when possible).
   - Progressive overload principles and tracking best practices.
 - [ ] **Competitive Value Proposition Sheet:** Compare the spreadsheet fairly with subscription-based workout apps. Substantiate claims such as pricing model, exportability/data control, and lightweight workflow; disclose Google Sheets/account requirements and avoid guarantees of absolute privacy, permanent storage, or zero loading time.

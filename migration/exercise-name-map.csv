@@ -1,220 +1,220 @@
-legacy_name,found_in,times_used,proposed_name,type,needs_review,note
-Ab press,Cardio/Abs,1,Ab Press (Machine),lift,YES,machine? confirm
-Ab roller (kneeling),Cardio/Abs,1,Ab Rollouts (Kneeling),lift,,
-Behind back cable curls,Pull,10,Behind-the-Back Cable Curls,lift,,
-Behind back curls,Pull,1,Behind-the-Back Cable Curls,lift,YES,cable assumed
-Barbell bench,Push,1,Bench Press (BB),lift,,
-Bench press (BB),Push,28,Bench Press (BB),lift,,
-Flat barbell bench,Push,11,Bench Press (BB),lift,,
-Flat barbell bench press,Push,1,Bench Press (BB),lift,,
-Bench press (DB),Push,1,Bench Press (DB),lift,,
-Bent leg dragon flags,Pull,3,Bent-Leg Dragon Flags,lift,,
-Bent over calf raises,Legs,6,Bent-Over Calf Raises,lift,,
-Barbell row,Pull,2,Bent-Over Rows (BB),lift,,
-Bent over barbell rows,Pull,1,Bent-Over Rows (BB),lift,,
-Bent over rows (BB),Pull,13,Bent-Over Rows (BB),lift,,
-Bulgarian split squats,Legs,1,Bulgarian Split Squats (DB),lift,YES,DB or smith?
-Bulgarian split squats (DB),Legs,6,Bulgarian Split Squats (DB),lift,,
-Bulgarian split squats (smith),Legs,2,Bulgarian Split Squats (Smith),lift,,
-Cable ab crunch,Cardio/Abs,1,Cable Ab Crunches,lift,,
-Cable ab crunches,Cardio/Abs/Legs/Pull/Push,37,Cable Ab Crunches,lift,,
-Cable crunches,Cardio/Abs,1,Cable Ab Crunches,lift,,
-Kneeling cable crunch,Pull,1,Cable Ab Crunches,lift,YES,same as cable ab crunches?
-Cable curls,Pull,1,Cable Curls,lift,,
-Cable pullovers (90° handle),Pull,1,Cable Pullovers (90° Handle),lift,YES,separate or merge with bar?
-Cable pullovers,Pull,9,Cable Pullovers (Bar),lift,YES,bar assumed - most later rows say w/ bar
-Cable pullovers w/ bar,Pull,14,Cable Pullovers (Bar),lift,,
-Cable pullovers w/ rope,Pull,11,Cable Pullovers (Rope),lift,,
-Cable rope curls,Pull,1,Cable Rope Curls,lift,,
-Chest supported machine rows,Pull,1,Chest-Supported Rows (Machine),lift,,
-Chest supported rows,Pull,2,Chest-Supported Rows (Machine),lift,YES,which machine?
-Chest supported rows (TB),Pull,4,Chest-Supported Rows (T-Bar),lift,,
-Close grip press (BB),Push,16,Close-Grip Bench Press (BB),lift,,
-Deadlift,Pull,1,Deadlifts (BB),lift,,
-Deadlifts,Legs/Pull,20,Deadlifts (BB),lift,,
-Decline crunches,Push,1,Decline Crunches,lift,YES,same as decline sit-ups?
-Decline oblique crunches,Cardio/Abs,1,Decline Oblique Crunches,lift,,
-Decline sit ups,Cardio/Abs,1,Decline Sit-Ups,lift,,
-Decline sit-ups,Cardio/Abs/Push,9,Decline Sit-Ups,lift,,
-Decline situps,Cardio/Abs,5,Decline Sit-Ups,lift,,
-Dips,Push,18,Dips,lift,,
-Dips (machine),Push,1,Dips (Machine),lift,,
-Dragon flags,Cardio/Abs,8,Dragon Flags,lift,,
-Dumbbell curls,Pull,26,Dumbbell Curls,lift,,
-Dumbell curl,Pull,1,Dumbbell Curls,lift,,
-Dumbell curls,Pull,15,Dumbbell Curls,lift,,
-Face pulls,Pull/Push,17,Face Pulls,lift,,
-Hammer curls,Pull,29,Hammer Curls (DB),lift,,
-Hammer curls (preacher),Pull,1,Hammer Preacher Curls (DB),lift,,
-Hammer preacher curls,Pull,1,Hammer Preacher Curls (DB),lift,,
-Hanging Leg Raises,Pull,1,Hanging Leg Raises,lift,,
-Hanging leg curls,Cardio/Abs,1,Hanging Leg Raises,lift,YES,typo for raises?
-Hanging leg lifts,Cardio/Abs,3,Hanging Leg Raises,lift,YES,same as raises?
-Hanging leg raises,Cardio/Abs/Legs,16,Hanging Leg Raises,lift,,
-Hip abductor,Legs,3,Hip Abductions (Machine),lift,,
-Hip abductor machine,Legs,21,Hip Abductions (Machine),lift,,
-Hip adductor,Legs,1,Hip Adductions (Machine),lift,,
-Hip adductor machine,Legs,25,Hip Adductions (Machine),lift,,
-Barbell hip thrusts,Legs,1,Hip Thrusts (BB),lift,,
-Hip thrusts,Legs,3,Hip Thrusts (BB),lift,YES,BB or machine?
-Incline barbell bench,Push,17,Incline Bench Press (BB),lift,,
-Incline barbell bench press,Push,7,Incline Bench Press (BB),lift,,
-Incline bench,Push,1,Incline Bench Press (BB),lift,YES,BB assumed
-Incline bench (BB),Push,18,Incline Bench Press (BB),lift,,
-Dumbell incline bench,Push,1,Incline Bench Press (DB),lift,,
-Incline bench (DB),Push,8,Incline Bench Press (DB),lift,,
-Incline dumbbell press,Push,1,Incline Bench Press (DB),lift,,
-Incline dumbell bench,Push,1,Incline Bench Press (DB),lift,,
-Incline bench (smith),Push,1,Incline Bench Press (Smith),lift,,
-Incline curls (DB),Pull,13,Incline Curls (DB),lift,,
-Incline dumbbell curl,Pull,1,Incline Curls (DB),lift,,
-Incline dumbbell curls,Pull,3,Incline Curls (DB),lift,,
-Machine incline press,Push,1,Incline Press (Machine),lift,,
-Incline sit-ups,Cardio/Abs,1,Incline Sit-Ups,lift,YES,or decline?
-Incline skull crushers,Push,24,Incline Skull Crushers (EZ Bar),lift,,
-Kneeling cable rows,Pull,1,Kneeling Cable Rows,lift,,
-Kneeling leg curl,Legs,2,Kneeling Leg Curls,lift,,
-Kneeling leg curls,Legs,8,Kneeling Leg Curls,lift,,
-Kneeling wrist curls (DB),Pull,1,Kneeling Wrist Curls (DB),lift,YES,logged with no sets
-Lat pulldowns,Pull,1,Lat Pulldowns,lift,,
-Pull downs,Pull/Push,4,Lat Pulldowns,lift,,
-Pulldowns,Pull,30,Lat Pulldowns,lift,,
-Cable delt flys,Push,1,Lateral Raises (Cable),lift,YES,or rear delt flys?
-Cable lateral raise,Push,1,Lateral Raises (Cable),lift,,
-Cable lateral raises,Push,9,Lateral Raises (Cable),lift,,
-Lateral raises (cable),Pull/Push,12,Lateral Raises (Cable),lift,,
-Dumbell lateral raises,Pull/Push,26,Lateral Raises (DB),lift,,
-Lateral raises (DB),Legs/Pull/Push,53,Lateral Raises (DB),lift,,
-Lateral raises (ez bar),Push,1,Lateral Raises (EZ Bar),lift,YES,really EZ bar?
-Leg extensions,Legs,8,Leg Extensions,lift,,
-Seated leg extensions,Legs,4,Leg Extensions,lift,,
-Laying hamstring curls,Legs,2,Lying Leg Curls,lift,,
-Lying hamstring curls,Legs,12,Lying Leg Curls,lift,,
-Lying leg curls,Legs,10,Lying Leg Curls,lift,,
-Lying leg raise,Cardio/Abs,1,Lying Leg Raises,lift,,
-Lying leg raises,Cardio/Abs/Pull/Push,13,Lying Leg Raises,lift,,
-Lying raise raises,Pull/Push,3,Lying Leg Raises,lift,,typo
-Nordic hamstring,Legs,1,Nordic Hamstring Curls,lift,YES,logged with no sets
-Dumbbell rows,Pull,5,One-Arm Rows (DB),lift,,
-Dumbell rows,Pull,10,One-Arm Rows (DB),lift,,
-One-arm dumbell rows,Pull,1,One-Arm Rows (DB),lift,,
-Military press,Push,1,Overhead Press (BB),lift,,
-Overhead cable extensions,Push,1,Overhead Tricep Extensions (Cable),lift,,
-Overhead tricep extension,Push,1,Overhead Tricep Extensions (Cable),lift,YES,cable or DB?
-Overhead Dumbbell extensions,Push,1,Overhead Tricep Extensions (DB),lift,,
-Belt squat,Legs,3,PL Belt Squats,lift,,
-Chest supported rows (upright),Pull,3,PL Chest-Supported Rows (Upright),lift,YES,loaded 3*45 - PL?
-Glute drive,Legs,7,PL Glute Drive,lift,YES,separate machine from hip thrust machine?
-Hack squat,Legs,1,PL Hack Squats,lift,,
-Hack squats,Legs,4,PL Hack Squats,lift,,
-Hip thrust machine,Legs,19,PL Hip Thrusts,lift,YES,loaded with plates (2*45) - PL?
-Iso-lateral bench press,Push,1,PL Iso-Lateral Bench Press,lift,,
-Decline press (iso),Push,3,PL Iso-Lateral Decline Press,lift,,
-Dips (iso),Push,2,PL Iso-Lateral Dips,lift,,
-Chest supported rows (iso),Pull,1,PL Iso-Lateral Rows,lift,YES,
-Iso-lateral machine,Pull,1,PL Iso-Lateral Rows,lift,YES,row? which machine
-Shoulder press (iso),Push,1,PL Iso-Lateral Shoulder Press,lift,,
-Plate-loaded pulldowns,Pull,2,PL Lat Pulldowns,lift,,
-Pulldowns (PL),Pull,1,PL Lat Pulldowns,lift,,
-Leg press,Legs,15,PL Leg Press,lift,,
-Calf raises (leg press),Legs,2,PL Leg Press Calf Raises,lift,,
-Leg extension calf raises,Legs,1,PL Leg Press Calf Raises,lift,YES,loaded 6*45 - likely leg press
-Leg press calf raises,Legs,8,PL Leg Press Calf Raises,lift,,
-Leg press calves,Legs,2,PL Leg Press Calf Raises,lift,,
-Machine leg press calf raises,Legs/Pull,2,PL Leg Press Calf Raises,lift,YES,selectorized leg press?
-Pec fly (weird),Push,1,PL Pec Flys,lift,YES,loaded 2*45 - name it?
-Pec flys (cable),Push,9,Pec Flys (Cable),lift,,
-Hi-lo cable fly,Push,1,"Pec Flys (Cable, High-to-Low)",lift,,
-Incline cable fly,Push,1,"Pec Flys (Cable, Incline)",lift,,
-Standing incline cable fly,Push,1,"Pec Flys (Cable, Incline)",lift,,
-Low cable flys,Push,1,"Pec Flys (Cable, Low-to-High)",lift,,
-Dumbell flys (LP),Push,1,"Pec Flys (DB, LP)",lift,YES,what is LP?
-Dumbell pec flys (LP),Push,8,"Pec Flys (DB, LP)",lift,YES,what is LP?
-"Pec flys (DB, LP)",Push,3,"Pec Flys (DB, LP)",lift,YES,what is LP?
-Machine pec fly,Push,2,Pec Flys (Machine),lift,,
-Machine pec flys,Push,19,Pec Flys (Machine),lift,,
-Pec fly machine,Push,2,Pec Flys (Machine),lift,,
-Pec flys (machine),Push,18,Pec Flys (Machine),lift,YES,some rows loaded 2*45 - different machine?
-Pendulum squat,Legs,3,Pendulum Squats,lift,,
-Pendulum squats,Legs,5,Pendulum Squats,lift,,
-Preacher curls (DB),Pull,2,Preacher Curls (DB),lift,,
-Preacher curl machine,Pull,1,Preacher Curls (Machine),lift,,
-Preacher curls,Pull/Push,40,Preacher Curls (Machine),lift,YES,machine or EZ bar?
-Pull-ups,Pull,29,Pull-Ups,lift,,negative load = assisted
-Pullups,Pull/Push,26,Pull-Ups,lift,,negative load = assisted
-Cable rear delt fly,Push,5,Rear Delt Flys (Cable),lift,,
-Cable rear delt flys,Push,8,Rear Delt Flys (Cable),lift,,
-Rear delt cable flys,Push,1,Rear Delt Flys (Cable),lift,,
-Rear delt flys (cable),Push,19,Rear Delt Flys (Cable),lift,,
-Rear delt fly (DB),Push,2,Rear Delt Flys (DB),lift,,
-Rear delt flys (DB),Push,3,Rear Delt Flys (DB),lift,,
-Machine rear delt fly,Push,2,Rear Delt Flys (Machine),lift,,
-Machine rear delt flys,Pull/Push,5,Rear Delt Flys (Machine),lift,,
-Rear delt fly,Push,3,Rear Delt Flys (Machine),lift,YES,equipment unknown
-Rear delt flys (machine),Push,1,Rear Delt Flys (Machine),lift,,
-Seated rear delt flys,Push,1,Rear Delt Flys (Machine),lift,YES,or DB?
-Barbell rear delt raise,Push,1,Rear Delt Raises (BB),lift,,
-Reverse dragon flags,Cardio/Abs,5,Reverse Dragon Flags,lift,,
-Reverse grip cable curls,Pull,2,Reverse-Grip Curls (Cable),lift,,
-Reverse grip curls (cable),Pull,1,Reverse-Grip Curls (Cable),lift,,
-Reverse grip dumbell curls,Pull,1,Reverse-Grip Curls (DB),lift,,
-Reverse grip ez bar curl,Pull,1,Reverse-Grip Curls (EZ Bar),lift,,
-Reverse grip ez bar curls,Pull,31,Reverse-Grip Curls (EZ Bar),lift,,
-Roman chair abs,Push,1,Roman Chair Leg Raises,lift,YES,same movement?
-Roman chair leg raises,Cardio/Abs/Legs,3,Roman Chair Leg Raises,lift,,
-Romanian deadlifts,Legs,3,Romanian Deadlifts (BB),lift,YES,BB assumed
-Romanian deadlifts (BB),Legs,13,Romanian Deadlifts (BB),lift,,
-Romanian deadlifts (DB),Legs,1,Romanian Deadlifts (DB),lift,,
-Cable rows,Pull,41,Seated Cable Rows,lift,,
-Seated cable rows,Pull,1,Seated Cable Rows,lift,,
-Seated calf extensions,Legs,2,Seated Calf Raises,lift,,
-Seated hamstring curls,Legs,11,Seated Leg Curls,lift,,
-Seated hamstring extensions,Legs,1,Seated Leg Curls,lift,YES,typo? or leg extensions
-Seated leg curl,Legs,1,Seated Leg Curls,lift,,
-Seated leg curls,Legs,21,Seated Leg Curls,lift,,
-Seated leg press,Legs,1,Seated Leg Press (Machine),lift,,
-Seated leg press calf raises,Legs,3,Seated Leg Press Calf Raises (Machine),lift,,
-Dumbell shoulder press,Push,3,Shoulder Press (DB),lift,,
-Dumbell shoulder presses,Push,10,Shoulder Press (DB),lift,,
-Shoulder press (DB),Push,18,Shoulder Press (DB),lift,,
-Barbell shrugs,Pull,21,Shrugs (BB),lift,,
-Shrugs (BB),Pull,23,Shrugs (BB),lift,,
-Dumbell shrugs,Pull,1,Shrugs (DB),lift,,
-Single-grip cable rows,Pull,1,Single-Arm Cable Rows,lift,YES,single arm or single handle?
-Single arm cable pushdowns,Push,1,Single-Arm Tricep Pushdowns,lift,,
-Single dumbell calf raises,Legs,1,Single-Leg Calf Raises (DB),lift,,
-Standing dumbell calf raises,Pull,1,Single-Leg Calf Raises (DB),lift,YES,single or both legs?
-Single leg extensions,Legs,44,Single-Leg Extensions,lift,,
-Skull crushers,Push,7,Skull Crushers (EZ Bar),lift,,
-Barbell squat,Legs,9,Squats (BB),lift,,
-Barbell squats,Legs,37,Squats (BB),lift,,
-Stair master,Cardio/Abs,11,Stairmaster,cardio,,cardio
-Stairmaster,Cardio/Abs,1,Stairmaster,cardio,,cardio
-Barbell calf raises,Push,1,Standing Calf Raises (BB),lift,,
-Standing calf raises,Legs,2,Standing Calf Raises (Machine),lift,YES,machine?
-Standing calf raises (machine),Legs,12,Standing Calf Raises (Machine),lift,,
-Standing dumbbell wrist curls,Pull,1,Standing Wrist Curls (DB),lift,YES,merge with Wrist Curls (DB)?
-Standing dumbell wrist curls,Pull,7,Standing Wrist Curls (DB),lift,YES,merge with Wrist Curls (DB)?
-Standing wrist curls (DB),Pull,8,Standing Wrist Curls (DB),lift,YES,merge with Wrist Curls (DB)?
-Static hold,Push,3,Static Holds (BB),lift,YES,timed (sec) - store as duration?
-Treadmill,Cardio/Abs,1,Treadmill,cardio,YES,cardio; incline unknown
-Treadmill (10°),Cardio/Abs,23,Treadmill (10° Incline),cardio,,cardio
-Incline treadmill (15°),Cardio/Abs,1,Treadmill (15° Incline),cardio,,cardio
-Treadmill (15%),Cardio/Abs,2,Treadmill (15° Incline),cardio,YES,% vs ° - same?
-Treadmill (15*),Cardio/Abs,1,Treadmill (15° Incline),cardio,,cardio
-Treadmill (15°),Cardio/Abs,33,Treadmill (15° Incline),cardio,,cardio
-Pushdowns,Push,1,Tricep Pushdowns (Bar),lift,YES,bar or rope?
-Tricep pushdowns,Pull/Push,27,Tricep Pushdowns (Bar),lift,YES,bar or rope?
-Tricep pushdowns w/ bar,Push,19,Tricep Pushdowns (Bar),lift,,
-Tricep pushdowns w/ ez bar,Push,1,Tricep Pushdowns (EZ Bar),lift,,
-Cable pushdowns w/ rope,Push,2,Tricep Pushdowns (Rope),lift,,
-Tricep pushdowns w/ rope,Push,9,Tricep Pushdowns (Rope),lift,,
-Upright row,Push,1,Upright Rows,lift,,
-V-Squat Calf raises,Legs,1,V-Squat Calf Raises,lift,,
-V-Squat calf raises,Legs/Pull/Push,33,V-Squat Calf Raises,lift,,
-V-Squats,Legs,1,V-Squats,lift,,
-Walk,Cardio/Abs,1,Walk,cardio,,cardio
-Weighted leg raises,Cardio/Abs,1,Weighted Leg Raises,lift,YES,separate or Hanging Leg Raises with load?
-Dumbell wrist curls,Pull,6,Wrist Curls (DB),lift,YES,seated vs standing?
-Wrist curls (DB),Pull,9,Wrist Curls (DB),lift,,
-Abs,Pull,1,,skip,YES,"section label, not an exercise - skip?"
+legacy_name,found_in,times_used,movement,equipment,detail,proposed_name,type,needs_review,note
+Ab press,Cardio/Abs,1,Ab press,Machine,,Ab press (Machine),lift,YES,machine? confirm
+Ab roller (kneeling),Cardio/Abs,1,Ab rollouts,Bodyweight,Kneeling,"Ab rollouts (BW, Kneeling)",lift,,
+Behind back cable curls,Pull,10,Behind-the-back curls,Cable,,Behind-the-back curls (Cable),lift,,
+Behind back curls,Pull,1,Behind-the-back curls,Cable,,Behind-the-back curls (Cable),lift,YES,cable assumed
+Barbell bench,Push,1,Bench press,Barbell,,Bench press (BB),lift,,
+Bench press (BB),Push,28,Bench press,Barbell,,Bench press (BB),lift,,
+Flat barbell bench,Push,11,Bench press,Barbell,,Bench press (BB),lift,,
+Flat barbell bench press,Push,1,Bench press,Barbell,,Bench press (BB),lift,,
+Bench press (DB),Push,1,Bench press,Dumbbell,,Bench press (DB),lift,,
+Bent leg dragon flags,Pull,3,Bent-leg dragon flags,Bodyweight,,Bent-leg dragon flags (BW),lift,,
+Bent over calf raises,Legs,6,Bent-over calf raises,Machine,,Bent-over calf raises (Machine),lift,YES,equipment unknown
+Barbell row,Pull,2,Bent-over rows,Barbell,,Bent-over rows (BB),lift,,
+Bent over barbell rows,Pull,1,Bent-over rows,Barbell,,Bent-over rows (BB),lift,,
+Bent over rows (BB),Pull,13,Bent-over rows,Barbell,,Bent-over rows (BB),lift,,
+Bulgarian split squats,Legs,1,Bulgarian split squats,Dumbbell,,Bulgarian split squats (DB),lift,YES,DB or smith?
+Bulgarian split squats (DB),Legs,6,Bulgarian split squats,Dumbbell,,Bulgarian split squats (DB),lift,,
+Bulgarian split squats (smith),Legs,2,Bulgarian split squats,Smith machine,,Bulgarian split squats (Smith),lift,,
+Cable ab crunch,Cardio/Abs,1,Ab crunches,Cable,,Ab crunches (Cable),lift,,
+Cable ab crunches,Cardio/Abs/Legs/Pull/Push,37,Ab crunches,Cable,,Ab crunches (Cable),lift,,
+Cable crunches,Cardio/Abs,1,Ab crunches,Cable,,Ab crunches (Cable),lift,,
+Kneeling cable crunch,Pull,1,Ab crunches,Cable,,Ab crunches (Cable),lift,YES,same as cable ab crunches?
+Cable curls,Pull,1,Bicep curls,Cable,,Bicep curls (Cable),lift,,
+Cable pullovers (90° handle),Pull,1,Pullovers,Cable,90° handle,"Pullovers (Cable, 90° Handle)",lift,YES,separate or merge with bar?
+Cable pullovers,Pull,9,Pullovers,Cable,Bar,"Pullovers (Cable, Bar)",lift,YES,bar assumed - most later rows say w/ bar
+Cable pullovers w/ bar,Pull,14,Pullovers,Cable,Bar,"Pullovers (Cable, Bar)",lift,,
+Cable pullovers w/ rope,Pull,11,Pullovers,Cable,Rope,"Pullovers (Cable, Rope)",lift,,
+Cable rope curls,Pull,1,Bicep curls,Cable,Rope,"Bicep curls (Cable, Rope)",lift,,
+Chest supported machine rows,Pull,1,Chest-supported rows,Machine,,Chest-supported rows (Machine),lift,,
+Chest supported rows,Pull,2,Chest-supported rows,Machine,,Chest-supported rows (Machine),lift,YES,which machine?
+Chest supported rows (TB),Pull,4,Chest-supported rows,T-bar,,Chest-supported rows (TB),lift,,
+Close grip press (BB),Push,16,Close-grip bench press,Barbell,,Close-grip bench press (BB),lift,,
+Deadlift,Pull,1,Deadlifts,Barbell,,Deadlifts (BB),lift,,
+Deadlifts,Legs/Pull,20,Deadlifts,Barbell,,Deadlifts (BB),lift,,
+Decline crunches,Push,1,Decline crunches,Bodyweight,,Decline crunches (BW),lift,YES,same as decline sit-ups?
+Decline oblique crunches,Cardio/Abs,1,Decline oblique crunches,Bodyweight,,Decline oblique crunches (BW),lift,,
+Decline sit ups,Cardio/Abs,1,Decline sit-ups,Bodyweight,,Decline sit-ups (BW),lift,,
+Decline sit-ups,Cardio/Abs/Push,9,Decline sit-ups,Bodyweight,,Decline sit-ups (BW),lift,,
+Decline situps,Cardio/Abs,5,Decline sit-ups,Bodyweight,,Decline sit-ups (BW),lift,,
+Dips,Push,18,Dips,Bodyweight,,Dips (BW),lift,,
+Dips (machine),Push,1,Dips,Machine,,Dips (Machine),lift,,
+Dragon flags,Cardio/Abs,8,Dragon flags,Bodyweight,,Dragon flags (BW),lift,,
+Dumbbell curls,Pull,26,Bicep curls,Dumbbell,,Bicep curls (DB),lift,,
+Dumbell curl,Pull,1,Bicep curls,Dumbbell,,Bicep curls (DB),lift,,
+Dumbell curls,Pull,15,Bicep curls,Dumbbell,,Bicep curls (DB),lift,,
+Face pulls,Pull/Push,17,Face pulls,Cable,Rope,"Face pulls (Cable, Rope)",lift,YES,rope assumed
+Hammer curls,Pull,29,Hammer curls,Dumbbell,,Hammer curls (DB),lift,,
+Hammer curls (preacher),Pull,1,Hammer preacher curls,Dumbbell,,Hammer preacher curls (DB),lift,,
+Hammer preacher curls,Pull,1,Hammer preacher curls,Dumbbell,,Hammer preacher curls (DB),lift,,
+Hanging Leg Raises,Pull,1,Hanging leg raises,Bodyweight,,Hanging leg raises (BW),lift,,
+Hanging leg curls,Cardio/Abs,1,Hanging leg raises,Bodyweight,,Hanging leg raises (BW),lift,YES,typo for raises?
+Hanging leg lifts,Cardio/Abs,3,Hanging leg raises,Bodyweight,,Hanging leg raises (BW),lift,YES,same as raises?
+Hanging leg raises,Cardio/Abs/Legs,16,Hanging leg raises,Bodyweight,,Hanging leg raises (BW),lift,,
+Hip abductor,Legs,3,Hip abductions,Machine,,Hip abductions (Machine),lift,,
+Hip abductor machine,Legs,21,Hip abductions,Machine,,Hip abductions (Machine),lift,,
+Hip adductor,Legs,1,Hip adductions,Machine,,Hip adductions (Machine),lift,,
+Hip adductor machine,Legs,25,Hip adductions,Machine,,Hip adductions (Machine),lift,,
+Barbell hip thrusts,Legs,1,Hip thrusts,Barbell,,Hip thrusts (BB),lift,,
+Hip thrusts,Legs,3,Hip thrusts,Barbell,,Hip thrusts (BB),lift,YES,BB or machine?
+Incline barbell bench,Push,17,Incline bench press,Barbell,,Incline bench press (BB),lift,,
+Incline barbell bench press,Push,7,Incline bench press,Barbell,,Incline bench press (BB),lift,,
+Incline bench,Push,1,Incline bench press,Barbell,,Incline bench press (BB),lift,YES,BB assumed
+Incline bench (BB),Push,18,Incline bench press,Barbell,,Incline bench press (BB),lift,,
+Dumbell incline bench,Push,1,Incline bench press,Dumbbell,,Incline bench press (DB),lift,,
+Incline bench (DB),Push,8,Incline bench press,Dumbbell,,Incline bench press (DB),lift,,
+Incline dumbbell press,Push,1,Incline bench press,Dumbbell,,Incline bench press (DB),lift,,
+Incline dumbell bench,Push,1,Incline bench press,Dumbbell,,Incline bench press (DB),lift,,
+Incline bench (smith),Push,1,Incline bench press,Smith machine,,Incline bench press (Smith),lift,,
+Incline curls (DB),Pull,13,Incline curls,Dumbbell,,Incline curls (DB),lift,,
+Incline dumbbell curl,Pull,1,Incline curls,Dumbbell,,Incline curls (DB),lift,,
+Incline dumbbell curls,Pull,3,Incline curls,Dumbbell,,Incline curls (DB),lift,,
+Machine incline press,Push,1,Incline press,Machine,,Incline press (Machine),lift,,
+Incline sit-ups,Cardio/Abs,1,Incline sit-ups,Bodyweight,,Incline sit-ups (BW),lift,YES,or decline?
+Incline skull crushers,Push,24,Incline skull crushers,EZ bar,,Incline skull crushers (EZ),lift,,
+Kneeling cable rows,Pull,1,Kneeling rows,Cable,,Kneeling rows (Cable),lift,,
+Kneeling leg curl,Legs,2,Kneeling leg curls,Machine,,Kneeling leg curls (Machine),lift,,
+Kneeling leg curls,Legs,8,Kneeling leg curls,Machine,,Kneeling leg curls (Machine),lift,,
+Kneeling wrist curls (DB),Pull,1,Kneeling wrist curls,Dumbbell,,Kneeling wrist curls (DB),lift,YES,logged with no sets
+Lat pulldowns,Pull,1,Lat pulldowns,Cable,,Lat pulldowns (Cable),lift,,
+Pull downs,Pull/Push,4,Lat pulldowns,Cable,,Lat pulldowns (Cable),lift,,
+Pulldowns,Pull,30,Lat pulldowns,Cable,,Lat pulldowns (Cable),lift,,
+Cable delt flys,Push,1,Lateral raises,Cable,,Lateral raises (Cable),lift,YES,or rear delt flys?
+Cable lateral raise,Push,1,Lateral raises,Cable,,Lateral raises (Cable),lift,,
+Cable lateral raises,Push,9,Lateral raises,Cable,,Lateral raises (Cable),lift,,
+Lateral raises (cable),Pull/Push,12,Lateral raises,Cable,,Lateral raises (Cable),lift,,
+Dumbell lateral raises,Pull/Push,26,Lateral raises,Dumbbell,,Lateral raises (DB),lift,,
+Lateral raises (DB),Legs/Pull/Push,53,Lateral raises,Dumbbell,,Lateral raises (DB),lift,,
+Lateral raises (ez bar),Push,1,Lateral raises,EZ bar,,Lateral raises (EZ),lift,YES,really EZ bar?
+Leg extensions,Legs,8,Leg extensions,Machine,,Leg extensions (Machine),lift,,
+Seated leg extensions,Legs,4,Leg extensions,Machine,,Leg extensions (Machine),lift,,
+Laying hamstring curls,Legs,2,Lying leg curls,Machine,,Lying leg curls (Machine),lift,,
+Lying hamstring curls,Legs,12,Lying leg curls,Machine,,Lying leg curls (Machine),lift,,
+Lying leg curls,Legs,10,Lying leg curls,Machine,,Lying leg curls (Machine),lift,,
+Lying leg raise,Cardio/Abs,1,Lying leg raises,Bodyweight,,Lying leg raises (BW),lift,,
+Lying leg raises,Cardio/Abs/Pull/Push,13,Lying leg raises,Bodyweight,,Lying leg raises (BW),lift,,
+Lying raise raises,Pull/Push,3,Lying leg raises,Bodyweight,,Lying leg raises (BW),lift,,typo
+Nordic hamstring,Legs,1,Nordic hamstring curls,Bodyweight,,Nordic hamstring curls (BW),lift,YES,logged with no sets
+Dumbbell rows,Pull,5,One-arm rows,Dumbbell,,One-arm rows (DB),lift,,
+Dumbell rows,Pull,10,One-arm rows,Dumbbell,,One-arm rows (DB),lift,,
+One-arm dumbell rows,Pull,1,One-arm rows,Dumbbell,,One-arm rows (DB),lift,,
+Military press,Push,1,Overhead press,Barbell,,Overhead press (BB),lift,,
+Overhead cable extensions,Push,1,Overhead tricep extensions,Cable,,Overhead tricep extensions (Cable),lift,,
+Overhead tricep extension,Push,1,Overhead tricep extensions,Cable,,Overhead tricep extensions (Cable),lift,YES,cable or DB?
+Overhead Dumbbell extensions,Push,1,Overhead tricep extensions,Dumbbell,,Overhead tricep extensions (DB),lift,,
+Belt squat,Legs,3,Belt squats,Plate-loaded,,Belt squats (PL),lift,,
+Chest supported rows (upright),Pull,3,Chest-supported rows,Plate-loaded,Upright,"Chest-supported rows (PL, Upright)",lift,YES,
+Glute drive,Legs,7,Glute drive,Plate-loaded,,Glute drive (PL),lift,YES,separate machine from hip thrust machine?
+Hack squat,Legs,1,Hack squats,Plate-loaded,,Hack squats (PL),lift,,
+Hack squats,Legs,4,Hack squats,Plate-loaded,,Hack squats (PL),lift,,
+Hip thrust machine,Legs,19,Hip thrusts,Plate-loaded,,Hip thrusts (PL),lift,YES,
+Iso-lateral bench press,Push,1,Bench press,Plate-loaded,,Bench press (PL),lift,,iso = PL
+Decline press (iso),Push,3,Decline press,Plate-loaded,,Decline press (PL),lift,,iso = PL
+Dips (iso),Push,2,Dips,Plate-loaded,,Dips (PL),lift,,iso = PL
+Chest supported rows (iso),Pull,1,Chest-supported rows,Plate-loaded,,Chest-supported rows (PL),lift,YES,iso = PL
+Iso-lateral machine,Pull,1,Chest-supported rows,Plate-loaded,,Chest-supported rows (PL),lift,YES,row? which machine; iso = PL
+Shoulder press (iso),Push,1,Shoulder press,Plate-loaded,,Shoulder press (PL),lift,,iso = PL
+Plate-loaded pulldowns,Pull,2,Lat pulldowns,Plate-loaded,,Lat pulldowns (PL),lift,,
+Pulldowns (PL),Pull,1,Lat pulldowns,Plate-loaded,,Lat pulldowns (PL),lift,,
+Leg press,Legs,15,Leg press,Plate-loaded,,Leg press (PL),lift,,
+Calf raises (leg press),Legs,2,Leg press calf raises,Plate-loaded,,Leg press calf raises (PL),lift,,
+Leg extension calf raises,Legs,1,Leg press calf raises,Plate-loaded,,Leg press calf raises (PL),lift,YES,loaded 6*45 - likely leg press
+Leg press calf raises,Legs,8,Leg press calf raises,Plate-loaded,,Leg press calf raises (PL),lift,,
+Leg press calves,Legs,2,Leg press calf raises,Plate-loaded,,Leg press calf raises (PL),lift,,
+Machine leg press calf raises,Legs/Pull,2,Leg press calf raises,Plate-loaded,,Leg press calf raises (PL),lift,YES,selectorized leg press?
+Pec fly (weird),Push,1,Pec flys,Plate-loaded,,Pec flys (PL),lift,YES,
+Pec flys (cable),Push,9,Pec flys,Cable,,Pec flys (Cable),lift,,
+Hi-lo cable fly,Push,1,Pec flys,Cable,High-to-low,"Pec flys (Cable, High-to-low)",lift,,
+Incline cable fly,Push,1,Pec flys,Cable,Incline,"Pec flys (Cable, Incline)",lift,,
+Standing incline cable fly,Push,1,Pec flys,Cable,Incline,"Pec flys (Cable, Incline)",lift,,
+Low cable flys,Push,1,Pec flys,Cable,Low-to-high,"Pec flys (Cable, Low-to-high)",lift,,
+Dumbell flys (LP),Push,1,Pec flys,Dumbbell,LP,"Pec flys (DB, LP)",lift,YES,what is LP?
+Dumbell pec flys (LP),Push,8,Pec flys,Dumbbell,LP,"Pec flys (DB, LP)",lift,YES,what is LP?
+"Pec flys (DB, LP)",Push,3,Pec flys,Dumbbell,LP,"Pec flys (DB, LP)",lift,YES,what is LP?
+Machine pec fly,Push,2,Pec flys,Machine,,Pec flys (Machine),lift,,
+Machine pec flys,Push,19,Pec flys,Machine,,Pec flys (Machine),lift,,
+Pec fly machine,Push,2,Pec flys,Machine,,Pec flys (Machine),lift,,
+Pec flys (machine),Push,18,Pec flys,Machine,,Pec flys (Machine),lift,YES,some rows loaded 2*45 - different machine?
+Pendulum squat,Legs,3,Pendulum squats,Plate-loaded,,Pendulum squats (PL),lift,YES,PL assumed
+Pendulum squats,Legs,5,Pendulum squats,Plate-loaded,,Pendulum squats (PL),lift,YES,PL assumed
+Preacher curls (DB),Pull,2,Preacher curls,Dumbbell,,Preacher curls (DB),lift,,
+Preacher curl machine,Pull,1,Preacher curls,Machine,,Preacher curls (Machine),lift,,
+Preacher curls,Pull/Push,40,Preacher curls,Machine,,Preacher curls (Machine),lift,YES,machine or EZ bar?
+Pull-ups,Pull,29,Pull-ups,Bodyweight,,Pull-ups (BW),lift,,negative load = assisted
+Pullups,Pull/Push,26,Pull-ups,Bodyweight,,Pull-ups (BW),lift,,negative load = assisted
+Cable rear delt fly,Push,5,Rear delt flys,Cable,,Rear delt flys (Cable),lift,,
+Cable rear delt flys,Push,8,Rear delt flys,Cable,,Rear delt flys (Cable),lift,,
+Rear delt cable flys,Push,1,Rear delt flys,Cable,,Rear delt flys (Cable),lift,,
+Rear delt flys (cable),Push,19,Rear delt flys,Cable,,Rear delt flys (Cable),lift,,
+Rear delt fly (DB),Push,2,Rear delt flys,Dumbbell,,Rear delt flys (DB),lift,,
+Rear delt flys (DB),Push,3,Rear delt flys,Dumbbell,,Rear delt flys (DB),lift,,
+Machine rear delt fly,Push,2,Rear delt flys,Machine,,Rear delt flys (Machine),lift,,
+Machine rear delt flys,Pull/Push,5,Rear delt flys,Machine,,Rear delt flys (Machine),lift,,
+Rear delt fly,Push,3,Rear delt flys,Machine,,Rear delt flys (Machine),lift,YES,equipment unknown
+Rear delt flys (machine),Push,1,Rear delt flys,Machine,,Rear delt flys (Machine),lift,,
+Seated rear delt flys,Push,1,Rear delt flys,Machine,,Rear delt flys (Machine),lift,YES,or DB?
+Barbell rear delt raise,Push,1,Rear delt raises,Barbell,,Rear delt raises (BB),lift,,
+Reverse dragon flags,Cardio/Abs,5,Reverse dragon flags,Bodyweight,,Reverse dragon flags (BW),lift,,
+Reverse grip cable curls,Pull,2,Reverse-grip curls,Cable,,Reverse-grip curls (Cable),lift,,
+Reverse grip curls (cable),Pull,1,Reverse-grip curls,Cable,,Reverse-grip curls (Cable),lift,,
+Reverse grip dumbell curls,Pull,1,Reverse-grip curls,Dumbbell,,Reverse-grip curls (DB),lift,,
+Reverse grip ez bar curl,Pull,1,Reverse-grip curls,EZ bar,,Reverse-grip curls (EZ),lift,,
+Reverse grip ez bar curls,Pull,31,Reverse-grip curls,EZ bar,,Reverse-grip curls (EZ),lift,,
+Roman chair abs,Push,1,Roman chair leg raises,Bodyweight,,Roman chair leg raises (BW),lift,YES,same movement?
+Roman chair leg raises,Cardio/Abs/Legs,3,Roman chair leg raises,Bodyweight,,Roman chair leg raises (BW),lift,,
+Romanian deadlifts,Legs,3,Romanian deadlifts,Barbell,,Romanian deadlifts (BB),lift,YES,BB assumed
+Romanian deadlifts (BB),Legs,13,Romanian deadlifts,Barbell,,Romanian deadlifts (BB),lift,,
+Romanian deadlifts (DB),Legs,1,Romanian deadlifts,Dumbbell,,Romanian deadlifts (DB),lift,,
+Cable rows,Pull,41,Seated rows,Cable,,Seated rows (Cable),lift,,
+Seated cable rows,Pull,1,Seated rows,Cable,,Seated rows (Cable),lift,,
+Seated calf extensions,Legs,2,Seated calf raises,Machine,,Seated calf raises (Machine),lift,,
+Seated hamstring curls,Legs,11,Seated leg curls,Machine,,Seated leg curls (Machine),lift,,
+Seated hamstring extensions,Legs,1,Seated leg curls,Machine,,Seated leg curls (Machine),lift,YES,typo? or leg extensions
+Seated leg curl,Legs,1,Seated leg curls,Machine,,Seated leg curls (Machine),lift,,
+Seated leg curls,Legs,21,Seated leg curls,Machine,,Seated leg curls (Machine),lift,,
+Seated leg press,Legs,1,Seated leg press,Machine,,Seated leg press (Machine),lift,,
+Seated leg press calf raises,Legs,3,Seated leg press calf raises,Machine,,Seated leg press calf raises (Machine),lift,,
+Dumbell shoulder press,Push,3,Shoulder press,Dumbbell,,Shoulder press (DB),lift,,
+Dumbell shoulder presses,Push,10,Shoulder press,Dumbbell,,Shoulder press (DB),lift,,
+Shoulder press (DB),Push,18,Shoulder press,Dumbbell,,Shoulder press (DB),lift,,
+Barbell shrugs,Pull,21,Shrugs,Barbell,,Shrugs (BB),lift,,
+Shrugs (BB),Pull,23,Shrugs,Barbell,,Shrugs (BB),lift,,
+Dumbell shrugs,Pull,1,Shrugs,Dumbbell,,Shrugs (DB),lift,,
+Single-grip cable rows,Pull,1,Single-arm rows,Cable,,Single-arm rows (Cable),lift,YES,single arm or single handle?
+Single arm cable pushdowns,Push,1,Single-arm tricep pushdowns,Cable,,Single-arm tricep pushdowns (Cable),lift,,
+Single dumbell calf raises,Legs,1,Single-leg calf raises,Dumbbell,,Single-leg calf raises (DB),lift,,
+Standing dumbell calf raises,Pull,1,Single-leg calf raises,Dumbbell,,Single-leg calf raises (DB),lift,YES,single or both legs?
+Single leg extensions,Legs,44,Single-leg extensions,Machine,,Single-leg extensions (Machine),lift,,
+Skull crushers,Push,7,Skull crushers,EZ bar,,Skull crushers (EZ),lift,,
+Barbell squat,Legs,9,Squats,Barbell,,Squats (BB),lift,,
+Barbell squats,Legs,37,Squats,Barbell,,Squats (BB),lift,,
+Stair master,Cardio/Abs,11,Stairmaster,,,Stairmaster,cardio,,cardio
+Stairmaster,Cardio/Abs,1,Stairmaster,,,Stairmaster,cardio,,cardio
+Barbell calf raises,Push,1,Standing calf raises,Barbell,,Standing calf raises (BB),lift,,
+Standing calf raises,Legs,2,Standing calf raises,Machine,,Standing calf raises (Machine),lift,YES,machine?
+Standing calf raises (machine),Legs,12,Standing calf raises,Machine,,Standing calf raises (Machine),lift,,
+Standing dumbbell wrist curls,Pull,1,Standing wrist curls,Dumbbell,,Standing wrist curls (DB),lift,YES,merge with Wrist Curls (DB)?
+Standing dumbell wrist curls,Pull,7,Standing wrist curls,Dumbbell,,Standing wrist curls (DB),lift,YES,merge with Wrist Curls (DB)?
+Standing wrist curls (DB),Pull,8,Standing wrist curls,Dumbbell,,Standing wrist curls (DB),lift,YES,merge with Wrist Curls (DB)?
+Static hold,Push,3,Static holds,Barbell,,Static holds (BB),lift,YES,timed (sec) - store as duration?
+Treadmill,Cardio/Abs,1,Treadmill,,,Treadmill,cardio,YES,cardio; incline unknown; incline unknown
+Treadmill (10°),Cardio/Abs,23,Treadmill,,10°,Treadmill (10°),cardio,,cardio
+Incline treadmill (15°),Cardio/Abs,1,Treadmill,,15°,Treadmill (15°),cardio,,cardio
+Treadmill (15%),Cardio/Abs,2,Treadmill,,15°,Treadmill (15°),cardio,YES,% vs ° - same?
+Treadmill (15*),Cardio/Abs,1,Treadmill,,15°,Treadmill (15°),cardio,,cardio
+Treadmill (15°),Cardio/Abs,33,Treadmill,,15°,Treadmill (15°),cardio,,cardio
+Pushdowns,Push,1,Tricep pushdowns,Cable,Bar,"Tricep pushdowns (Cable, Bar)",lift,YES,bar or rope?
+Tricep pushdowns,Pull/Push,27,Tricep pushdowns,Cable,Bar,"Tricep pushdowns (Cable, Bar)",lift,YES,bar or rope?
+Tricep pushdowns w/ bar,Push,19,Tricep pushdowns,Cable,Bar,"Tricep pushdowns (Cable, Bar)",lift,,
+Tricep pushdowns w/ ez bar,Push,1,Tricep pushdowns,Cable,EZ bar,"Tricep pushdowns (Cable, EZ Bar)",lift,,
+Cable pushdowns w/ rope,Push,2,Tricep pushdowns,Cable,Rope,"Tricep pushdowns (Cable, Rope)",lift,,
+Tricep pushdowns w/ rope,Push,9,Tricep pushdowns,Cable,Rope,"Tricep pushdowns (Cable, Rope)",lift,,
+Upright row,Push,1,Upright rows,Barbell,,Upright rows (BB),lift,YES,equipment unknown
+V-Squat Calf raises,Legs,1,V-squat calf raises,Machine,,V-squat calf raises (Machine),lift,,
+V-Squat calf raises,Legs/Pull/Push,33,V-squat calf raises,Machine,,V-squat calf raises (Machine),lift,,
+V-Squats,Legs,1,V-squats,Machine,,V-squats (Machine),lift,,
+Walk,Cardio/Abs,1,Walk,,,Walk,cardio,,cardio
+Weighted leg raises,Cardio/Abs,1,Hanging leg raises,Bodyweight,,Hanging leg raises (BW),lift,YES,separate or Hanging Leg Raises with load?; merge into hanging leg raises (added weight is the load)?
+Dumbell wrist curls,Pull,6,Wrist curls,Dumbbell,,Wrist curls (DB),lift,YES,seated vs standing?
+Wrist curls (DB),Pull,9,Wrist curls,Dumbbell,,Wrist curls (DB),lift,,
+Abs,Pull,1,,,,,skip,YES,"section label, not an exercise - skip?"

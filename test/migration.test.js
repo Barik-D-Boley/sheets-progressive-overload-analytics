@@ -44,13 +44,17 @@ test('review -> preview -> import writes registries, quarter tabs, cardio, bodyw
 
   const master = app.ss.getSheetByName('Master').data;
   assert.strictEqual(master[1][6], 'Exercise ID');
+  assert.strictEqual(master[1][8], 'Equipment');
+  assert.strictEqual(master[2][8], 'Barbell', 'equipment read from the name tag');
+  assert.strictEqual(master[1][19], 'Cardio ID'); assert.strictEqual(master[2][20], 'Stairmaster');
+  assert.ok(!master.some(r => r[7] === 'Stairmaster'), 'cardio is not in the exercise list');
   assert.strictEqual(master[2][13], 'WO-01'); assert.strictEqual(master[2][14], 'Push');
   assert.strictEqual(master[2][16], 'GY-01'); assert.strictEqual(master[2][17], 'BYUI');
   assert.strictEqual(master[8][1], '3', 'settings untouched');
 
   const cardio = app.ss.getSheetByName('Cardio').data;
   assert.strictEqual(cardio.length, 2);
-  assert.deepStrictEqual(cardio[1].slice(4, 9), [10, 7, 'level', 41, 'floors']);
+  assert.deepStrictEqual(cardio[1].slice(3, 9), ['CA-01', 10, 7, 'level', 41, 'floors']);
   const bw = app.ss.getSheetByName('Bodyweight Log').data;
   assert.deepStrictEqual(bw[1].slice(1, 4), [165, 'lb', 'legacy:X1']);
 

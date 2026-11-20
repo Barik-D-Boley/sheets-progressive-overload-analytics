@@ -17,11 +17,13 @@ var CONFIG = {
   /** Registries on Master: title in row 1, headers in row 2, data from row 3. */
   REGISTRIES: {
     exercises: { column: 'G', idPrefix: 'EX-', idDigits: 4, title: 'Exercises',
-      headers: ['Exercise ID', 'Name', 'Category', 'Primary Muscle', 'Secondary Muscle', 'Active'] },
+      headers: ['Exercise ID', 'Name', 'Equipment', 'Primary Muscle', 'Secondary Muscle', 'Active'] },
     workouts: { column: 'N', idPrefix: 'WO-', idDigits: 2, title: 'Workouts',
       headers: ['Workout ID', 'Name'] },
     gyms: { column: 'Q', idPrefix: 'GY-', idDigits: 2, title: 'Gyms',
       headers: ['Gym ID', 'Name'] },
+    cardio: { column: 'T', idPrefix: 'CA-', idDigits: 2, title: 'Cardio',
+      headers: ['Cardio ID', 'Name', 'Active'] },
   },
 
   QUARTER_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Workout ID', 'Exercise ID', 'Unit', 'Notes', 'Source'],

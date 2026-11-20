@@ -187,11 +187,10 @@ function writeMigrationPlan_(plan) {
   var lifts = plan.lifts, cardio = plan.cardio;
   var gymIds = ensureRegistryEntries('gyms', uniq_(lifts.concat(cardio).map(function (r) { return r.gym; })));
   var workoutIds = ensureRegistryEntries('workouts', uniq_(lifts.map(function (r) { return r.workout; })));
-  var cardioNames = {};
-  cardio.forEach(function (r) { cardioNames[r.exercise.toLowerCase()] = true; });
-  var exerciseIds = ensureRegistryEntries('exercises',
-    uniq_(lifts.concat(cardio).map(function (r) { return r.exercise; })),
-    function (name) { return [cardioNames[name.toLowerCase()] ? 'Cardio' : '', '', '', true]; });
+  var exerciseIds = ensureRegistryEntries('exercises', uniq_(lifts.map(function (r) { return r.exercise; })),
+    function (name) { return [equipmentFromName(name), '', '', true]; });
+  var cardioIds = ensureRegistryEntries('cardio', uniq_(cardio.map(function (r) { return r.exercise; })),
+    function () { return [true]; });
   var id = function (map, name) { return name ? map[String(name).toLowerCase()] || '' : ''; };
   var result = { lifts: 0, cardio: 0, bodyweights: 0, duplicates: 0 };
 
@@ -216,7 +215,7 @@ function writeMigrationPlan_(plan) {
   var cardioRows = [];
   cardio.forEach(function (x) {
     if (cardioExisting[x.source]) { result.duplicates++; return; }
-    cardioRows.push([newRecordId_('C'), isoToDate_(x.date), id(gymIds, x.gym), id(exerciseIds, x.exercise),
+    cardioRows.push([newRecordId_('C'), isoToDate_(x.date), id(gymIds, x.gym), id(cardioIds, x.exercise),
       nz_(x.durationMin), nz_(x.speed), x.speedUnit, nz_(x.distance), x.distanceUnit, nz_(x.calories), x.notes, x.source]);
   });
   appendRows_(cardioSheet, cardioRows);

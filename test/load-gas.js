@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const PURE_FILES = ['config.js', 'set-format.js', 'one-rm.js', 'legacy-parser.js', 'migration-plan.js', 'legacy-name-map.js'];
+const PURE_FILES = ['config.js', 'naming.js', 'set-format.js', 'one-rm.js', 'legacy-parser.js', 'migration-plan.js', 'legacy-name-map.js'];
 const SHEET_FILES = ['registry.js', 'migration.js'];
 
 module.exports = function loadGas(globals) {

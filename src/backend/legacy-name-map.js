@@ -3,217 +3,217 @@
 var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Ab press",
-  "name": "Ab Press (Machine)",
+  "name": "Ab press (Machine)",
   "type": "lift",
   "review": true,
   "note": "machine? confirm"
  },
  {
   "legacy": "Ab roller (kneeling)",
-  "name": "Ab Rollouts (Kneeling)",
+  "name": "Ab rollouts (BW, Kneeling)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Behind back cable curls",
-  "name": "Behind-the-Back Cable Curls",
+  "name": "Behind-the-back curls (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Behind back curls",
-  "name": "Behind-the-Back Cable Curls",
+  "name": "Behind-the-back curls (Cable)",
   "type": "lift",
   "review": true,
   "note": "cable assumed"
  },
  {
   "legacy": "Barbell bench",
-  "name": "Bench Press (BB)",
+  "name": "Bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bench press (BB)",
-  "name": "Bench Press (BB)",
+  "name": "Bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Flat barbell bench",
-  "name": "Bench Press (BB)",
+  "name": "Bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Flat barbell bench press",
-  "name": "Bench Press (BB)",
+  "name": "Bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bench press (DB)",
-  "name": "Bench Press (DB)",
+  "name": "Bench press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bent leg dragon flags",
-  "name": "Bent-Leg Dragon Flags",
+  "name": "Bent-leg dragon flags (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bent over calf raises",
-  "name": "Bent-Over Calf Raises",
+  "name": "Bent-over calf raises (Machine)",
   "type": "lift",
-  "review": false,
-  "note": ""
+  "review": true,
+  "note": "equipment unknown"
  },
  {
   "legacy": "Barbell row",
-  "name": "Bent-Over Rows (BB)",
+  "name": "Bent-over rows (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bent over barbell rows",
-  "name": "Bent-Over Rows (BB)",
+  "name": "Bent-over rows (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bent over rows (BB)",
-  "name": "Bent-Over Rows (BB)",
+  "name": "Bent-over rows (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bulgarian split squats",
-  "name": "Bulgarian Split Squats (DB)",
+  "name": "Bulgarian split squats (DB)",
   "type": "lift",
   "review": true,
   "note": "DB or smith?"
  },
  {
   "legacy": "Bulgarian split squats (DB)",
-  "name": "Bulgarian Split Squats (DB)",
+  "name": "Bulgarian split squats (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Bulgarian split squats (smith)",
-  "name": "Bulgarian Split Squats (Smith)",
+  "name": "Bulgarian split squats (Smith)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable ab crunch",
-  "name": "Cable Ab Crunches",
+  "name": "Ab crunches (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable ab crunches",
-  "name": "Cable Ab Crunches",
+  "name": "Ab crunches (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable crunches",
-  "name": "Cable Ab Crunches",
+  "name": "Ab crunches (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Kneeling cable crunch",
-  "name": "Cable Ab Crunches",
+  "name": "Ab crunches (Cable)",
   "type": "lift",
   "review": true,
   "note": "same as cable ab crunches?"
  },
  {
   "legacy": "Cable curls",
-  "name": "Cable Curls",
+  "name": "Bicep curls (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable pullovers (90° handle)",
-  "name": "Cable Pullovers (90° Handle)",
+  "name": "Pullovers (Cable, 90° Handle)",
   "type": "lift",
   "review": true,
   "note": "separate or merge with bar?"
  },
  {
   "legacy": "Cable pullovers",
-  "name": "Cable Pullovers (Bar)",
+  "name": "Pullovers (Cable, Bar)",
   "type": "lift",
   "review": true,
   "note": "bar assumed - most later rows say w/ bar"
  },
  {
   "legacy": "Cable pullovers w/ bar",
-  "name": "Cable Pullovers (Bar)",
+  "name": "Pullovers (Cable, Bar)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable pullovers w/ rope",
-  "name": "Cable Pullovers (Rope)",
+  "name": "Pullovers (Cable, Rope)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable rope curls",
-  "name": "Cable Rope Curls",
+  "name": "Bicep curls (Cable, Rope)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Chest supported machine rows",
-  "name": "Chest-Supported Rows (Machine)",
+  "name": "Chest-supported rows (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Chest supported rows",
-  "name": "Chest-Supported Rows (Machine)",
+  "name": "Chest-supported rows (Machine)",
   "type": "lift",
   "review": true,
   "note": "which machine?"
  },
  {
   "legacy": "Chest supported rows (TB)",
-  "name": "Chest-Supported Rows (T-Bar)",
+  "name": "Chest-supported rows (TB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Close grip press (BB)",
-  "name": "Close-Grip Bench Press (BB)",
+  "name": "Close-grip bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
@@ -234,42 +234,42 @@ var DEFAULT_LEGACY_NAME_MAP = [
  },
  {
   "legacy": "Decline crunches",
-  "name": "Decline Crunches",
+  "name": "Decline crunches (BW)",
   "type": "lift",
   "review": true,
   "note": "same as decline sit-ups?"
  },
  {
   "legacy": "Decline oblique crunches",
-  "name": "Decline Oblique Crunches",
+  "name": "Decline oblique crunches (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Decline sit ups",
-  "name": "Decline Sit-Ups",
+  "name": "Decline sit-ups (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Decline sit-ups",
-  "name": "Decline Sit-Ups",
+  "name": "Decline sit-ups (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Decline situps",
-  "name": "Decline Sit-Ups",
+  "name": "Decline sit-ups (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dips",
-  "name": "Dips",
+  "name": "Dips (BW)",
   "type": "lift",
   "review": false,
   "note": ""
@@ -283,966 +283,966 @@ var DEFAULT_LEGACY_NAME_MAP = [
  },
  {
   "legacy": "Dragon flags",
-  "name": "Dragon Flags",
+  "name": "Dragon flags (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbbell curls",
-  "name": "Dumbbell Curls",
+  "name": "Bicep curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell curl",
-  "name": "Dumbbell Curls",
+  "name": "Bicep curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell curls",
-  "name": "Dumbbell Curls",
+  "name": "Bicep curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Face pulls",
-  "name": "Face Pulls",
+  "name": "Face pulls (Cable, Rope)",
   "type": "lift",
-  "review": false,
-  "note": ""
+  "review": true,
+  "note": "rope assumed"
  },
  {
   "legacy": "Hammer curls",
-  "name": "Hammer Curls (DB)",
+  "name": "Hammer curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hammer curls (preacher)",
-  "name": "Hammer Preacher Curls (DB)",
+  "name": "Hammer preacher curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hammer preacher curls",
-  "name": "Hammer Preacher Curls (DB)",
+  "name": "Hammer preacher curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hanging Leg Raises",
-  "name": "Hanging Leg Raises",
+  "name": "Hanging leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hanging leg curls",
-  "name": "Hanging Leg Raises",
+  "name": "Hanging leg raises (BW)",
   "type": "lift",
   "review": true,
   "note": "typo for raises?"
  },
  {
   "legacy": "Hanging leg lifts",
-  "name": "Hanging Leg Raises",
+  "name": "Hanging leg raises (BW)",
   "type": "lift",
   "review": true,
   "note": "same as raises?"
  },
  {
   "legacy": "Hanging leg raises",
-  "name": "Hanging Leg Raises",
+  "name": "Hanging leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hip abductor",
-  "name": "Hip Abductions (Machine)",
+  "name": "Hip abductions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hip abductor machine",
-  "name": "Hip Abductions (Machine)",
+  "name": "Hip abductions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hip adductor",
-  "name": "Hip Adductions (Machine)",
+  "name": "Hip adductions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hip adductor machine",
-  "name": "Hip Adductions (Machine)",
+  "name": "Hip adductions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Barbell hip thrusts",
-  "name": "Hip Thrusts (BB)",
+  "name": "Hip thrusts (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hip thrusts",
-  "name": "Hip Thrusts (BB)",
+  "name": "Hip thrusts (BB)",
   "type": "lift",
   "review": true,
   "note": "BB or machine?"
  },
  {
   "legacy": "Incline barbell bench",
-  "name": "Incline Bench Press (BB)",
+  "name": "Incline bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline barbell bench press",
-  "name": "Incline Bench Press (BB)",
+  "name": "Incline bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline bench",
-  "name": "Incline Bench Press (BB)",
+  "name": "Incline bench press (BB)",
   "type": "lift",
   "review": true,
   "note": "BB assumed"
  },
  {
   "legacy": "Incline bench (BB)",
-  "name": "Incline Bench Press (BB)",
+  "name": "Incline bench press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell incline bench",
-  "name": "Incline Bench Press (DB)",
+  "name": "Incline bench press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline bench (DB)",
-  "name": "Incline Bench Press (DB)",
+  "name": "Incline bench press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline dumbbell press",
-  "name": "Incline Bench Press (DB)",
+  "name": "Incline bench press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline dumbell bench",
-  "name": "Incline Bench Press (DB)",
+  "name": "Incline bench press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline bench (smith)",
-  "name": "Incline Bench Press (Smith)",
+  "name": "Incline bench press (Smith)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline curls (DB)",
-  "name": "Incline Curls (DB)",
+  "name": "Incline curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline dumbbell curl",
-  "name": "Incline Curls (DB)",
+  "name": "Incline curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline dumbbell curls",
-  "name": "Incline Curls (DB)",
+  "name": "Incline curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Machine incline press",
-  "name": "Incline Press (Machine)",
+  "name": "Incline press (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline sit-ups",
-  "name": "Incline Sit-Ups",
+  "name": "Incline sit-ups (BW)",
   "type": "lift",
   "review": true,
   "note": "or decline?"
  },
  {
   "legacy": "Incline skull crushers",
-  "name": "Incline Skull Crushers (EZ Bar)",
+  "name": "Incline skull crushers (EZ)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Kneeling cable rows",
-  "name": "Kneeling Cable Rows",
+  "name": "Kneeling rows (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Kneeling leg curl",
-  "name": "Kneeling Leg Curls",
+  "name": "Kneeling leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Kneeling leg curls",
-  "name": "Kneeling Leg Curls",
+  "name": "Kneeling leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Kneeling wrist curls (DB)",
-  "name": "Kneeling Wrist Curls (DB)",
+  "name": "Kneeling wrist curls (DB)",
   "type": "lift",
   "review": true,
   "note": "logged with no sets"
  },
  {
   "legacy": "Lat pulldowns",
-  "name": "Lat Pulldowns",
+  "name": "Lat pulldowns (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Pull downs",
-  "name": "Lat Pulldowns",
+  "name": "Lat pulldowns (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Pulldowns",
-  "name": "Lat Pulldowns",
+  "name": "Lat pulldowns (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable delt flys",
-  "name": "Lateral Raises (Cable)",
+  "name": "Lateral raises (Cable)",
   "type": "lift",
   "review": true,
   "note": "or rear delt flys?"
  },
  {
   "legacy": "Cable lateral raise",
-  "name": "Lateral Raises (Cable)",
+  "name": "Lateral raises (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable lateral raises",
-  "name": "Lateral Raises (Cable)",
+  "name": "Lateral raises (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lateral raises (cable)",
-  "name": "Lateral Raises (Cable)",
+  "name": "Lateral raises (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell lateral raises",
-  "name": "Lateral Raises (DB)",
+  "name": "Lateral raises (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lateral raises (DB)",
-  "name": "Lateral Raises (DB)",
+  "name": "Lateral raises (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lateral raises (ez bar)",
-  "name": "Lateral Raises (EZ Bar)",
+  "name": "Lateral raises (EZ)",
   "type": "lift",
   "review": true,
   "note": "really EZ bar?"
  },
  {
   "legacy": "Leg extensions",
-  "name": "Leg Extensions",
+  "name": "Leg extensions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated leg extensions",
-  "name": "Leg Extensions",
+  "name": "Leg extensions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Laying hamstring curls",
-  "name": "Lying Leg Curls",
+  "name": "Lying leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lying hamstring curls",
-  "name": "Lying Leg Curls",
+  "name": "Lying leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lying leg curls",
-  "name": "Lying Leg Curls",
+  "name": "Lying leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lying leg raise",
-  "name": "Lying Leg Raises",
+  "name": "Lying leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lying leg raises",
-  "name": "Lying Leg Raises",
+  "name": "Lying leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Lying raise raises",
-  "name": "Lying Leg Raises",
+  "name": "Lying leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": "typo"
  },
  {
   "legacy": "Nordic hamstring",
-  "name": "Nordic Hamstring Curls",
+  "name": "Nordic hamstring curls (BW)",
   "type": "lift",
   "review": true,
   "note": "logged with no sets"
  },
  {
   "legacy": "Dumbbell rows",
-  "name": "One-Arm Rows (DB)",
+  "name": "One-arm rows (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell rows",
-  "name": "One-Arm Rows (DB)",
+  "name": "One-arm rows (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "One-arm dumbell rows",
-  "name": "One-Arm Rows (DB)",
+  "name": "One-arm rows (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Military press",
-  "name": "Overhead Press (BB)",
+  "name": "Overhead press (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Overhead cable extensions",
-  "name": "Overhead Tricep Extensions (Cable)",
+  "name": "Overhead tricep extensions (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Overhead tricep extension",
-  "name": "Overhead Tricep Extensions (Cable)",
+  "name": "Overhead tricep extensions (Cable)",
   "type": "lift",
   "review": true,
   "note": "cable or DB?"
  },
  {
   "legacy": "Overhead Dumbbell extensions",
-  "name": "Overhead Tricep Extensions (DB)",
+  "name": "Overhead tricep extensions (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Belt squat",
-  "name": "PL Belt Squats",
+  "name": "Belt squats (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Chest supported rows (upright)",
-  "name": "PL Chest-Supported Rows (Upright)",
+  "name": "Chest-supported rows (PL, Upright)",
   "type": "lift",
   "review": true,
-  "note": "loaded 3*45 - PL?"
+  "note": ""
  },
  {
   "legacy": "Glute drive",
-  "name": "PL Glute Drive",
+  "name": "Glute drive (PL)",
   "type": "lift",
   "review": true,
   "note": "separate machine from hip thrust machine?"
  },
  {
   "legacy": "Hack squat",
-  "name": "PL Hack Squats",
+  "name": "Hack squats (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hack squats",
-  "name": "PL Hack Squats",
+  "name": "Hack squats (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hip thrust machine",
-  "name": "PL Hip Thrusts",
+  "name": "Hip thrusts (PL)",
   "type": "lift",
   "review": true,
-  "note": "loaded with plates (2*45) - PL?"
+  "note": ""
  },
  {
   "legacy": "Iso-lateral bench press",
-  "name": "PL Iso-Lateral Bench Press",
+  "name": "Bench press (PL)",
   "type": "lift",
   "review": false,
-  "note": ""
+  "note": "iso = PL"
  },
  {
   "legacy": "Decline press (iso)",
-  "name": "PL Iso-Lateral Decline Press",
+  "name": "Decline press (PL)",
   "type": "lift",
   "review": false,
-  "note": ""
+  "note": "iso = PL"
  },
  {
   "legacy": "Dips (iso)",
-  "name": "PL Iso-Lateral Dips",
+  "name": "Dips (PL)",
   "type": "lift",
   "review": false,
-  "note": ""
+  "note": "iso = PL"
  },
  {
   "legacy": "Chest supported rows (iso)",
-  "name": "PL Iso-Lateral Rows",
+  "name": "Chest-supported rows (PL)",
   "type": "lift",
   "review": true,
-  "note": ""
+  "note": "iso = PL"
  },
  {
   "legacy": "Iso-lateral machine",
-  "name": "PL Iso-Lateral Rows",
+  "name": "Chest-supported rows (PL)",
   "type": "lift",
   "review": true,
-  "note": "row? which machine"
+  "note": "row? which machine; iso = PL"
  },
  {
   "legacy": "Shoulder press (iso)",
-  "name": "PL Iso-Lateral Shoulder Press",
+  "name": "Shoulder press (PL)",
   "type": "lift",
   "review": false,
-  "note": ""
+  "note": "iso = PL"
  },
  {
   "legacy": "Plate-loaded pulldowns",
-  "name": "PL Lat Pulldowns",
+  "name": "Lat pulldowns (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Pulldowns (PL)",
-  "name": "PL Lat Pulldowns",
+  "name": "Lat pulldowns (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Leg press",
-  "name": "PL Leg Press",
+  "name": "Leg press (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Calf raises (leg press)",
-  "name": "PL Leg Press Calf Raises",
+  "name": "Leg press calf raises (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Leg extension calf raises",
-  "name": "PL Leg Press Calf Raises",
+  "name": "Leg press calf raises (PL)",
   "type": "lift",
   "review": true,
   "note": "loaded 6*45 - likely leg press"
  },
  {
   "legacy": "Leg press calf raises",
-  "name": "PL Leg Press Calf Raises",
+  "name": "Leg press calf raises (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Leg press calves",
-  "name": "PL Leg Press Calf Raises",
+  "name": "Leg press calf raises (PL)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Machine leg press calf raises",
-  "name": "PL Leg Press Calf Raises",
+  "name": "Leg press calf raises (PL)",
   "type": "lift",
   "review": true,
   "note": "selectorized leg press?"
  },
  {
   "legacy": "Pec fly (weird)",
-  "name": "PL Pec Flys",
+  "name": "Pec flys (PL)",
   "type": "lift",
   "review": true,
-  "note": "loaded 2*45 - name it?"
+  "note": ""
  },
  {
   "legacy": "Pec flys (cable)",
-  "name": "Pec Flys (Cable)",
+  "name": "Pec flys (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hi-lo cable fly",
-  "name": "Pec Flys (Cable, High-to-Low)",
+  "name": "Pec flys (Cable, High-to-low)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Incline cable fly",
-  "name": "Pec Flys (Cable, Incline)",
+  "name": "Pec flys (Cable, Incline)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Standing incline cable fly",
-  "name": "Pec Flys (Cable, Incline)",
+  "name": "Pec flys (Cable, Incline)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Low cable flys",
-  "name": "Pec Flys (Cable, Low-to-High)",
+  "name": "Pec flys (Cable, Low-to-high)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell flys (LP)",
-  "name": "Pec Flys (DB, LP)",
+  "name": "Pec flys (DB, LP)",
   "type": "lift",
   "review": true,
   "note": "what is LP?"
  },
  {
   "legacy": "Dumbell pec flys (LP)",
-  "name": "Pec Flys (DB, LP)",
+  "name": "Pec flys (DB, LP)",
   "type": "lift",
   "review": true,
   "note": "what is LP?"
  },
  {
   "legacy": "Pec flys (DB, LP)",
-  "name": "Pec Flys (DB, LP)",
+  "name": "Pec flys (DB, LP)",
   "type": "lift",
   "review": true,
   "note": "what is LP?"
  },
  {
   "legacy": "Machine pec fly",
-  "name": "Pec Flys (Machine)",
+  "name": "Pec flys (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Machine pec flys",
-  "name": "Pec Flys (Machine)",
+  "name": "Pec flys (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Pec fly machine",
-  "name": "Pec Flys (Machine)",
+  "name": "Pec flys (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Pec flys (machine)",
-  "name": "Pec Flys (Machine)",
+  "name": "Pec flys (Machine)",
   "type": "lift",
   "review": true,
   "note": "some rows loaded 2*45 - different machine?"
  },
  {
   "legacy": "Pendulum squat",
-  "name": "Pendulum Squats",
+  "name": "Pendulum squats (PL)",
   "type": "lift",
-  "review": false,
-  "note": ""
+  "review": true,
+  "note": "PL assumed"
  },
  {
   "legacy": "Pendulum squats",
-  "name": "Pendulum Squats",
+  "name": "Pendulum squats (PL)",
   "type": "lift",
-  "review": false,
-  "note": ""
+  "review": true,
+  "note": "PL assumed"
  },
  {
   "legacy": "Preacher curls (DB)",
-  "name": "Preacher Curls (DB)",
+  "name": "Preacher curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Preacher curl machine",
-  "name": "Preacher Curls (Machine)",
+  "name": "Preacher curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Preacher curls",
-  "name": "Preacher Curls (Machine)",
+  "name": "Preacher curls (Machine)",
   "type": "lift",
   "review": true,
   "note": "machine or EZ bar?"
  },
  {
   "legacy": "Pull-ups",
-  "name": "Pull-Ups",
+  "name": "Pull-ups (BW)",
   "type": "lift",
   "review": false,
   "note": "negative load = assisted"
  },
  {
   "legacy": "Pullups",
-  "name": "Pull-Ups",
+  "name": "Pull-ups (BW)",
   "type": "lift",
   "review": false,
   "note": "negative load = assisted"
  },
  {
   "legacy": "Cable rear delt fly",
-  "name": "Rear Delt Flys (Cable)",
+  "name": "Rear delt flys (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable rear delt flys",
-  "name": "Rear Delt Flys (Cable)",
+  "name": "Rear delt flys (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Rear delt cable flys",
-  "name": "Rear Delt Flys (Cable)",
+  "name": "Rear delt flys (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Rear delt flys (cable)",
-  "name": "Rear Delt Flys (Cable)",
+  "name": "Rear delt flys (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Rear delt fly (DB)",
-  "name": "Rear Delt Flys (DB)",
+  "name": "Rear delt flys (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Rear delt flys (DB)",
-  "name": "Rear Delt Flys (DB)",
+  "name": "Rear delt flys (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Machine rear delt fly",
-  "name": "Rear Delt Flys (Machine)",
+  "name": "Rear delt flys (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Machine rear delt flys",
-  "name": "Rear Delt Flys (Machine)",
+  "name": "Rear delt flys (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Rear delt fly",
-  "name": "Rear Delt Flys (Machine)",
+  "name": "Rear delt flys (Machine)",
   "type": "lift",
   "review": true,
   "note": "equipment unknown"
  },
  {
   "legacy": "Rear delt flys (machine)",
-  "name": "Rear Delt Flys (Machine)",
+  "name": "Rear delt flys (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated rear delt flys",
-  "name": "Rear Delt Flys (Machine)",
+  "name": "Rear delt flys (Machine)",
   "type": "lift",
   "review": true,
   "note": "or DB?"
  },
  {
   "legacy": "Barbell rear delt raise",
-  "name": "Rear Delt Raises (BB)",
+  "name": "Rear delt raises (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Reverse dragon flags",
-  "name": "Reverse Dragon Flags",
+  "name": "Reverse dragon flags (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Reverse grip cable curls",
-  "name": "Reverse-Grip Curls (Cable)",
+  "name": "Reverse-grip curls (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Reverse grip curls (cable)",
-  "name": "Reverse-Grip Curls (Cable)",
+  "name": "Reverse-grip curls (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Reverse grip dumbell curls",
-  "name": "Reverse-Grip Curls (DB)",
+  "name": "Reverse-grip curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Reverse grip ez bar curl",
-  "name": "Reverse-Grip Curls (EZ Bar)",
+  "name": "Reverse-grip curls (EZ)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Reverse grip ez bar curls",
-  "name": "Reverse-Grip Curls (EZ Bar)",
+  "name": "Reverse-grip curls (EZ)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Roman chair abs",
-  "name": "Roman Chair Leg Raises",
+  "name": "Roman chair leg raises (BW)",
   "type": "lift",
   "review": true,
   "note": "same movement?"
  },
  {
   "legacy": "Roman chair leg raises",
-  "name": "Roman Chair Leg Raises",
+  "name": "Roman chair leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Romanian deadlifts",
-  "name": "Romanian Deadlifts (BB)",
+  "name": "Romanian deadlifts (BB)",
   "type": "lift",
   "review": true,
   "note": "BB assumed"
  },
  {
   "legacy": "Romanian deadlifts (BB)",
-  "name": "Romanian Deadlifts (BB)",
+  "name": "Romanian deadlifts (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Romanian deadlifts (DB)",
-  "name": "Romanian Deadlifts (DB)",
+  "name": "Romanian deadlifts (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable rows",
-  "name": "Seated Cable Rows",
+  "name": "Seated rows (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated cable rows",
-  "name": "Seated Cable Rows",
+  "name": "Seated rows (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated calf extensions",
-  "name": "Seated Calf Raises",
+  "name": "Seated calf raises (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated hamstring curls",
-  "name": "Seated Leg Curls",
+  "name": "Seated leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated hamstring extensions",
-  "name": "Seated Leg Curls",
+  "name": "Seated leg curls (Machine)",
   "type": "lift",
   "review": true,
   "note": "typo? or leg extensions"
  },
  {
   "legacy": "Seated leg curl",
-  "name": "Seated Leg Curls",
+  "name": "Seated leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated leg curls",
-  "name": "Seated Leg Curls",
+  "name": "Seated leg curls (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated leg press",
-  "name": "Seated Leg Press (Machine)",
+  "name": "Seated leg press (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Seated leg press calf raises",
-  "name": "Seated Leg Press Calf Raises (Machine)",
+  "name": "Seated leg press calf raises (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell shoulder press",
-  "name": "Shoulder Press (DB)",
+  "name": "Shoulder press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Dumbell shoulder presses",
-  "name": "Shoulder Press (DB)",
+  "name": "Shoulder press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Shoulder press (DB)",
-  "name": "Shoulder Press (DB)",
+  "name": "Shoulder press (DB)",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1270,42 +1270,42 @@ var DEFAULT_LEGACY_NAME_MAP = [
  },
  {
   "legacy": "Single-grip cable rows",
-  "name": "Single-Arm Cable Rows",
+  "name": "Single-arm rows (Cable)",
   "type": "lift",
   "review": true,
   "note": "single arm or single handle?"
  },
  {
   "legacy": "Single arm cable pushdowns",
-  "name": "Single-Arm Tricep Pushdowns",
+  "name": "Single-arm tricep pushdowns (Cable)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Single dumbell calf raises",
-  "name": "Single-Leg Calf Raises (DB)",
+  "name": "Single-leg calf raises (DB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Standing dumbell calf raises",
-  "name": "Single-Leg Calf Raises (DB)",
+  "name": "Single-leg calf raises (DB)",
   "type": "lift",
   "review": true,
   "note": "single or both legs?"
  },
  {
   "legacy": "Single leg extensions",
-  "name": "Single-Leg Extensions",
+  "name": "Single-leg extensions (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Skull crushers",
-  "name": "Skull Crushers (EZ Bar)",
+  "name": "Skull crushers (EZ)",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1340,49 +1340,49 @@ var DEFAULT_LEGACY_NAME_MAP = [
  },
  {
   "legacy": "Barbell calf raises",
-  "name": "Standing Calf Raises (BB)",
+  "name": "Standing calf raises (BB)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Standing calf raises",
-  "name": "Standing Calf Raises (Machine)",
+  "name": "Standing calf raises (Machine)",
   "type": "lift",
   "review": true,
   "note": "machine?"
  },
  {
   "legacy": "Standing calf raises (machine)",
-  "name": "Standing Calf Raises (Machine)",
+  "name": "Standing calf raises (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Standing dumbbell wrist curls",
-  "name": "Standing Wrist Curls (DB)",
+  "name": "Standing wrist curls (DB)",
   "type": "lift",
   "review": true,
   "note": "merge with Wrist Curls (DB)?"
  },
  {
   "legacy": "Standing dumbell wrist curls",
-  "name": "Standing Wrist Curls (DB)",
+  "name": "Standing wrist curls (DB)",
   "type": "lift",
   "review": true,
   "note": "merge with Wrist Curls (DB)?"
  },
  {
   "legacy": "Standing wrist curls (DB)",
-  "name": "Standing Wrist Curls (DB)",
+  "name": "Standing wrist curls (DB)",
   "type": "lift",
   "review": true,
   "note": "merge with Wrist Curls (DB)?"
  },
  {
   "legacy": "Static hold",
-  "name": "Static Holds (BB)",
+  "name": "Static holds (BB)",
   "type": "lift",
   "review": true,
   "note": "timed (sec) - store as duration?"
@@ -1392,109 +1392,109 @@ var DEFAULT_LEGACY_NAME_MAP = [
   "name": "Treadmill",
   "type": "cardio",
   "review": true,
-  "note": "cardio; incline unknown"
+  "note": "cardio; incline unknown; incline unknown"
  },
  {
   "legacy": "Treadmill (10°)",
-  "name": "Treadmill (10° Incline)",
+  "name": "Treadmill (10°)",
   "type": "cardio",
   "review": false,
   "note": "cardio"
  },
  {
   "legacy": "Incline treadmill (15°)",
-  "name": "Treadmill (15° Incline)",
+  "name": "Treadmill (15°)",
   "type": "cardio",
   "review": false,
   "note": "cardio"
  },
  {
   "legacy": "Treadmill (15%)",
-  "name": "Treadmill (15° Incline)",
+  "name": "Treadmill (15°)",
   "type": "cardio",
   "review": true,
   "note": "% vs ° - same?"
  },
  {
   "legacy": "Treadmill (15*)",
-  "name": "Treadmill (15° Incline)",
+  "name": "Treadmill (15°)",
   "type": "cardio",
   "review": false,
   "note": "cardio"
  },
  {
   "legacy": "Treadmill (15°)",
-  "name": "Treadmill (15° Incline)",
+  "name": "Treadmill (15°)",
   "type": "cardio",
   "review": false,
   "note": "cardio"
  },
  {
   "legacy": "Pushdowns",
-  "name": "Tricep Pushdowns (Bar)",
+  "name": "Tricep pushdowns (Cable, Bar)",
   "type": "lift",
   "review": true,
   "note": "bar or rope?"
  },
  {
   "legacy": "Tricep pushdowns",
-  "name": "Tricep Pushdowns (Bar)",
+  "name": "Tricep pushdowns (Cable, Bar)",
   "type": "lift",
   "review": true,
   "note": "bar or rope?"
  },
  {
   "legacy": "Tricep pushdowns w/ bar",
-  "name": "Tricep Pushdowns (Bar)",
+  "name": "Tricep pushdowns (Cable, Bar)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Tricep pushdowns w/ ez bar",
-  "name": "Tricep Pushdowns (EZ Bar)",
+  "name": "Tricep pushdowns (Cable, EZ Bar)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Cable pushdowns w/ rope",
-  "name": "Tricep Pushdowns (Rope)",
+  "name": "Tricep pushdowns (Cable, Rope)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Tricep pushdowns w/ rope",
-  "name": "Tricep Pushdowns (Rope)",
+  "name": "Tricep pushdowns (Cable, Rope)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Upright row",
-  "name": "Upright Rows",
+  "name": "Upright rows (BB)",
   "type": "lift",
-  "review": false,
-  "note": ""
+  "review": true,
+  "note": "equipment unknown"
  },
  {
   "legacy": "V-Squat Calf raises",
-  "name": "V-Squat Calf Raises",
+  "name": "V-squat calf raises (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "V-Squat calf raises",
-  "name": "V-Squat Calf Raises",
+  "name": "V-squat calf raises (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "V-Squats",
-  "name": "V-Squats",
+  "name": "V-squats (Machine)",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1508,21 +1508,21 @@ var DEFAULT_LEGACY_NAME_MAP = [
  },
  {
   "legacy": "Weighted leg raises",
-  "name": "Weighted Leg Raises",
+  "name": "Hanging leg raises (BW)",
   "type": "lift",
   "review": true,
-  "note": "separate or Hanging Leg Raises with load?"
+  "note": "separate or Hanging Leg Raises with load?; merge into hanging leg raises (added weight is the load)?"
  },
  {
   "legacy": "Dumbell wrist curls",
-  "name": "Wrist Curls (DB)",
+  "name": "Wrist curls (DB)",
   "type": "lift",
   "review": true,
   "note": "seated vs standing?"
  },
  {
   "legacy": "Wrist curls (DB)",
-  "name": "Wrist Curls (DB)",
+  "name": "Wrist curls (DB)",
   "type": "lift",
   "review": false,
   "note": ""
