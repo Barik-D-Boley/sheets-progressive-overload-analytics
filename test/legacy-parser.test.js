@@ -59,12 +59,14 @@ test('plan statuses: ready, flagged (kept verbatim), blocked, skipped, cardio', 
   assert.deepStrictEqual([...lift('B2').sets], ['205x3', '185x8']);
   assert.deepStrictEqual([...lift('H4').sets], ['40x7 a1']);
   assert.deepStrictEqual([...lift('P6').sets], ['5*45+25x12']);
-  assert.strictEqual(lift('P7').status, 'flagged', 'no sets recorded');
-  const neg = plan.lifts.find(l => l.sets[0] === '295 for 5 (neg)');
-  assert.strictEqual(neg.status, 'flagged');
+  assert.strictEqual(lift('P7'), undefined, 'no sets recorded -> skipped');
+  assert.ok(plan.issues.some(i => i.status === 'skipped' && i.ref === 'P7'));
+  const neg = plan.lifts.find(l => l.sets[0] === '295x0 a5');
+  assert.strictEqual(neg.status, 'ready');
+  assert.match(neg.notes, /Legacy: S1 "295 for 5 \(neg\)" \(negatives \(assisted up\)\)/);
   assert.ok(plan.issues.some(i => i.status === 'blocked' && /Mystery move/.test(i.message)));
   assert.ok(plan.issues.some(i => i.status === 'blocked' && i.ref === 'I7'));
-  assert.strictEqual(plan.counts.skipped, 1);
+  assert.strictEqual(plan.counts.skipped, 2, 'Abs (skip) and Nordic hamstring (no sets)');
   assert.strictEqual(plan.cardio[0].durationMin, 30); assert.strictEqual(plan.cardio[0].calories, 374);
   assert.strictEqual(plan.bodyweights[0].date, '2025-09-22');
 });
