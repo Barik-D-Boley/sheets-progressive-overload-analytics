@@ -155,6 +155,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Last and Goal** use every gym's history for free weights (BB, DB, EZ, BW) and the current gym's history for Machine, Cable, PL, and Smith exercises, falling back to any gym when the exercise has never been done at the current gym.
 - Each exercise has a **Same Gym Only** checkbox on Master (exercise list, column P), filled in from its equipment by *Set up workout entry form* and editable for exceptions. The default equipment list is `CONFIG.GYM_SPECIFIC_EQUIPMENT`.
 - **Sorted lists:** the Exercises and Cardio lists on Master are kept A-Z by name (on setup and whenever one is added). Rows move; IDs never change, so records are unaffected. IDs therefore aren't in order on the sheet, which is expected.
+- **Automatic IDs:** exercises, cardio activities, gyms, and workouts added from the entry form get the next ID automatically. A name typed straight into a list on Master also gets its ID (plus Equipment, Active, and Same Gym Only defaults for exercises) as soon as it is entered, and renaming re-sorts the list.
 - Possible later addition (not built): a Machines table and a Machine dropdown to tell apart several machines of the same type at one gym; it needs a Machine column in the quarter tabs.
 
 ### Implementation Notes (Module 1)

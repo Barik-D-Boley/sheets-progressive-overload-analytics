@@ -215,3 +215,26 @@ test('exercise and cardio lists stay sorted A-Z; IDs and row data move together'
   g.ensureRegistryEntries('cardio', ['Walk', 'Stairmaster', 'Treadmill (15%)'], () => [true]);
   assert.deepStrictEqual(master.slice(2).map(r => r[23]).filter(Boolean), ['Stairmaster', 'Treadmill (15%)', 'Walk']);
 });
+
+test('a name typed straight into Master gets the next ID, defaults, and a sorted place', () => {
+  const { app, g } = setup();
+  const m = app.ss.getSheetByName('Master');
+  const last = m.getLastRow();
+  m.getRange(last + 1, 8).setValue('Cable crossovers (Cable)'); // Name column only (H)
+  g.registryOnEdit({ range: m.getRange(last + 1, 8) });
+  const row = m.data.find(r => r[7] === 'Cable crossovers (Cable)');
+  assert.deepStrictEqual(row.slice(6, 9), ['EX-0005', 'Cable crossovers (Cable)', 'Cable']);
+  assert.deepStrictEqual([row[11], row[12], row[15]], [true, false, true], 'Active, Warm-up off, Same Gym Only for cables');
+  assert.strictEqual(m.data.slice(2).map(r => r[7]).filter(Boolean)[1], 'Cable crossovers (Cable)', 'sorted into place');
+  assert.strictEqual(g.registryOnEdit({ range: m.getRange(1, 1) }), false, 'other Master edits are ignored');
+  const benchRow = m.data.findIndex(r => r[7] === 'Bench press (BB)') + 1;
+  m.getRange(benchRow, 8).setValue('Zercher squats (BB)');
+  g.registryOnEdit({ range: m.getRange(benchRow, 8) });
+  const list = m.data.slice(2).map(r => r[7]).filter(Boolean);
+  assert.strictEqual(list[list.length - 1], 'Zercher squats (BB)', 'a rename re-sorts');
+  assert.strictEqual(m.data.find(r => r[7] === 'Zercher squats (BB)')[6], 'EX-0001', 'and keeps its ID');
+
+  m.getRange(m.getLastRow() + 1, 24).setValue('Rowing machine'); // Cardio name column (X)
+  g.registryOnEdit({ range: m.getRange(m.getLastRow(), 24) });
+  assert.ok(m.data.some(r => r[22] === 'CA-01' && r[23] === 'Rowing machine' && r[24] === true));
+});

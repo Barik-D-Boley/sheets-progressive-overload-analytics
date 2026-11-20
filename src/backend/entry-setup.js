@@ -7,7 +7,7 @@ var ENTRY_COLORS = { label: '#f3f3f3', button: '#d9d9d9', title: '#cfe2f3', inpu
 function setupEntryForm() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ensureSettings_();
-  Object.keys(CONFIG.REGISTRIES).forEach(function (kind) { ensureRegistryHeaders_(kind); });
+  Object.keys(CONFIG.REGISTRIES).forEach(function (kind) { ensureRegistryHeaders_(kind); fillMissingRegistryIds(kind); });
   ensureNamingTable_();
   ensureRoutinesTable_();
   CONFIG.SORTED_REGISTRIES.forEach(function (kind) { sortRegistry(kind); });
