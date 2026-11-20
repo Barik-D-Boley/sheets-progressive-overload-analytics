@@ -274,6 +274,10 @@ function saveCurrentExercise_(state, pendingInputs, lenient) {
   var sheet = entrySheet_();
   var dateValue = sheet.getRange(ENTRY.DATE).getValue();
   var date = dateToIso_(dateValue) || state.date;
+  if (!date) {
+    date = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    sheet.getRange(ENTRY.DATE).setValue(isoToDate_(date));
+  }
   var gymName = String(sheet.getRange(ENTRY.GYM).getValue() || state.gym || '').trim();
   var gymId = gymName ? ensureRegistryEntries('gyms', [gymName])[gymName.toLowerCase()] : '';
   var workoutId = state.workout ? ensureRegistryEntries('workouts', [state.workout])[state.workout.toLowerCase()] : '';
