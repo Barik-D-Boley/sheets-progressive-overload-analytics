@@ -17,14 +17,21 @@ var CONFIG = {
   /** Registries on Master: title in row 1, headers in row 2, data from row 3. */
   REGISTRIES: {
     exercises: { column: 'G', idPrefix: 'EX-', idDigits: 4, title: 'Exercises',
-      headers: ['Exercise ID', 'Name', 'Equipment', 'Primary Muscle', 'Secondary Muscle', 'Active'] },
-    workouts: { column: 'N', idPrefix: 'WO-', idDigits: 2, title: 'Workouts',
+      headers: ['Exercise ID', 'Name', 'Equipment', 'Primary Muscle', 'Secondary Muscle', 'Active', 'Warm-up',
+        'Setup Notes', 'Increment'] },
+    workouts: { column: 'Q', idPrefix: 'WO-', idDigits: 2, title: 'Workouts',
       headers: ['Workout ID', 'Name'] },
-    gyms: { column: 'Q', idPrefix: 'GY-', idDigits: 2, title: 'Gyms',
+    gyms: { column: 'T', idPrefix: 'GY-', idDigits: 2, title: 'Gyms',
       headers: ['Gym ID', 'Name'] },
-    cardio: { column: 'T', idPrefix: 'CA-', idDigits: 2, title: 'Cardio',
+    cardio: { column: 'W', idPrefix: 'CA-', idDigits: 2, title: 'Cardio',
       headers: ['Cardio ID', 'Name', 'Active'] },
   },
+
+  /** Routine templates on Master: one row per workout, exercise names left to right. */
+  ROUTINES: { column: 'AA', title: 'Routines (edit to change a workout template)', maxExercises: 15 },
+
+  /** Equipment -> tag table on Master; overrides NAMING_DEFAULTS.equipmentTags when filled in. */
+  NAMING_TABLE: { column: 'AR', title: 'Exercise name tags', headers: ['Equipment', 'Tag'] },
 
   QUARTER_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Workout ID', 'Exercise ID', 'Unit', 'Notes', 'Source'],
   CARDIO_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Activity ID', 'Duration (min)', 'Speed', 'Speed Unit',
@@ -35,6 +42,7 @@ var CONFIG = {
   ONE_RM_REP_CAP: 12,
   LEGACY_UNIT: 'lb',
   PROP_LEGACY_IMPORT_DONE: 'LEGACY_IMPORT_DONE',
+  PROP_ENTRY_STATE: 'ENTRY_STATE',
 };
 
 /** Quarter tab name for a 'YYYY-MM-DD' date, e.g. '2026-11-20' -> 'Q4 2026'. */

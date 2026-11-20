@@ -46,10 +46,10 @@ test('review -> preview -> import writes registries, quarter tabs, cardio, bodyw
   assert.strictEqual(master[1][6], 'Exercise ID');
   assert.strictEqual(master[1][8], 'Equipment');
   assert.strictEqual(master[2][8], 'Barbell', 'equipment read from the name tag');
-  assert.strictEqual(master[1][19], 'Cardio ID'); assert.strictEqual(master[2][20], 'Stairmaster');
+  assert.strictEqual(master[1][22], 'Cardio ID'); assert.strictEqual(master[2][23], 'Stairmaster');
   assert.ok(!master.some(r => r[7] === 'Stairmaster'), 'cardio is not in the exercise list');
-  assert.strictEqual(master[2][13], 'WO-01'); assert.strictEqual(master[2][14], 'Push');
-  assert.strictEqual(master[2][16], 'GY-01'); assert.strictEqual(master[2][17], 'BYUI');
+  assert.strictEqual(master[2][16], 'WO-01'); assert.strictEqual(master[2][17], 'Push');
+  assert.strictEqual(master[2][19], 'GY-01'); assert.strictEqual(master[2][20], 'BYUI');
   assert.strictEqual(master[8][1], '3', 'settings untouched');
 
   const cardio = app.ss.getSheetByName('Cardio').data;
@@ -73,5 +73,5 @@ test('partial-failure recovery: rewriting the same plan skips rows already prese
   const again = g.writeMigrationPlan_(plan);
   assert.strictEqual(again.lifts, 0); assert.strictEqual(again.cardio, 0); assert.strictEqual(again.bodyweights, 0);
   assert.ok(again.duplicates > 0);
-  assert.strictEqual(app.ss.getSheetByName('Master').data.filter(r => r[17] === 'BYUI').length, 1, 'no duplicate registry entries');
+  assert.strictEqual(app.ss.getSheetByName('Master').data.filter(r => r[20] === 'BYUI').length, 1, 'no duplicate registry entries');
 });

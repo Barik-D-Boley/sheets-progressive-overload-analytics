@@ -62,7 +62,7 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 **Monthly gain**
 - For each exercise: best estimated 1RM this calendar month vs. best estimated 1RM last calendar month. The largest percentage gain wins; ties break by the largest absolute gain, then by the exercise done most often this month. Exercises missing either month are excluded; if none qualify, no gain is shown.
 
-### Draft Progression Rules (awaiting approval)
+### Progression Rules (approved)
 
 All modes share these settings on Master: rep range (min–max), load increment (default 5 lb / 2.5 kg; 10 lb / 5 kg for lower-body compounds), target RIR, and stall threshold (default 3 sessions).
 
@@ -96,9 +96,25 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **New exercises** added from the entry form are formatted automatically: the user picks equipment from a dropdown and enters the movement, and the name is built from the format.
 - **Configurable for buyers:** the template, separator, equipment tags, and proper nouns are settings (`NAMING_DEFAULTS` in `src/backend/naming.js`). Module 2 adds an editable equipment/tag table on Master that overrides the defaults. Existing exercises can be renamed in the registry at any time because records reference IDs.
 
+### Workout Entry Form (Round 5)
+
+- **One set per screen**, inputs top to bottom so Enter moves down: Weight, Reps, Assisted reps, Partial reps, RIR (dropdown: 0, 1-2, 3-4, 5+), Set notes. Weight accepts plate notation (`2*45+25`).
+- **Header:** date fills in automatically, the user picks the gym, and picking a workout loads its routine starting at the first exercise. A **Log cardio** button sits at the top.
+- **Shown per set:** Last (same gym first, then any gym), Goal (approved progression rules), and on set 1 the warm-up ladder for exercises with **Warm-up** checked.
+- **Warm-up ladder:** plate jumps below the working weight (lb: 45, 95, 135, 185, 225, 275, 315 ...; kg: 20, 40, 60 ...), heaviest first, reps 1, 2, 4, 6, 8 ..., skipping any step within 10% of the working weight. 275 → 225×1, 185×2, 135×4, 95×6, 45×8. Only for exercises with Warm-up checked (by default: bench, incline bench, squats, deadlifts).
+- **Next** validates the set and moves to the next set (the weight carries over). After the last set the exercise is written to its quarter tab and the next unfinished exercise loads. **Back** reopens earlier sets and exercises; saving again rewrites the same record.
+- **Exercise dropdown:** the routine's exercises (✓ when saved), then every other active exercise, then **+ New exercise…**. Picking one jumps to it; picking one outside the routine adds it for today only. Routine templates are edited only on Master.
+- **Setup notes** (e.g. seat and pin settings) are stored on the exercise and shown every time; editing them on the form saves them.
+- **Set notes** are stored in the record's Notes column as `S1: paused | S3: spotter`; RIR is stored in the set cell (`@1-2`, `@5+`).
+- **New exercise creator:** movement, equipment (from the Master tag table), optional detail, Warm-up checkbox, setup notes; the name is formatted automatically.
+- **Hanging leg raises:** when every set is logged at 0, the record is saved under the `(BW)` version of the exercise if it exists.
+- **Master additions:** exercise registry columns Warm-up, Setup Notes, Increment; registries at G (exercises), Q (workouts), T (gyms), W (cardio); Routines at AA (one row per workout, seeded from the last logged session); equipment tag table at AR; missing settings (Custom rep min/max, Target RIR, Load increment, Stall threshold) are appended under the existing settings in A:B.
+- **Setup:** menu *Overload Tracker → Set up workout entry form*. The existing mockup tab is renamed "Workout Entry (old mockup)", not deleted.
+- **Mobile limits:** a script cannot move the cursor or choose the keyboard on the Sheets app, so after Next the user taps the Weight box.
+
 ### Implementation Notes (Module 1)
 
-- **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at N, Gyms at Q, Cardio at T. These are configurable in `src/backend/config.js`.
+- **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.
 - **Legacy layout:** blocks are detected per row because column positions shift around row 424. Anchors are a date (new session), the gym (row after the date, including a lone cell under the date), `date, gym` in one cell, or a session note such as `Deload`. Column X holds cardio calories; X1 holds a bodyweight (imported dated to the first legacy workout).
 - **Date checks:** a session date in the future, or earlier than the previous date in the same block, is blocked until it is fixed in the legacy tab (currently `S239`: 8/27/27).
 - **Workflow:** menu *Overload Tracker → Legacy migration*: 1) Build name review (`Migration Review` tab; approve or edit each legacy name), 2) Preview import (`Migration Preview` tab), 3) Run import.
@@ -107,7 +123,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 
 ### Decisions to Approve Before the Related Implementation
 
-- **Progression recommendations:** See "Draft Progression Rules" above; approve or adjust before implementation.
+- **Progression recommendations:** Resolved — see "Progression Rules (approved)" above.
 - **Display conversion:** Resolved — `Compiled Data` converts to the Master preferred unit (view-only).
 - **Monthly strength gain:** Resolved — see "Monthly gain" above.
 
@@ -126,7 +142,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ## Module 1: Legacy Data Migration & Normalization
 
 ### 1.1 Data Schema & Exercise Management
-- [ ] **Master Exercise Binding:** Maintain one exercise registry on `Master` with a stable unique exercise ID. Store the ID in workout records and resolve the current display name from the registry so renames update historical and future views without rewriting identity.
+- [x] **Master Exercise Binding:** Maintain one exercise registry on `Master` with a stable unique exercise ID. Store the ID in workout records and resolve the current display name from the registry so renames update historical and future views without rewriting identity.
 - [x] **Sheet Origin Tracking:** Add dedicated provenance fields to canonical quarter-log records identifying the source sheet/version of each imported record.
 - [x] **Exercise Name Cleaning:** Standardize naming conventions across legacy data (see "Exercise Naming Format"):
   - [x] Equipment shorthand goes in a trailing tag, e.g. `(PL)` for plate-loaded; iso-lateral machines are `PL`.
@@ -143,18 +159,18 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ## Module 2: Logging UI & Input Automation
 
 ### 2.1 Interactive Logging Form
-- [ ] **Single Entry Sheet:** Refine the existing `Workout Entry` tab into the dedicated logging dashboard, retaining its date, gym, workout, exercise-navigation, set, and notes controls while adding dynamic exercise dropdowns.
-- [ ] **Automated Data Push & Reset:** Implement a backend Apps Script action to append validated entries to the appropriate canonical quarter log and reset only the submitted input fields after a successful write.
-- [ ] **Empty Entry Safeguard:** Automatically filter and discard blank rows or empty inputs during the data push execution.
-- [ ] **Invalid Entry Feedback:** Report incomplete or invalid non-empty rows and preserve the form contents until the user fixes them; do not silently discard entered data.
+- [x] **Single Entry Sheet:** Refine the existing `Workout Entry` tab into the dedicated logging dashboard, retaining its date, gym, workout, exercise-navigation, set, and notes controls while adding dynamic exercise dropdowns.
+- [x] **Automated Data Push & Reset:** Implement a backend Apps Script action to append validated entries to the appropriate canonical quarter log and reset only the submitted input fields after a successful write.
+- [x] **Empty Entry Safeguard:** Automatically filter and discard blank rows or empty inputs during the data push execution.
+- [x] **Invalid Entry Feedback:** Report incomplete or invalid non-empty rows and preserve the form contents until the user fixes them; do not silently discard entered data.
 
 ### 2.2 Dynamic Exercise & Cardio Handling
-- [ ] **Unlisted Exercise Prompt:** Trigger an interactive UI modal prompting the user to create and register a new exercise in the `Master` registry if an unrecognized movement is entered.
-- [ ] **Cardio Selector:** Add preset cardio dropdown options (e.g., `20 min`, `30 min`) that log a cardio session for the selected date in the separate `Cardio` tab and update the corresponding daily cardio status.
+- [x] **Unlisted Exercise Prompt:** Trigger an interactive UI modal prompting the user to create and register a new exercise in the `Master` registry if an unrecognized movement is entered.
+- [x] **Cardio Selector:** Add preset cardio dropdown options (e.g., `20 min`, `30 min`) that log a cardio session for the selected date in the separate `Cardio` tab and update the corresponding daily cardio status.
 - [ ] **Bodyweight History:** Record each prompted or manual bodyweight update with its date; use that history for date-matched ratios and show the latest value in the Master profile.
 
 ### 2.3 Hidden Backend Architecture
-- [ ] **Canonical Quarter Logs:** Store raw workout records in quarter-specific tabs, with one row per exercise per date: date, gym ID, workout ID, exercise ID, load unit, one packed cell per set (load, reps, assisted reps, partial reps, RIR/RPE), notes, and source/provenance. Estimated 1RM is computed in `Compiled Data`. Preserve valid signed loads and fractional reps found in assisted exercises or the legacy data. New records are written to the quarter matching their workout date.
+- [x] **Canonical Quarter Logs:** Store raw workout records in quarter-specific tabs, with one row per exercise per date: date, gym ID, workout ID, exercise ID, load unit, one packed cell per set (load, reps, assisted reps, partial reps, RIR/RPE), notes, and source/provenance. Estimated 1RM is computed in `Compiled Data`. Preserve valid signed loads and fractional reps found in assisted exercises or the legacy data. New records are written to the quarter matching their workout date.
 - [ ] **Weekly Bodyweight Log:** Store dated bodyweight observations and their units in a history log; do not overwrite older entries when the current profile weight changes.
 - [ ] **Compiled Data View:** Build `Compiled Data` as a read-only consolidated presentation sourced from the canonical quarter logs, retaining its search, summary, and chart functionality. It must not write back or become a second source of truth.
 - [ ] **Unit-Safe Display:** Show the recorded value and unit in `Compiled Data`, or offer an explicitly view-only conversion to the current preferred unit. Never rewrite canonical quarter-log values when settings change.
@@ -165,8 +181,8 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ## Module 3: Analytics, Visualizations & Progression Logic
 
 ### 3.1 Adaptive Progression Engines
-- [ ] **Progression Rules Proposal:** Specify configurable inputs and propose target-rep, load-increase, and reset/stall rules for Powerlifting, Bodybuilding, and Custom modes; obtain approval of the rules before implementation.
-- [ ] **Dynamic Rep Range Calculator:** Once approved, calculate and display target reps and recommended loads week-to-week using the selected modality and user settings. Keep recommendations distinct from recorded workout results.
+- [x] **Progression Rules Proposal:** Specify configurable inputs and propose target-rep, load-increase, and reset/stall rules for Powerlifting, Bodybuilding, and Custom modes; obtain approval of the rules before implementation.
+- [x] **Dynamic Rep Range Calculator:** Once approved, calculate and display target reps and recommended loads week-to-week using the selected modality and user settings. Keep recommendations distinct from recorded workout results.
 - [ ] **Precision 1RM Formatting:** Format calculated 1-Rep Max (1RM) numbers to display to one decimal place when under 100 ($< 100$), and round to whole numbers when $\ge 100$.
 
 ### 3.2 Visual Analytics

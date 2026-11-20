@@ -3,7 +3,8 @@
  *
  * Quarter tabs store each working set in one cell:
  *   <load>x<reps>[ a<assisted>][ p<partial>][ @<rir>][ @rpe<rpe>]
- *   e.g. "205x8", "-70x7.5", "2*45+25x10 a1", "185x6 p2 @1"
+ *   e.g. "205x8", "-70x7.5", "2*45+25x10 a1", "185x6 p2 @1-2", "135x12 @5+"
+ *   RIR is a number or a range from the entry form's dropdown (0, 1-2, 3-4, 5+).
  * The load is kept exactly as written (plate notation such as "2*45+25" is
  * the number of plates and is preserved); loadValue is the evaluated total.
  */
@@ -33,7 +34,8 @@ function formatSetCell(set) {
   return out;
 }
 
-var SET_CELL_RE = new RegExp('^(\\S+?)x(' + NUM + ')((?:\\s+(?:a' + NUM + '|p' + NUM + '|@rpe' + NUM + '|@' + NUM + '))*)\\s*$', 'i');
+var RIR_TOKEN = '@(?:\\d+(?:-\\d+)?\\+?)';
+var SET_CELL_RE = new RegExp('^(\\S+?)x(' + NUM + ')((?:\\s+(?:a' + NUM + '|p' + NUM + '|@rpe' + NUM + '|' + RIR_TOKEN + '))*)\\s*$', 'i');
 
 /** Parses a packed set cell; returns null when blank or not in the packed format. */
 function parseSetCell(text) {
@@ -47,7 +49,7 @@ function parseSetCell(text) {
   m[3].trim().split(/\s+/).filter(String).forEach(function (token) {
     var t = token.toLowerCase();
     if (t.indexOf('@rpe') === 0) set.rpe = parseFloat(t.slice(4));
-    else if (t.charAt(0) === '@') set.rir = parseFloat(t.slice(1));
+    else if (t.charAt(0) === '@') set.rir = /^@\d+$/.test(t) ? parseFloat(t.slice(1)) : t.slice(1);
     else if (t.charAt(0) === 'a') set.assisted = parseFloat(t.slice(1));
     else if (t.charAt(0) === 'p') set.partial = parseFloat(t.slice(1));
   });
