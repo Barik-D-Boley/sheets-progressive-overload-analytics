@@ -4,7 +4,7 @@
   "description": "Google Apps Script backend for Progressive Overload Tracker 2.0",
   "main": "./src/backend/Main.js",
   "scripts": {
-    "start": "clasp push --watch",
+    "start": "clasp push && node --env-file=.env -e \"if (process.env.SHEET_URL) import('node:child_process').then(function(c) { c.execFile('cmd', ['/c', 'start', '', 'chrome', process.env.SHEET_URL]); })\" && clasp push --watch",
     "push": "clasp push",
     "pull": "clasp pull --force",
     "pull:clean": "clasp pull --force --deleteUnusedFiles",
