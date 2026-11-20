@@ -7,10 +7,10 @@
  *
  * Status per entry:
  *   ready   - imported as-is
+ *   skipped - type "skip", or no usable sets (e.g. only unknown reps)
  *   flagged - imported; unparseable set cells are kept as their original text
  *             in the quarter tab so they can be fixed there later
  *   blocked - not imported (no date or no approved name); listed in the preview
- *   skipped - mapped to type "skip"
  */
 function normalizeLegacyKey(name) { return String(name).trim().replace(/\s+/g, ' ').toLowerCase(); }
 
@@ -43,7 +43,7 @@ function buildMigrationPlan(parsed, nameMap, options) {
       var c = parseLegacyCardioCells(entry.cells.map(function (x) { return x.text; }));
       var rec = Object.assign(base, { durationMin: c.durationMin, speed: c.speed, speedUnit: c.speedUnit,
         distance: c.distance, distanceUnit: c.distanceUnit, calories: entry.calories, flags: c.flags });
-      if (c.flags.length) {
+      if (c.flags.length || c.notes.length) {
         rec.notes = [rec.notes, 'Legacy: ' + entry.cells.map(function (x) { return x.text; }).join(' | ')].filter(String).join('; ');
       }
       cardio.push(rec);
@@ -51,19 +51,30 @@ function buildMigrationPlan(parsed, nameMap, options) {
       return;
     }
 
-    var setFlags = [];
-    var sets = entry.cells.map(function (cell) {
-      if (!cell.text) return '';
+    var setFlags = [], legacyNotes = [], sets = [];
+    entry.cells.forEach(function (cell, i) {
+      if (!cell.text) return;
       var parsedSet = parseLegacySetCell(cell.text);
-      if (parsedSet.set) return formatSetCell(parsedSet.set);
+      if (parsedSet.ignore) { legacyNotes.push('S' + (i + 1) + ' "' + cell.text + '" ignored (' + parsedSet.ignore + ')'); return; }
+      if (parsedSet.set) {
+        if (parsedSet.note) legacyNotes.push('S' + (i + 1) + ' "' + cell.text + '" (' + parsedSet.note + ')');
+        sets.push(formatSetCell(parsedSet.set));
+        return;
+      }
       setFlags.push(parsedSet.flag + ' at ' + cell.ref);
-      return cell.text; // kept verbatim for later correction
+      sets.push(cell.text); // kept verbatim for later correction
     });
-    if (!sets.some(String)) setFlags.push('No sets recorded');
+    if (legacyNotes.length) base.notes = [base.notes, 'Legacy: ' + legacyNotes.join('; ')].filter(String).join('; ');
+    if (!sets.length) {
+      issues.push({ ref: entry.ref, status: 'skipped', message: 'No usable sets for "' + entry.legacyName + '"' +
+        (legacyNotes.length ? ' (' + legacyNotes.join('; ') + ')' : '') });
+      counts.skipped++;
+      return;
+    }
     if (mapped.unweightedName) {
-      var loads = entry.cells.map(function (cell) {
-        var ps = cell.text ? parseLegacySetCell(cell.text) : null;
-        return ps && ps.set ? ps.set.loadValue : null;
+      var loads = sets.map(function (cell) {
+        var ps = parseSetCell(cell);
+        return ps ? ps.loadValue : null;
       }).filter(function (v) { return v !== null; });
       if (loads.length && loads.every(function (v) { return v === 0; })) base.exercise = mapped.unweightedName;
     }
