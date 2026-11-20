@@ -142,6 +142,14 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Gym:** the existing Gym filter (default All gyms) applies to the chart too.
 - **Relative strength** is a statistic in the panel rather than a chart toggle: latest (last session's best 1RM ÷ the weigh-in in effect on that date, with the weigh-in shown) and best relative strength in the time frame. Sessions before the first weigh-in are counted as "Sessions without bodyweight"; no current weight is substituted.
 
+### Entry Form Layout & Routines (Round 9)
+
+- **Labels in column A, values/dropdowns in column B:** Date (B1), Gym (B2), Routine (B3), Exercise (B4, label shows "Exercise (2 of 6)"), then Setup, the set title, Last, Goal, Warm-up, inputs, and Back / Next / Finish.
+- **Log cardio and Log bodyweight** buttons sit below the exercise inputs and buttons (rows 20-21).
+- **Last** shows the date with the year: "Last · 11/14/26 BYUI".
+- **Routines** on Master (AA): `Routine | Workout | Exercise 1..15`, e.g. "Push Day 1 | Push | Bench press (BB) | ...". The Routine dropdown lists routine names; records are saved under the routine's Workout so history and the Compiled Data workout filter stay grouped (Push/Pull/Legs). The older `Workout | Exercise...` layout is converted automatically by *Set up workout entry form*.
+- The six routines from the old sheet (Push/Pull/Legs, Day 1 and Day 2) are the starting templates.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.

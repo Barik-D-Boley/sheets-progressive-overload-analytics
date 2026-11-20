@@ -27,7 +27,7 @@ var CONFIG = {
       headers: ['Cardio ID', 'Name', 'Active'] },
   },
 
-  /** Routine templates on Master: one row per workout, exercise names left to right. */
+  /** Routine templates on Master: Routine | Workout | exercise names left to right. */
   ROUTINES: { column: 'AA', title: 'Routines (edit to change a workout template)', maxExercises: 15 },
 
   /** Equipment -> tag table on Master; overrides NAMING_DEFAULTS.equipmentTags when filled in. */
