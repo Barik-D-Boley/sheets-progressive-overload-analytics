@@ -26,3 +26,14 @@ test('equipment is read back from a formatted name', () => {
   assert.strictEqual(g.equipmentFromName('Bench press (PL)'), 'Plate-loaded');
   assert.strictEqual(g.equipmentFromName('Treadmill (15°)'), '');
 });
+
+test('suggested names match existing exercises across spelling differences', () => {
+  const known = ['Shoulder press (DB)', 'Chest-supported rows (PL)', 'Reverse-grip curls (DB)', 'Ab crunches (Cable)'];
+  const sg = n => g.suggestExerciseName(n, known).name;
+  assert.strictEqual(sg('Shoulder presses (DB)'), 'Shoulder press (DB)');
+  assert.strictEqual(sg('Chest supported rows (PL)'), 'Chest-supported rows (PL)');
+  assert.strictEqual(sg('reverse grip curls (db)'), 'Reverse-grip curls (DB)');
+  assert.strictEqual(sg('Ab crunch (cable)'), 'Ab crunches (Cable)');
+  assert.strictEqual(sg('Decline pec flys (cable)'), 'Decline pec flys (Cable)');
+  assert.strictEqual(g.suggestExerciseName('Pin squats (BB)', known).matched, false);
+});
