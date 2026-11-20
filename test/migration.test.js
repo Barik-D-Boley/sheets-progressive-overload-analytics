@@ -75,3 +75,26 @@ test('partial-failure recovery: rewriting the same plan skips rows already prese
   assert.ok(again.duplicates > 0);
   assert.strictEqual(app.ss.getSheetByName('Master').data.filter(r => r[20] === 'BYUI').length, 1, 'no duplicate registry entries');
 });
+
+test('new spellings get a suggested name and sort next to their match', () => {
+  const { app, g } = setup();
+  const legacy = app.ss.getSheetByName('All Data - Unorganized');
+  legacy.data.push(['', 'Shoulder presses (DB)', '60 for 8'], ['', 'Pin squats (BB)', '225 for 5'], ['', 'Reverse grip curls (DB)', '30 for 10']);
+  g.migrationBuildReview();
+  const rows = app.ss.getSheetByName('Migration Review').data.slice(1);
+  const byName = Object.fromEntries(rows.map(r => [r[0], r]));
+  assert.deepStrictEqual(byName['Shoulder presses (DB)'].slice(3, 7), ['Shoulder press (DB)', 'lift', false, 'New spelling - matches an existing exercise']);
+  assert.deepStrictEqual(byName['Reverse grip curls (DB)'].slice(3, 4), ['Reverse-grip curls (DB)']);
+  assert.deepStrictEqual(byName['Pin squats (BB)'].slice(3, 7), ['Pin squats (BB)', 'lift', false, 'New exercise - check the name']);
+  assert.deepStrictEqual(byName['Mystery move'].slice(3, 4), ['Mystery move']);
+  const order = rows.map(r => r[3]);
+  assert.deepStrictEqual(order, order.slice().sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0), 'sorted by approved name');
+
+  // A tab from an earlier run with blank names gets suggestions filled in; approvals are kept.
+  const review = app.ss.getSheetByName('Migration Review');
+  review.data.forEach((r, i) => { if (i && r[0] === 'Pin squats (BB)') { r[3] = ''; r[6] = 'New name - choose an exercise'; } if (i && r[0] === 'Barbell bench') r[5] = true; });
+  g.migrationBuildReview();
+  const again = Object.fromEntries(app.ss.getSheetByName('Migration Review').data.slice(1).map(r => [r[0], r]));
+  assert.strictEqual(again['Pin squats (BB)'][3], 'Pin squats (BB)');
+  assert.strictEqual(again['Barbell bench'][5], true);
+});
