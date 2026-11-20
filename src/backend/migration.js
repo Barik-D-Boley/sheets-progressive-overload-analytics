@@ -61,14 +61,33 @@ function migrationBuildReview() {
     });
   }
 
+  // Names already in use (defaults and approved review rows), for suggesting matches for new spellings.
+  var knownNames = DEFAULT_LEGACY_NAME_MAP.map(function (d) { return d.name; });
+  Object.keys(kept).forEach(function (k) { if (String(kept[k][3]).trim()) knownNames.push(String(kept[k][3]).trim()); });
+  var naming = readNamingSettings_();
+  var suggest = function (legacyName) {
+    var sgt = suggestExerciseName(legacyName, knownNames, naming);
+    return [sgt.name, sgt.matched ? 'New spelling - matches an existing exercise' : 'New exercise - check the name'];
+  };
+
   var rows = Object.keys(usage).map(function (key) {
     var u = usage[key];
     var blocks = Object.keys(u.blocks).sort().join('/');
-    if (kept[key]) { var r = kept[key].slice(); r[1] = blocks; r[2] = u.count; return r; }
+    if (kept[key]) {
+      var r = kept[key].slice();
+      r[1] = blocks; r[2] = u.count;
+      if (!String(r[3]).trim() && String(r[4]).trim().toLowerCase() !== 'skip' && r[5] !== true) {
+        var s1 = suggest(u.name); r[3] = s1[0]; r[6] = s1[1];
+      }
+      return r;
+    }
     var d = defaults[key];
-    if (!d) return [u.name, blocks, u.count, '', 'lift', false, 'New name - choose an exercise', ''];
+    if (!d) { var s2 = suggest(u.name); return [u.name, blocks, u.count, s2[0], 'lift', false, s2[1], '']; }
     return [u.name, blocks, u.count, d.name, d.type, !d.review, d.note, d.unweightedName || ''];
-  }).sort(function (a, b) { return String(a[3] || '~').localeCompare(String(b[3] || '~')) || String(a[0]).localeCompare(String(b[0])); });
+  }).sort(function (a, b) {
+    var ka = String(a[3] || a[0]).toLowerCase(), kb = String(b[3] || b[0]).toLowerCase();
+    return ka < kb ? -1 : ka > kb ? 1 : String(a[0]).localeCompare(String(b[0]));
+  });
 
   if (!sheet) sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(CONFIG.SHEETS.MIGRATION_REVIEW);
   sheet.clear();

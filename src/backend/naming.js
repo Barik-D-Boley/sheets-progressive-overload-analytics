@@ -74,3 +74,35 @@ function equipmentFromName(name, settings) {
   for (var key in s.equipmentTags) if (s.equipmentTags[key] === tag) return key;
   return '';
 }
+
+/**
+ * Suggests a registry name for a spelling that has no approved name yet, e.g.
+ * "Shoulder presses (dB)" -> "Shoulder press (DB)" when that exercise exists.
+ * Matching ignores case, hyphens, and plural "s"/"es" endings.
+ * @return {{name: string, matched: boolean}}
+ */
+function suggestExerciseName(legacyName, knownNames, settings) {
+  var s = settings || NAMING_DEFAULTS;
+  var raw = String(legacyName).trim().replace(/\s+/g, ' ');
+  var m = raw.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  var movement = m ? m[1] : raw, details = m ? m[2].split(',').map(function (x) { return x.trim(); }) : [];
+  var tagByLower = {};
+  Object.keys(s.equipmentTags).forEach(function (k) {
+    tagByLower[s.equipmentTags[k].toLowerCase()] = k;
+    tagByLower[k.toLowerCase()] = k;
+  });
+  var equipment = details.length && tagByLower[details[0].toLowerCase()] ? tagByLower[details[0].toLowerCase()] : '';
+  var detail = (equipment ? details.slice(1) : details).join(', ');
+  var name;
+  try { name = formatExerciseName({ movement: movement, equipment: equipment, detail: detail }, s); } catch (e) { name = raw; }
+
+  var key = function (n) {
+    return String(n).toLowerCase().replace(/-/g, ' ').replace(/[^a-z0-9°(), ]/g, '').split(' ')
+      .map(function (w) { return w.replace(/(ss|sh|ch|x)es$/, '$1').replace(/([^s])s$/, '$1'); }).join(' ');
+  };
+  var target = key(name);
+  for (var i = 0; i < knownNames.length; i++) {
+    if (knownNames[i] && key(knownNames[i]) === target) return { name: knownNames[i], matched: true };
+  }
+  return { name: name, matched: false };
+}
