@@ -4,6 +4,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Ab press",
   "name": "Ab press (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "machine? confirm"
@@ -11,6 +12,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Ab roller (kneeling)",
   "name": "Ab rollouts (BW, Kneeling)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -18,6 +20,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Behind back cable curls",
   "name": "Behind-the-back curls (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -25,6 +28,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Behind back curls",
   "name": "Behind-the-back curls (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "cable assumed"
@@ -32,6 +36,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell bench",
   "name": "Bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -39,6 +44,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bench press (BB)",
   "name": "Bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -46,6 +52,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Flat barbell bench",
   "name": "Bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -53,6 +60,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Flat barbell bench press",
   "name": "Bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -60,6 +68,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bench press (DB)",
   "name": "Bench press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -67,6 +76,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bent leg dragon flags",
   "name": "Bent-leg dragon flags (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -74,6 +84,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bent over calf raises",
   "name": "Bent-over calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "equipment unknown"
@@ -81,6 +92,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell row",
   "name": "Bent-over rows (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -88,6 +100,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bent over barbell rows",
   "name": "Bent-over rows (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -95,6 +108,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bent over rows (BB)",
   "name": "Bent-over rows (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -102,6 +116,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bulgarian split squats",
   "name": "Bulgarian split squats (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "DB or smith?"
@@ -109,6 +124,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bulgarian split squats (DB)",
   "name": "Bulgarian split squats (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -116,6 +132,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Bulgarian split squats (smith)",
   "name": "Bulgarian split squats (Smith)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -123,6 +140,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable ab crunch",
   "name": "Ab crunches (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -130,6 +148,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable ab crunches",
   "name": "Ab crunches (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -137,6 +156,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable crunches",
   "name": "Ab crunches (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -144,6 +164,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Kneeling cable crunch",
   "name": "Ab crunches (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "same as cable ab crunches?"
@@ -151,6 +172,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable curls",
   "name": "Bicep curls (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -158,6 +180,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable pullovers (90° handle)",
   "name": "Pullovers (Cable, 90° Handle)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "separate or merge with bar?"
@@ -165,6 +188,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable pullovers",
   "name": "Pullovers (Cable, Bar)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "bar assumed - most later rows say w/ bar"
@@ -172,6 +196,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable pullovers w/ bar",
   "name": "Pullovers (Cable, Bar)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -179,6 +204,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable pullovers w/ rope",
   "name": "Pullovers (Cable, Rope)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -186,6 +212,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable rope curls",
   "name": "Bicep curls (Cable, Rope)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -193,6 +220,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Chest supported machine rows",
   "name": "Chest-supported rows (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -200,6 +228,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Chest supported rows",
   "name": "Chest-supported rows (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "which machine?"
@@ -207,6 +236,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Chest supported rows (TB)",
   "name": "Chest-supported T-bar rows (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -214,6 +244,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Close grip press (BB)",
   "name": "Close-grip bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -221,6 +252,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Deadlift",
   "name": "Deadlifts (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -228,6 +260,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Deadlifts",
   "name": "Deadlifts (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -235,6 +268,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Decline crunches",
   "name": "Decline crunches (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "same as decline sit-ups?"
@@ -242,6 +276,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Decline oblique crunches",
   "name": "Decline oblique crunches (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -249,6 +284,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Decline sit ups",
   "name": "Decline sit-ups (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -256,6 +292,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Decline sit-ups",
   "name": "Decline sit-ups (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -263,6 +300,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Decline situps",
   "name": "Decline sit-ups (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -270,6 +308,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dips",
   "name": "Dips (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -277,6 +316,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dips (machine)",
   "name": "Dips (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -284,6 +324,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dragon flags",
   "name": "Dragon flags (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -291,6 +332,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbbell curls",
   "name": "Bicep curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -298,6 +340,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell curl",
   "name": "Bicep curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -305,6 +348,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell curls",
   "name": "Bicep curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -312,6 +356,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Face pulls",
   "name": "Face pulls (Cable, Rope)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "rope assumed"
@@ -319,6 +364,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hammer curls",
   "name": "Hammer curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -326,6 +372,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hammer curls (preacher)",
   "name": "Hammer preacher curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -333,34 +380,39 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hammer preacher curls",
   "name": "Hammer preacher curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hanging Leg Raises",
-  "name": "Hanging leg raises (BW)",
+  "name": "Hanging leg raises (DB)",
+  "unweightedName": "Hanging leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
  },
  {
   "legacy": "Hanging leg curls",
-  "name": "Hanging leg raises (BW)",
+  "name": "Hanging leg raises (DB)",
+  "unweightedName": "Hanging leg raises (BW)",
   "type": "lift",
   "review": true,
   "note": "typo for raises?"
  },
  {
   "legacy": "Hanging leg lifts",
-  "name": "Hanging leg raises (BW)",
+  "name": "Hanging leg raises (DB)",
+  "unweightedName": "Hanging leg raises (BW)",
   "type": "lift",
   "review": true,
   "note": "same as raises?"
  },
  {
   "legacy": "Hanging leg raises",
-  "name": "Hanging leg raises (BW)",
+  "name": "Hanging leg raises (DB)",
+  "unweightedName": "Hanging leg raises (BW)",
   "type": "lift",
   "review": false,
   "note": ""
@@ -368,6 +420,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hip abductor",
   "name": "Hip abductions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -375,6 +428,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hip abductor machine",
   "name": "Hip abductions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -382,6 +436,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hip adductor",
   "name": "Hip adductions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -389,6 +444,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hip adductor machine",
   "name": "Hip adductions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -396,6 +452,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell hip thrusts",
   "name": "Hip thrusts (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -403,6 +460,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hip thrusts",
   "name": "Hip thrusts (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "BB or machine?"
@@ -410,6 +468,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline barbell bench",
   "name": "Incline bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -417,6 +476,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline barbell bench press",
   "name": "Incline bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -424,6 +484,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline bench",
   "name": "Incline bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "BB assumed"
@@ -431,6 +492,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline bench (BB)",
   "name": "Incline bench press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -438,6 +500,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell incline bench",
   "name": "Incline bench press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -445,6 +508,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline bench (DB)",
   "name": "Incline bench press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -452,6 +516,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline dumbbell press",
   "name": "Incline bench press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -459,6 +524,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline dumbell bench",
   "name": "Incline bench press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -466,6 +532,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline bench (smith)",
   "name": "Incline bench press (Smith)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -473,6 +540,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline curls (DB)",
   "name": "Incline curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -480,6 +548,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline dumbbell curl",
   "name": "Incline curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -487,6 +556,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline dumbbell curls",
   "name": "Incline curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -494,6 +564,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Machine incline press",
   "name": "Incline press (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -501,6 +572,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline sit-ups",
   "name": "Incline sit-ups (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "or decline?"
@@ -508,6 +580,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline skull crushers",
   "name": "Incline skull crushers (EZ)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -515,6 +588,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Kneeling cable rows",
   "name": "Kneeling rows (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -522,6 +596,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Kneeling leg curl",
   "name": "Kneeling leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -529,6 +604,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Kneeling leg curls",
   "name": "Kneeling leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -536,6 +612,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Kneeling wrist curls (DB)",
   "name": "Kneeling wrist curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "logged with no sets"
@@ -543,6 +620,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lat pulldowns",
   "name": "Lat pulldowns (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -550,6 +628,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pull downs",
   "name": "Lat pulldowns (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -557,6 +636,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pulldowns",
   "name": "Lat pulldowns (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -564,6 +644,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable delt flys",
   "name": "Lateral raises (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "or rear delt flys?"
@@ -571,6 +652,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable lateral raise",
   "name": "Lateral raises (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -578,6 +660,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable lateral raises",
   "name": "Lateral raises (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -585,6 +668,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lateral raises (cable)",
   "name": "Lateral raises (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -592,6 +676,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell lateral raises",
   "name": "Lateral raises (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -599,6 +684,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lateral raises (DB)",
   "name": "Lateral raises (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -606,6 +692,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lateral raises (ez bar)",
   "name": "Lateral raises (EZ)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "really EZ bar?"
@@ -613,6 +700,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Leg extensions",
   "name": "Leg extensions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -620,6 +708,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated leg extensions",
   "name": "Leg extensions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -627,6 +716,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Laying hamstring curls",
   "name": "Lying leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -634,6 +724,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lying hamstring curls",
   "name": "Lying leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -641,6 +732,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lying leg curls",
   "name": "Lying leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -648,6 +740,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lying leg raise",
   "name": "Lying leg raises (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -655,6 +748,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lying leg raises",
   "name": "Lying leg raises (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -662,6 +756,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Lying raise raises",
   "name": "Lying leg raises (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "typo"
@@ -669,6 +764,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Nordic hamstring",
   "name": "Nordic hamstring curls (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "logged with no sets"
@@ -676,6 +772,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbbell rows",
   "name": "One-arm rows (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -683,6 +780,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell rows",
   "name": "One-arm rows (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -690,6 +788,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "One-arm dumbell rows",
   "name": "One-arm rows (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -697,6 +796,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Military press",
   "name": "Overhead press (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -704,6 +804,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Overhead cable extensions",
   "name": "Overhead tricep extensions (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -711,6 +812,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Overhead tricep extension",
   "name": "Overhead tricep extensions (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "cable or DB?"
@@ -718,6 +820,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Overhead Dumbbell extensions",
   "name": "Overhead tricep extensions (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -725,6 +828,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Belt squat",
   "name": "Belt squats (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -732,6 +836,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Chest supported rows (upright)",
   "name": "Chest-supported rows (PL, Upright)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": ""
@@ -739,6 +844,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Glute drive",
   "name": "Glute drive (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "separate machine from hip thrust machine?"
@@ -746,6 +852,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hack squat",
   "name": "Hack squats (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -753,6 +860,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hack squats",
   "name": "Hack squats (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -760,6 +868,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hip thrust machine",
   "name": "Hip thrusts (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": ""
@@ -767,6 +876,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Iso-lateral bench press",
   "name": "Bench press (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "iso = PL"
@@ -774,6 +884,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Decline press (iso)",
   "name": "Decline press (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "iso = PL"
@@ -781,6 +892,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dips (iso)",
   "name": "Dips (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "iso = PL"
@@ -788,6 +900,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Chest supported rows (iso)",
   "name": "Chest-supported rows (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "iso = PL"
@@ -795,6 +908,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Iso-lateral machine",
   "name": "Chest-supported rows (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "row? which machine; iso = PL"
@@ -802,6 +916,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Shoulder press (iso)",
   "name": "Shoulder press (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "iso = PL"
@@ -809,6 +924,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Plate-loaded pulldowns",
   "name": "Lat pulldowns (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -816,6 +932,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pulldowns (PL)",
   "name": "Lat pulldowns (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -823,6 +940,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Leg press",
   "name": "Leg press (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -830,6 +948,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Calf raises (leg press)",
   "name": "Leg press calf raises (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -837,6 +956,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Leg extension calf raises",
   "name": "Leg press calf raises (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "loaded 6*45 - likely leg press"
@@ -844,6 +964,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Leg press calf raises",
   "name": "Leg press calf raises (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -851,6 +972,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Leg press calves",
   "name": "Leg press calf raises (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -858,6 +980,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Machine leg press calf raises",
   "name": "Leg press calf raises (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "selectorized leg press?"
@@ -865,6 +988,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pec fly (weird)",
   "name": "Pec flys (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": ""
@@ -872,6 +996,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pec flys (cable)",
   "name": "Pec flys (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -879,6 +1004,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Hi-lo cable fly",
   "name": "Pec flys (Cable, High-to-low)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -886,6 +1012,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline cable fly",
   "name": "Pec flys (Cable, Incline)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -893,6 +1020,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing incline cable fly",
   "name": "Pec flys (Cable, Incline)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -900,6 +1028,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Low cable flys",
   "name": "Pec flys (Cable, Low-to-high)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -907,6 +1036,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell flys (LP)",
   "name": "Pec flys (DB, LP)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "what is LP?"
@@ -914,6 +1044,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell pec flys (LP)",
   "name": "Pec flys (DB, LP)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "what is LP?"
@@ -921,6 +1052,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pec flys (DB, LP)",
   "name": "Pec flys (DB, LP)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "what is LP?"
@@ -928,6 +1060,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Machine pec fly",
   "name": "Pec flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -935,6 +1068,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Machine pec flys",
   "name": "Pec flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -942,6 +1076,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pec fly machine",
   "name": "Pec flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -949,6 +1084,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pec flys (machine)",
   "name": "Pec flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "some rows loaded 2*45 - different machine?"
@@ -956,6 +1092,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pendulum squat",
   "name": "Pendulum squats (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "PL assumed"
@@ -963,6 +1100,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pendulum squats",
   "name": "Pendulum squats (PL)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "PL assumed"
@@ -970,6 +1108,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Preacher curls (DB)",
   "name": "Preacher curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -977,6 +1116,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Preacher curl machine",
   "name": "Preacher curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -984,6 +1124,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Preacher curls",
   "name": "Preacher curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "machine or EZ bar?"
@@ -991,6 +1132,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pull-ups",
   "name": "Pull-ups (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "negative load = assisted"
@@ -998,6 +1140,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pullups",
   "name": "Pull-ups (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": "negative load = assisted"
@@ -1005,6 +1148,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable rear delt fly",
   "name": "Rear delt flys (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1012,6 +1156,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable rear delt flys",
   "name": "Rear delt flys (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1019,6 +1164,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Rear delt cable flys",
   "name": "Rear delt flys (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1026,6 +1172,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Rear delt flys (cable)",
   "name": "Rear delt flys (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1033,6 +1180,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Rear delt fly (DB)",
   "name": "Rear delt flys (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1040,6 +1188,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Rear delt flys (DB)",
   "name": "Rear delt flys (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1047,6 +1196,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Machine rear delt fly",
   "name": "Rear delt flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1054,6 +1204,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Machine rear delt flys",
   "name": "Rear delt flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1061,6 +1212,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Rear delt fly",
   "name": "Rear delt flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "equipment unknown"
@@ -1068,6 +1220,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Rear delt flys (machine)",
   "name": "Rear delt flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1075,6 +1228,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated rear delt flys",
   "name": "Rear delt flys (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "or DB?"
@@ -1082,6 +1236,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell rear delt raise",
   "name": "Rear delt raises (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1089,6 +1244,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Reverse dragon flags",
   "name": "Reverse dragon flags (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1096,6 +1252,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Reverse grip cable curls",
   "name": "Reverse-grip curls (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1103,6 +1260,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Reverse grip curls (cable)",
   "name": "Reverse-grip curls (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1110,6 +1268,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Reverse grip dumbell curls",
   "name": "Reverse-grip curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1117,6 +1276,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Reverse grip ez bar curl",
   "name": "Reverse-grip curls (EZ)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1124,6 +1284,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Reverse grip ez bar curls",
   "name": "Reverse-grip curls (EZ)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1131,6 +1292,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Roman chair abs",
   "name": "Roman chair leg raises (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "same movement?"
@@ -1138,6 +1300,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Roman chair leg raises",
   "name": "Roman chair leg raises (BW)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1145,6 +1308,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Romanian deadlifts",
   "name": "Romanian deadlifts (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "BB assumed"
@@ -1152,6 +1316,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Romanian deadlifts (BB)",
   "name": "Romanian deadlifts (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1159,6 +1324,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Romanian deadlifts (DB)",
   "name": "Romanian deadlifts (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1166,6 +1332,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable rows",
   "name": "Seated rows (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1173,6 +1340,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated cable rows",
   "name": "Seated rows (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1180,6 +1348,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated calf extensions",
   "name": "Seated calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1187,6 +1356,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated hamstring curls",
   "name": "Seated leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1194,6 +1364,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated hamstring extensions",
   "name": "Seated leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "typo? or leg extensions"
@@ -1201,6 +1372,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated leg curl",
   "name": "Seated leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1208,6 +1380,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated leg curls",
   "name": "Seated leg curls (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1215,6 +1388,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated leg press",
   "name": "Seated leg press (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1222,6 +1396,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Seated leg press calf raises",
   "name": "Seated leg press calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1229,6 +1404,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell shoulder press",
   "name": "Shoulder press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1236,6 +1412,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell shoulder presses",
   "name": "Shoulder press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1243,6 +1420,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Shoulder press (DB)",
   "name": "Shoulder press (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1250,6 +1428,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell shrugs",
   "name": "Shrugs (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1257,6 +1436,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Shrugs (BB)",
   "name": "Shrugs (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1264,6 +1444,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Dumbell shrugs",
   "name": "Shrugs (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1271,6 +1452,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Single-grip cable rows",
   "name": "Single-arm rows (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "single arm or single handle?"
@@ -1278,6 +1460,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Single arm cable pushdowns",
   "name": "Single-arm tricep pushdowns (Cable)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1285,6 +1468,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Single dumbell calf raises",
   "name": "Single-leg calf raises (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1292,6 +1476,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing dumbell calf raises",
   "name": "Single-leg calf raises (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "single or both legs?"
@@ -1299,6 +1484,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Single leg extensions",
   "name": "Single-leg extensions (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1306,6 +1492,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Skull crushers",
   "name": "Skull crushers (EZ)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1313,6 +1500,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell squat",
   "name": "Squats (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1320,6 +1508,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell squats",
   "name": "Squats (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1327,6 +1516,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Stair master",
   "name": "Stairmaster",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
@@ -1334,6 +1524,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Stairmaster",
   "name": "Stairmaster",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
@@ -1341,6 +1532,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Barbell calf raises",
   "name": "Standing calf raises (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1348,6 +1540,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing calf raises",
   "name": "Standing calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "machine?"
@@ -1355,6 +1548,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing calf raises (machine)",
   "name": "Standing calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1362,6 +1556,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing dumbbell wrist curls",
   "name": "Standing wrist curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "merge with Wrist Curls (DB)?"
@@ -1369,6 +1564,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing dumbell wrist curls",
   "name": "Standing wrist curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "merge with Wrist Curls (DB)?"
@@ -1376,6 +1572,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Standing wrist curls (DB)",
   "name": "Standing wrist curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "merge with Wrist Curls (DB)?"
@@ -1383,6 +1580,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Static hold",
   "name": "Static holds (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "timed (sec) - store as duration?"
@@ -1390,6 +1588,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Treadmill",
   "name": "Treadmill",
+  "unweightedName": "",
   "type": "cardio",
   "review": true,
   "note": "cardio; incline unknown; incline unknown"
@@ -1397,6 +1596,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Treadmill (10°)",
   "name": "Treadmill (10°)",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
@@ -1404,6 +1604,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Incline treadmill (15°)",
   "name": "Treadmill (15°)",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
@@ -1411,6 +1612,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Treadmill (15%)",
   "name": "Treadmill (15°)",
+  "unweightedName": "",
   "type": "cardio",
   "review": true,
   "note": "% vs ° - same?"
@@ -1418,6 +1620,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Treadmill (15*)",
   "name": "Treadmill (15°)",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
@@ -1425,6 +1628,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Treadmill (15°)",
   "name": "Treadmill (15°)",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
@@ -1432,6 +1636,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Pushdowns",
   "name": "Tricep pushdowns (Cable, Bar)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "bar or rope?"
@@ -1439,6 +1644,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Tricep pushdowns",
   "name": "Tricep pushdowns (Cable, Bar)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "bar or rope?"
@@ -1446,6 +1652,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Tricep pushdowns w/ bar",
   "name": "Tricep pushdowns (Cable, Bar)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1453,6 +1660,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Tricep pushdowns w/ ez bar",
   "name": "Tricep pushdowns (Cable, EZ Bar)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1460,6 +1668,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Cable pushdowns w/ rope",
   "name": "Tricep pushdowns (Cable, Rope)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1467,6 +1676,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Tricep pushdowns w/ rope",
   "name": "Tricep pushdowns (Cable, Rope)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1474,6 +1684,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Upright row",
   "name": "Upright rows (BB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "equipment unknown"
@@ -1481,6 +1692,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "V-Squat Calf raises",
   "name": "V-squat calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1488,6 +1700,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "V-Squat calf raises",
   "name": "V-squat calf raises (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1495,6 +1708,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "V-Squats",
   "name": "V-squats (Machine)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1502,20 +1716,23 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Walk",
   "name": "Walk",
+  "unweightedName": "",
   "type": "cardio",
   "review": false,
   "note": "cardio"
  },
  {
   "legacy": "Weighted leg raises",
-  "name": "Hanging leg raises (BW)",
+  "name": "Hanging leg raises (DB)",
+  "unweightedName": "Hanging leg raises (BW)",
   "type": "lift",
-  "review": true,
-  "note": "separate or Hanging Leg Raises with load?; merge into hanging leg raises (added weight is the load)?"
+  "review": false,
+  "note": ""
  },
  {
   "legacy": "Dumbell wrist curls",
   "name": "Wrist curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": true,
   "note": "seated vs standing?"
@@ -1523,6 +1740,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Wrist curls (DB)",
   "name": "Wrist curls (DB)",
+  "unweightedName": "",
   "type": "lift",
   "review": false,
   "note": ""
@@ -1530,6 +1748,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  {
   "legacy": "Abs",
   "name": "",
+  "unweightedName": "",
   "type": "skip",
   "review": true,
   "note": "section label, not an exercise - skip?"

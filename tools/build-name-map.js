@@ -42,7 +42,10 @@ const entries = rows.map(r => {
   const movement = r[col('movement')];
   const name = movement ? naming.formatExerciseName({ movement, equipment: r[col('equipment')], detail: r[col('detail')] }) : '';
   r[col('proposed_name')] = name;
-  return { legacy: r[col('legacy_name')], name, type: r[col('type')] || 'lift',
+  const noWeightEquipment = r[col('equipment_if_no_weight')];
+  const unweightedName = movement && noWeightEquipment
+    ? naming.formatExerciseName({ movement, equipment: noWeightEquipment, detail: r[col('detail')] }) : '';
+  return { legacy: r[col('legacy_name')], name, unweightedName, type: r[col('type')] || 'lift',
     review: r[col('needs_review')] === 'YES', note: r[col('note')] || '' };
 });
 

@@ -9,7 +9,8 @@
  * so re-running after a partial failure only fills in what is missing. A
  * completed import is recorded in document properties and blocks re-runs.
  */
-var REVIEW_HEADERS = ['Legacy Name', 'Found In', 'Times Used', 'Approved Name', 'Type (lift/cardio/skip)', 'Approved', 'Note'];
+var REVIEW_HEADERS = ['Legacy Name', 'Found In', 'Times Used', 'Approved Name', 'Type (lift/cardio/skip)', 'Approved', 'Note',
+  'Name If No Weight (optional)'];
 
 function readLegacyGrid_() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEETS.LEGACY);
@@ -65,8 +66,8 @@ function migrationBuildReview() {
     var blocks = Object.keys(u.blocks).sort().join('/');
     if (kept[key]) { var r = kept[key].slice(); r[1] = blocks; r[2] = u.count; return r; }
     var d = defaults[key];
-    if (!d) return [u.name, blocks, u.count, '', 'lift', false, 'New name - choose an exercise'];
-    return [u.name, blocks, u.count, d.name, d.type, !d.review, d.note];
+    if (!d) return [u.name, blocks, u.count, '', 'lift', false, 'New name - choose an exercise', ''];
+    return [u.name, blocks, u.count, d.name, d.type, !d.review, d.note, d.unweightedName || ''];
   }).sort(function (a, b) { return String(a[3] || '~').localeCompare(String(b[3] || '~')) || String(a[0]).localeCompare(String(b[0])); });
 
   if (!sheet) sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(CONFIG.SHEETS.MIGRATION_REVIEW);
@@ -91,7 +92,8 @@ function readApprovedNameMap_() {
     var type = String(r[4]).trim().toLowerCase();
     if (r[0] === '' || r[5] !== true) return;
     if (type !== 'skip' && !String(r[3]).trim()) return;
-    map[normalizeLegacyKey(r[0])] = { name: String(r[3]).trim(), type: type === 'cardio' || type === 'skip' ? type : 'lift' };
+    map[normalizeLegacyKey(r[0])] = { name: String(r[3]).trim(), type: type === 'cardio' || type === 'skip' ? type : 'lift',
+      unweightedName: String(r[7] || '').trim() };
   });
   return map;
 }

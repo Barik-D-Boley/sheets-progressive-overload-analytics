@@ -1,7 +1,9 @@
 /**
  * Turns parsed legacy entries into import records using the reviewed name map.
  *
- * nameMap: { '<legacy name lowercased>': { name: '<registry name>', type: 'lift'|'cardio'|'skip' } }
+ * nameMap: { '<legacy name lowercased>': { name: '<registry name>', type: 'lift'|'cardio'|'skip',
+ *            unweightedName?: '<name used when every set has 0 load>' } }
+ * e.g. hanging leg raises: "Hanging leg raises (DB)", or "(BW)" when no set used weight.
  *
  * Status per entry:
  *   ready   - imported as-is
@@ -58,6 +60,13 @@ function buildMigrationPlan(parsed, nameMap, options) {
       return cell.text; // kept verbatim for later correction
     });
     if (!sets.some(String)) setFlags.push('No sets recorded');
+    if (mapped.unweightedName) {
+      var loads = entry.cells.map(function (cell) {
+        var ps = cell.text ? parseLegacySetCell(cell.text) : null;
+        return ps && ps.set ? ps.set.loadValue : null;
+      }).filter(function (v) { return v !== null; });
+      if (loads.length && loads.every(function (v) { return v === 0; })) base.exercise = mapped.unweightedName;
+    }
     var lift = Object.assign(base, { unit: unit, sets: sets, flags: setFlags });
     lifts.push(lift);
     tally(lift, setFlags);

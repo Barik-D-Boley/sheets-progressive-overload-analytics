@@ -90,6 +90,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Equipment tags** (always present for lifts, even when obvious): Barbell `BB`, Dumbbell `DB`, Plate-loaded `PL`, Cable `Cable`, Machine `Machine`, Smith machine `Smith`, EZ bar `EZ`, Bodyweight `BW`.
   - Iso-lateral machines are `PL`, and "iso" is dropped from the name (`Bench press (PL)`, not `Iso-lateral bench press (PL)`).
   - Dips and pull-ups are `BW`; added weight (dip belt) is a positive load, and assistance is a negative load.
+  - Hanging leg raises are `DB` when any set uses weight and `BW` when no set does. During migration this is the review tab's optional "Name If No Weight" column; on the entry form the BW version is chosen when all sets are logged at 0.
 - **Details** (attachments, angles) follow the tag after a comma and are capitalized: `Pullovers (Cable, Bar)`, `Pec flys (Cable, Low-to-high)`.
 - **Cardio** is a separate list on Master (not in the exercise list). Incline goes in parentheses: `Treadmill (15°)`.
 - **New exercises** added from the entry form are formatted automatically: the user picks equipment from a dropdown and enters the movement, and the name is built from the format.

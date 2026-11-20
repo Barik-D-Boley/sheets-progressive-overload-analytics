@@ -32,6 +32,16 @@ test('parses both layouts, gyms, notes, calories, bodyweight', () => {
   assert.strictEqual(p.flags.length, 0);
 });
 
+test('unweightedName applies only when every set has 0 load', () => {
+  const p = g.parseLegacyGrid([header,
+    ['8/1/26', 'Hanging leg raises', '0 for 10', '0 for 5'],
+    ['', 'Hanging leg raises', '5 for 12', '0 for 10'],
+  ], { today: '2026-11-20' });
+  const map = { 'hanging leg raises': { name: 'Hanging leg raises (DB)', unweightedName: 'Hanging leg raises (BW)', type: 'lift' } };
+  const plan = g.buildMigrationPlan(p, map, {});
+  assert.deepStrictEqual(plan.lifts.map(l => l.exercise).join('|'), 'Hanging leg raises (BW)|Hanging leg raises (DB)');
+});
+
 test('future dates are reported', () => {
   const p = g.parseLegacyGrid([header, ['8/27/27', 'Dips', '0 for 10']], { today: '2026-11-20' });
   assert.match(p.entries[0].dateIssue, /future/);
