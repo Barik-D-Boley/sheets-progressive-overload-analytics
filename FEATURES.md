@@ -75,13 +75,22 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Stall / reset (all modes):** if estimated 1RM does not improve for the stall threshold of consecutive sessions, recommend a 10% load reduction and rebuild. Deload-week frequency (Master) is surfaced in the weekly prompt.
 - Recommendations are shown as "Goal" values on `Workout Entry` and are never written as recorded results.
 
-### Open Questions (Round 3)
+### Confirmed Implementation Decisions (Round 3)
 
-1. **Plate notation in legacy data:** `2*45+25` means two 45s plus a 25. Is that the **total** plate load, or **per side**? Should the import store the summed number (115) and keep the original text in notes?
-2. **`+N` reps** (e.g. `120 for 10+1`): is the `+1` an assisted rep or a partial rep?
-3. **Other legacy notes:** `(neg)`, `(?)`, `for ?`, `12 for -24` (reversed order), and timed sets like `Static hold 315 for 26 sec`. Should these be flagged, or is there a rule for each?
-4. **Packed cell format** for quarter tabs. Proposed: `205x8 a1 p2 @2` (load × reps, assisted, partial, RIR), unit stored in its own column per row. OK?
-5. **Popups on mobile:** the Sheets mobile app does not show script popups (dialogs/alerts) and does not run `onOpen`. Proposed: on mobile, the weekly bodyweight prompt, monthly celebration, and new-exercise prompt appear as a banner/input area on `Workout Entry` instead; on desktop they show as popups. OK?
+- **Plate notation** (`2*45+25`) is the number of plates loaded and is kept exactly as written in the set cell (`2*45+25x10`). Calculations use the evaluated total (115).
+- **`+N` reps** in legacy data (`120 for 10+1`) are assisted reps.
+- **Odd legacy cells** (`(neg)`, `(?)`, `for ?`, reversed `12 for -24`, timed `for 26 sec`, missing `for`) are flagged. They are imported with the original text kept in the set cell so they can be fixed in the quarter tab later.
+- **Packed set cell format:** `<load>x<reps>[ a<assisted>][ p<partial>][ @<rir>][ @rpe<rpe>]`, e.g. `205x8 a1 p2 @2`. The unit is stored in its own column per row.
+- **Popups:** desktop shows popups; on mobile, the weekly bodyweight prompt, monthly celebration, and new-exercise prompt appear as an input/banner area on `Workout Entry`.
+
+### Implementation Notes (Module 1)
+
+- **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G, Workouts at N, Gyms at Q. These are configurable in `src/backend/config.js`.
+- **Legacy layout:** blocks are detected per row because column positions shift around row 424. Anchors are a date (new session), the gym (row after the date, including a lone cell under the date), `date, gym` in one cell, or a session note such as `Deload`. Column X holds cardio calories; X1 holds a bodyweight (imported dated to the first legacy workout).
+- **Date checks:** a session date in the future, or earlier than the previous date in the same block, is blocked until it is fixed in the legacy tab (currently `S239`: 8/27/27).
+- **Workflow:** menu *Overload Tracker → Legacy migration*: 1) Build name review (`Migration Review` tab; approve or edit each legacy name), 2) Preview import (`Migration Preview` tab), 3) Run import.
+- **Recovery:** every imported row stores its legacy cell in `Source`; re-running skips rows already present, so a partial failure is fixed by running the import again. A completed import is recorded and blocks further runs.
+- The existing `Q4 2026 (hidden)` template tab is left untouched; quarter tabs are named `Q<n> <year>`.
 
 ### Decisions to Approve Before the Related Implementation
 
@@ -105,16 +114,16 @@ All modes share these settings on Master: rep range (min–max), load increment 
 
 ### 1.1 Data Schema & Exercise Management
 - [ ] **Master Exercise Binding:** Maintain one exercise registry on `Master` with a stable unique exercise ID. Store the ID in workout records and resolve the current display name from the registry so renames update historical and future views without rewriting identity.
-- [ ] **Sheet Origin Tracking:** Add dedicated provenance fields to canonical quarter-log records identifying the source sheet/version of each imported record.
+- [x] **Sheet Origin Tracking:** Add dedicated provenance fields to canonical quarter-log records identifying the source sheet/version of each imported record.
 - [ ] **Exercise Name Cleaning:** Standardize naming conventions across legacy data:
   - [ ] Convert shorthand terms (e.g., prefix `PL` for Plate-Loaded exercises).
   - [ ] Standardize pluralization and casing across all movements (e.g., "Lat Pulldowns", "Bicep Curls").
   - [ ] Review ambiguous names through an explicit legacy-name-to-exercise mapping; do not apply unsafe blanket pluralization or merge distinct exercises based only on similar text.
 
 ### 1.2 Legacy Import Pipeline
-- [ ] **Data Ingestion:** Build a Google Apps Script migration utility to preview and import the legacy `All Data - Unorganized` and other confirmed source ranges into the appropriate canonical quarter logs. Preserve existing quarter-tab data, including hidden tabs; detect overlaps before importing to avoid duplicate records.
-- [ ] **Migration Preview & Validation:** Show source rows, proposed exercise matches, parsed set values, row counts, and invalid/ambiguous rows before import; require confirmation and report any rows that need correction.
-- [ ] **One-Time Import Safety:** Preserve the original source tabs, do not silently discard malformed or unmatched records, and provide a clear completion summary. Record successful completion and block accidental duplicate imports; document recovery behavior if an import fails partway through.
+- [x] **Data Ingestion:** Build a Google Apps Script migration utility to preview and import the legacy `All Data - Unorganized` and other confirmed source ranges into the appropriate canonical quarter logs. Preserve existing quarter-tab data, including hidden tabs; detect overlaps before importing to avoid duplicate records.
+- [x] **Migration Preview & Validation:** Show source rows, proposed exercise matches, parsed set values, row counts, and invalid/ambiguous rows before import; require confirmation and report any rows that need correction.
+- [x] **One-Time Import Safety:** Preserve the original source tabs, do not silently discard malformed or unmatched records, and provide a clear completion summary. Record successful completion and block accidental duplicate imports; document recovery behavior if an import fails partway through.
 
 ---
 

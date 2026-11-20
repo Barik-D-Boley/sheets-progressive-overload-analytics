@@ -9,7 +9,9 @@
     "pull": "clasp pull --force",
     "pull:clean": "clasp pull --force --deleteUnusedFiles",
     "open": "clasp open",
-    "status": "clasp status"
+    "status": "clasp status",
+    "test": "node --test test/*.test.js",
+    "build:map": "node tools/build-name-map.js"
   },
   "repository": {
     "type": "git",
