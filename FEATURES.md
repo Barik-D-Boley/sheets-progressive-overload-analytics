@@ -2,8 +2,6 @@
 
 This document defines the technical requirements, feature breakdown, and execution checklist for **Progressive Overload 2.0**. It serves as the single source of truth for planning (Architect Mode) and implementation (Code Mode).
 
----
-
 ## Confirmed Architecture & Existing Workbook
 
 These decisions were confirmed before implementation planning:
@@ -36,8 +34,6 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 - A bodyweight-ratio chart uses the bodyweight value recorded for each lift date and clearly identifies dates without a matching value.
 - Weekly and monthly prompts follow their stated cadence and do not display fabricated statistics when there is insufficient data.
 
----
-
 ## Module 1: Legacy Data Migration & Normalization
 
 ### 1.1 Data Schema & Exercise Management
@@ -52,8 +48,6 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 - [ ] **Data Ingestion:** Build a Google Apps Script migration utility to preview and import the legacy `All Data - Unorganized` and other confirmed source ranges into the appropriate canonical quarter logs. Preserve existing quarter-tab data, including hidden tabs; detect overlaps before importing to avoid duplicate records.
 - [ ] **Migration Preview & Validation:** Show source rows, proposed exercise matches, parsed set values, row counts, and invalid/ambiguous rows before import; require confirmation and report any rows that need correction.
 - [ ] **One-Time Import Safety:** Preserve the original source tabs, do not silently discard malformed or unmatched records, and provide a clear completion summary. Record successful completion and block accidental duplicate imports; document recovery behavior if an import fails partway through.
-
----
 
 ## Module 2: Logging UI & Input Automation
 
@@ -75,8 +69,6 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 - [ ] **Unit-Safe Display:** Show the recorded value and unit in `Compiled Data`, or offer an explicitly view-only conversion to the current preferred unit. Never rewrite canonical quarter-log values when settings change.
 - [ ] **Backend Organization:** Keep calculation ranges and supporting matrices hidden where appropriate, without hiding the user-facing `Workout Entry`, `Master`, `Compiled Data`, `Cardio`, or quarter-log tabs.
 
----
-
 ## Module 3: Analytics, Visualizations & Progression Logic
 
 ### 3.1 Adaptive Progression Engines
@@ -90,14 +82,10 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
   - [ ] Bodyweight Ratio (Lifted Weight / Current Bodyweight).
   - [ ] Use bodyweight recorded for the lift date, convert units consistently, and make missing bodyweight data visible rather than silently substituting a current value.
 
----
-
 ## Module 4: Sheet Administration & UI Controls
 
 ### 4.1 Admin & Navigation Tools
 - [ ] **Sheet Visibility Macro:** Add an interactive button on `Master` that hides inactive or temporary workspace tabs, while never hiding required user-facing tabs or the active input/logging surface.
-
----
 
 ## Module 5: Habit Tracking, Prompts & Notifications
 
@@ -111,16 +99,12 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 - [ ] **Lifting Check-off Calendar:** Build a visual calendar grid tracking daily strength session completions.
 - [ ] **Cardio Check-off Calendar:** Build a visual calendar grid tracking daily cardio session completions.
 
----
-
 ## Module 6: Future Muscle-Group Analytics
 
 ### 6.1 Exercise Muscle Mapping
 - [ ] **Muscle Mapping:** Add primary and secondary muscle groups to each exercise in the master registry.
 - [ ] **Set Volume Attribution:** Calculate weekly working sets per muscle from logged sets and exercise mappings. Document the counting rule so a set is not unintentionally double-counted across primary and secondary muscles.
 - [ ] **Weekly Muscle Volume Popup:** Add a popup/dashboard summary showing weekly set volume per muscle group.
-
----
 
 ## Module 7: Release, Distribution & Branding
 

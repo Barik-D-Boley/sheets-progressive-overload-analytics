@@ -1,9 +1,13 @@
-function pushData() {
-  // var range = e.range;
-  // var sheet = range.getSheet();
-  // var row = range.getRow();
-  // var col = range.getColumn();
-  // var value = e.value;
+function pushData(e) {
+  if (!e || !e.range) {
+    return;
+  }
 
-  SpreadsheetApp.getActiveSpreadsheet().toast("The button worked");
+  var sheet = e.range.getSheet();
+  if (sheet.getName() === 'Workout Entry') {
+    var editedValue = String(e.value || '').trim();
+    if (editedValue) {
+      SpreadsheetApp.getActiveSpreadsheet().toast('Workout entry updated.');
+    }
+  }
 }
