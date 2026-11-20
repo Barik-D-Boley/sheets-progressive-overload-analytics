@@ -20,10 +20,9 @@ var NAMING_DEFAULTS = {
     'Machine': 'Machine',
     'Smith machine': 'Smith',
     'EZ bar': 'EZ',
-    'T-bar': 'TB',
     'Bodyweight': 'BW',
   },
-  properNouns: ['Romanian', 'Bulgarian', 'Nordic', 'Roman', 'EZ'],
+  properNouns: ['Romanian', 'Bulgarian', 'Nordic', 'Roman', 'EZ', 'T-bar'],
 };
 
 function sentenceCase_(text, properNouns) {

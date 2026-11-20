@@ -206,7 +206,7 @@ var DEFAULT_LEGACY_NAME_MAP = [
  },
  {
   "legacy": "Chest supported rows (TB)",
-  "name": "Chest-supported rows (TB)",
+  "name": "Chest-supported T-bar rows (PL)",
   "type": "lift",
   "review": false,
   "note": ""

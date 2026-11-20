@@ -28,7 +28,7 @@ Cable pullovers w/ rope,Pull,11,Pullovers,Cable,Rope,"Pullovers (Cable, Rope)",l
 Cable rope curls,Pull,1,Bicep curls,Cable,Rope,"Bicep curls (Cable, Rope)",lift,,
 Chest supported machine rows,Pull,1,Chest-supported rows,Machine,,Chest-supported rows (Machine),lift,,
 Chest supported rows,Pull,2,Chest-supported rows,Machine,,Chest-supported rows (Machine),lift,YES,which machine?
-Chest supported rows (TB),Pull,4,Chest-supported rows,T-bar,,Chest-supported rows (TB),lift,,
+Chest supported rows (TB),Pull,4,Chest-supported T-bar rows,Plate-loaded,,Chest-supported T-bar rows (PL),lift,,
 Close grip press (BB),Push,16,Close-grip bench press,Barbell,,Close-grip bench press (BB),lift,,
 Deadlift,Pull,1,Deadlifts,Barbell,,Deadlifts (BB),lift,,
 Deadlifts,Legs/Pull,20,Deadlifts,Barbell,,Deadlifts (BB),lift,,
