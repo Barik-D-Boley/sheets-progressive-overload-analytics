@@ -202,8 +202,10 @@ function entryFinish_() {
   saveEntryState_({ date: '', workout: '', queue: [], index: 0, set: 0, mode: 'lift', gym: gym });
   var sheet = entrySheet_();
   sheet.getRange(ENTRY.WORKOUT).setValue('');
-  renderEntry_(getEntryState_(), done.length
-    ? 'Workout saved: ' + done.length + ' exercises, ' + sets + ' sets.' : 'Nothing to save.');
+  var refreshNote = '';
+  try { refreshCompiledData(); } catch (err) { refreshNote = ' (Compiled Data refresh failed: ' + err.message + ')'; }
+  renderEntry_(getEntryState_(), (done.length
+    ? 'Workout saved: ' + done.length + ' exercises, ' + sets + ' sets.' : 'Nothing to save.') + refreshNote);
 }
 
 function entryGymChanged_(gymName) {
@@ -274,6 +276,10 @@ function saveCurrentExercise_(state, pendingInputs, lenient) {
   var sheet = entrySheet_();
   var dateValue = sheet.getRange(ENTRY.DATE).getValue();
   var date = dateToIso_(dateValue) || state.date;
+  if (!date) {
+    date = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    sheet.getRange(ENTRY.DATE).setValue(isoToDate_(date));
+  }
   var gymName = String(sheet.getRange(ENTRY.GYM).getValue() || state.gym || '').trim();
   var gymId = gymName ? ensureRegistryEntries('gyms', [gymName])[gymName.toLowerCase()] : '';
   var workoutId = state.workout ? ensureRegistryEntries('workouts', [state.workout])[state.workout.toLowerCase()] : '';

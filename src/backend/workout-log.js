@@ -46,6 +46,7 @@ function getExerciseHistory_(exerciseId) {
  * @return {{recordId: string, tab: string}}
  */
 function writeWorkoutRecord_(record) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(record.date))) throw new Error('Workout date is missing or invalid.');
   var tab = quarterTabName(record.date);
   var sheet = getOrCreateQuarterSheet(tab);
   var row = [record.recordId || newRecordId_('L'), isoToDate_(record.date), record.gymId, record.workoutId,

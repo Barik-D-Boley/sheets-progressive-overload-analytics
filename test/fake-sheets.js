@@ -80,6 +80,7 @@ class FakeRange {
     return this;
   }
   setValue(v) { return this.setValues(Array.from({ length: this.nr }, () => Array(this.nc).fill(v))); }
+  clearContent() { return this.setValues(Array.from({ length: this.nr }, () => Array(this.nc).fill(''))); }
   insertCheckboxes() { this.setValues(this.getValues().map(r => r.map(v => v === true))); return this; }
   setDataValidation(rule) { this.sheet.validations[this.getA1Notation()] = rule; return this; }
   getNote() { return this.sheet.notes[this.getA1Notation()] || ''; }
@@ -129,6 +130,15 @@ function createFakeApp(sheets) {
         formatDate: (d, tz, fmt) => d.toISOString().slice(0, 10),
       },
       Session: { getScriptTimeZone: () => 'UTC' },
+      ScriptApp: {
+        triggers: [],
+        getProjectTriggers() { return this.triggers; },
+        newTrigger(fn) {
+          const self = this;
+          const b = chainable({ create() { const t = { getHandlerFunction: () => fn }; self.triggers.push(t); return t; } });
+          return b;
+        },
+      },
       Date: class extends Date { constructor(...a) { if (a.length) super(...a); else super(now); } },
     },
   };
