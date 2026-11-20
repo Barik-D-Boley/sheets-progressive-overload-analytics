@@ -93,8 +93,30 @@ function ensureRegistryEntries(kind, names, extraColumns) {
     var col = columnLetterToIndex(spec.column);
     var lastUsed = existing.length ? existing[existing.length - 1].row : REGISTRY_FIRST_DATA_ROW - 1;
     sheet.getRange(lastUsed + 1, col, toAdd.length, spec.headers.length).setValues(toAdd);
+    if (CONFIG.SORTED_REGISTRIES.indexOf(kind) >= 0) sortRegistry(kind);
   }
   return map;
+}
+
+/**
+ * Sorts a registry's rows A-Z by name (case-insensitive). Whole rows move together,
+ * so IDs, checkboxes, and notes stay with their exercise; records use IDs, not rows.
+ */
+function sortRegistry(kind) {
+  var spec = CONFIG.REGISTRIES[kind];
+  var rows = readRegistryRows(kind);
+  if (rows.length < 2) return;
+  var sheet = getMasterSheet_();
+  var col = columnLetterToIndex(spec.column);
+  var first = rows[0]._row, last = rows[rows.length - 1]._row;
+  var values = sheet.getRange(first, col, last - first + 1, spec.headers.length).getValues()
+    .filter(function (r) { return r[0] !== ''; });
+  values.sort(function (a, b) {
+    var x = String(a[1]).toLowerCase(), y = String(b[1]).toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+  while (values.length < last - first + 1) values.push(spec.headers.map(function () { return ''; }));
+  sheet.getRange(first, col, values.length, spec.headers.length).setValues(values);
 }
 
 /** Full registry rows as objects keyed by header, plus _row (sheet row). */

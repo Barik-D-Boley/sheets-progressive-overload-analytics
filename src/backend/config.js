@@ -27,6 +27,9 @@ var CONFIG = {
       headers: ['Cardio ID', 'Name', 'Active'] },
   },
 
+  /** Registries kept sorted A-Z by name on Master (rows move; IDs never change). */
+  SORTED_REGISTRIES: ['exercises', 'cardio'],
+
   /** Routine templates on Master: Routine | Workout | exercise names left to right. */
   ROUTINES: { column: 'AA', title: 'Routines (edit to change a workout template)', maxExercises: 15 },
 

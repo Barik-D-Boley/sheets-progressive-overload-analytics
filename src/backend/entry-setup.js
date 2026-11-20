@@ -10,6 +10,7 @@ function setupEntryForm() {
   Object.keys(CONFIG.REGISTRIES).forEach(function (kind) { ensureRegistryHeaders_(kind); });
   ensureNamingTable_();
   ensureRoutinesTable_();
+  CONFIG.SORTED_REGISTRIES.forEach(function (kind) { sortRegistry(kind); });
   formatExerciseCheckboxes_();
 
   var existing = ss.getSheetByName(CONFIG.SHEETS.ENTRY);

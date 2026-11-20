@@ -197,3 +197,21 @@ test('free weights use every gym; machines use the current gym first (Same Gym O
   edit('B2', 'Eos');
   assert.strictEqual(sheet.value('A7'), 'Last · 11/15/26 BYUI');
 });
+
+test('exercise and cardio lists stay sorted A-Z; IDs and row data move together', () => {
+  const { app, g, sheet, edit } = setup();
+  const master = app.ss.getSheetByName('Master').data;
+  const names = () => master.slice(2).map(r => r[7]).filter(Boolean);
+  assert.deepStrictEqual(names(), ['Bench press (BB)', 'Hanging leg raises (BW)', 'Hanging leg raises (DB)', 'Lateral raises (DB)']);
+  const bench = master.find(r => r[7] === 'Bench press (BB)');
+  assert.strictEqual(bench[6], 'EX-0001'); assert.strictEqual(bench[12], true, 'warm-up box moved with its row');
+
+  edit('B4', '+ New exercise…');
+  edit('B34', 'face pulls'); edit('B35', 'Cable');
+  edit('B40', true);
+  assert.deepStrictEqual(names(), ['Bench press (BB)', 'Face pulls (Cable)', 'Hanging leg raises (BW)', 'Hanging leg raises (DB)', 'Lateral raises (DB)']);
+  assert.strictEqual(master.find(r => r[7] === 'Face pulls (Cable)')[6], 'EX-0005', 'new exercise keeps the next ID');
+
+  g.ensureRegistryEntries('cardio', ['Walk', 'Stairmaster', 'Treadmill (15%)'], () => [true]);
+  assert.deepStrictEqual(master.slice(2).map(r => r[23]).filter(Boolean), ['Stairmaster', 'Treadmill (15%)', 'Walk']);
+});
