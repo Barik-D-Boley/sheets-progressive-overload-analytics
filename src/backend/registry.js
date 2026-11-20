@@ -93,8 +93,30 @@ function ensureRegistryEntries(kind, names, extraColumns) {
     var col = columnLetterToIndex(spec.column);
     var lastUsed = existing.length ? existing[existing.length - 1].row : REGISTRY_FIRST_DATA_ROW - 1;
     sheet.getRange(lastUsed + 1, col, toAdd.length, spec.headers.length).setValues(toAdd);
+    if (CONFIG.SORTED_REGISTRIES.indexOf(kind) >= 0) sortRegistry(kind);
   }
   return map;
+}
+
+/**
+ * Sorts a registry's rows A-Z by name (case-insensitive). Whole rows move together,
+ * so IDs, checkboxes, and notes stay with their exercise; records use IDs, not rows.
+ */
+function sortRegistry(kind) {
+  var spec = CONFIG.REGISTRIES[kind];
+  var rows = readRegistryRows(kind);
+  if (rows.length < 2) return;
+  var sheet = getMasterSheet_();
+  var col = columnLetterToIndex(spec.column);
+  var first = rows[0]._row, last = rows[rows.length - 1]._row;
+  var values = sheet.getRange(first, col, last - first + 1, spec.headers.length).getValues()
+    .filter(function (r) { return r[0] !== ''; });
+  values.sort(function (a, b) {
+    var x = String(a[1]).toLowerCase(), y = String(b[1]).toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+  while (values.length < last - first + 1) values.push(spec.headers.map(function () { return ''; }));
+  sheet.getRange(first, col, values.length, spec.headers.length).setValues(values);
 }
 
 /** Full registry rows as objects keyed by header, plus _row (sheet row). */
@@ -136,4 +158,65 @@ function columnIndexToLetter(index) {
   var s = '';
   while (index > 0) { var r = (index - 1) % 26; s = String.fromCharCode(65 + r) + s; index = Math.floor((index - 1) / 26); }
   return s;
+}
+
+/**
+ * Gives every named row without an ID the next free ID (e.g. a name typed straight
+ * into Master). New exercises also get their equipment, Active, and Same Gym Only
+ * defaults. Returns the number of IDs added.
+ */
+function fillMissingRegistryIds(kind) {
+  var spec = CONFIG.REGISTRIES[kind];
+  var sheet = getMasterSheet_();
+  var col = columnLetterToIndex(spec.column);
+  var last = sheet.getLastRow();
+  if (last < REGISTRY_FIRST_DATA_ROW) return 0;
+  var range = sheet.getRange(REGISTRY_FIRST_DATA_ROW, col, last - REGISTRY_FIRST_DATA_ROW + 1, spec.headers.length);
+  var values = range.getValues();
+  var maxNum = 0;
+  values.forEach(function (r) {
+    var n = parseInt(String(r[0]).replace(spec.idPrefix, ''), 10);
+    if (r[0] !== '' && n > maxNum) maxNum = n;
+  });
+  var h = function (name) { return spec.headers.indexOf(name); };
+  var added = 0;
+  values.forEach(function (r) {
+    if (r[0] !== '' || !String(r[1]).trim()) return;
+    maxNum++;
+    r[0] = spec.idPrefix + ('0000000' + maxNum).slice(-spec.idDigits);
+    r[1] = String(r[1]).trim();
+    if (kind === 'exercises') {
+      if (r[h('Equipment')] === '') r[h('Equipment')] = equipmentFromName(r[1]);
+      if (r[h('Active')] === '') r[h('Active')] = true;
+      if (r[h('Warm-up')] === '') r[h('Warm-up')] = false;
+      if (r[h('Same Gym Only')] === '') r[h('Same Gym Only')] = isGymSpecificEquipment(r[h('Equipment')]);
+    } else if (h('Active') >= 0 && r[h('Active')] === '') {
+      r[h('Active')] = true;
+    }
+    added++;
+  });
+  if (!added) return 0;
+  range.setValues(values);
+  ['Active', 'Warm-up', 'Same Gym Only'].forEach(function (name) {
+    if (h(name) >= 0) sheet.getRange(REGISTRY_FIRST_DATA_ROW, col + h(name), values.length, 1).insertCheckboxes();
+  });
+  if (CONFIG.SORTED_REGISTRIES.indexOf(kind) >= 0) sortRegistry(kind);
+  return added;
+}
+
+/** onEdit: typing a name into a registry's Name column on Master assigns its ID. */
+function registryOnEdit(e) {
+  var sheet = e.range.getSheet();
+  if (sheet.getName() !== CONFIG.SHEETS.MASTER || e.range.getRow() + e.range.getNumRows() - 1 < REGISTRY_FIRST_DATA_ROW) return false;
+  var first = e.range.getColumn(), lastCol = first + e.range.getNumColumns() - 1;
+  var handled = false;
+  Object.keys(CONFIG.REGISTRIES).forEach(function (kind) {
+    var nameCol = columnLetterToIndex(CONFIG.REGISTRIES[kind].column) + 1;
+    if (nameCol >= first && nameCol <= lastCol) {
+      // New names get IDs (and a sort); a rename re-sorts the list on its own.
+      if (!fillMissingRegistryIds(kind) && CONFIG.SORTED_REGISTRIES.indexOf(kind) >= 0) sortRegistry(kind);
+      handled = true;
+    }
+  });
+  return handled;
 }

@@ -68,6 +68,10 @@ class FakeSheet {
 class FakeRange {
   constructor(sheet, row, col, nr, nc) { Object.assign(this, { sheet, row, col, nr, nc }); return chainable(this); }
   getSheet() { return this.sheet; }
+  getRow() { return this.row; }
+  getColumn() { return this.col; }
+  getNumRows() { return this.nr; }
+  getNumColumns() { return this.nc; }
   getA1Notation() {
     const a = rcToA1(this.row, this.col);
     return this.nr === 1 && this.nc === 1 ? a : a + ':' + rcToA1(this.row + this.nr - 1, this.col + this.nc - 1);

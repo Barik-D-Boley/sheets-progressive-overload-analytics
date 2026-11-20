@@ -10,10 +10,9 @@
  * document properties under CONFIG.PROP_ENTRY_STATE.
  */
 var ENTRY = {
-  DATE: 'A1', GYM: 'B1',
-  WORKOUT: 'A2', PROGRESS: 'B2',
-  CARDIO_BTN: 'B3',
-  EXERCISE: 'A4',
+  // Header: labels in column A, values and dropdowns in column B.
+  DATE: 'B1', GYM: 'B2', ROUTINE: 'B3',
+  EXERCISE_LABEL: 'A4', EXERCISE: 'B4',
   SETUP: 'B5',
   SET_TITLE: 'A6',
   LAST_LABEL: 'A7', LAST: 'B7',
@@ -22,20 +21,22 @@ var ENTRY = {
   INPUT_FIRST_ROW: 10, // B10:B15 = weight, reps, assisted, partial, rir, set note
   BACK_BTN: 'B16', NEXT_BTN: 'B17', FINISH_BTN: 'B18',
   MESSAGE: 'A19',
+  CARDIO_BTN: 'B20', BODYWEIGHT_BTN: 'B21',
   LIFT_ROWS: [4, 18],
 
-  CARDIO_ROWS: [21, 29],
-  CARDIO_ACTIVITY: 'B22', CARDIO_FIRST_ROW: 23, // B23:B27 = duration, speed, distance, calories, notes
-  CARDIO_SPEED_UNIT: 'C24', CARDIO_DIST_UNIT: 'C25',
-  CARDIO_SAVE_BTN: 'B28', CARDIO_CANCEL_BTN: 'B29',
+  CARDIO_ROWS: [23, 31],
+  CARDIO_ACTIVITY: 'B24', CARDIO_FIRST_ROW: 25, // B25:B29 = duration, speed, distance, calories, notes
+  CARDIO_SPEED_UNIT: 'C26', CARDIO_DIST_UNIT: 'C27',
+  CARDIO_SAVE_BTN: 'B30', CARDIO_CANCEL_BTN: 'B31',
 
-  NEW_ROWS: [31, 39],
-  NEW_FIRST_ROW: 32, // B32:B36 = movement, equipment, detail, warm-up, setup notes
-  NEW_PREVIEW: 'B37', NEW_CREATE_BTN: 'B38', NEW_CANCEL_BTN: 'B39',
+  NEW_ROWS: [33, 41],
+  NEW_FIRST_ROW: 34, // B34:B38 = movement, equipment, detail, warm-up, setup notes
+  NEW_PREVIEW: 'B39', NEW_CREATE_BTN: 'B40', NEW_CANCEL_BTN: 'B41',
 
-  BODYWEIGHT_BTN: 'B20',
-  BW_ROWS: [41, 45],
-  BW_PROMPT: 'A42', BW_INPUT: 'B43', BW_SAVE_BTN: 'B44', BW_SKIP_BTN: 'B45',
+  BW_ROWS: [43, 47],
+  BW_PROMPT: 'A44', BW_INPUT: 'B45', BW_SAVE_BTN: 'B46', BW_SKIP_BTN: 'B47',
+
+  LAST_ROW: 47,
 };
 var NEW_EXERCISE_OPTION = '+ New exercise…';
 var DONE_MARK = '✓ ';
@@ -69,7 +70,7 @@ function entryOnEdit(e) {
   var checked = e.value === 'TRUE' || e.value === true;
   var actions = {};
   actions[ENTRY.GYM] = function () { entryGymChanged_(e.value); };
-  actions[ENTRY.WORKOUT] = function () { entryStartWorkout_(e.value); };
+  actions[ENTRY.ROUTINE] = function () { entryStartWorkout_(e.value); };
   actions[ENTRY.EXERCISE] = function () { entryExerciseChosen_(e.value); };
   actions[ENTRY.SETUP] = function () { entrySetupNotesChanged_(e.value); };
   actions[ENTRY.CARDIO_ACTIVITY] = function () { entryCardioActivityChanged_(e.value); };
@@ -110,24 +111,25 @@ function entryOnEdit(e) {
 
 // ---- starting and navigating ----------------------------------------------
 
-function entryStartWorkout_(workoutName) {
+/** Picking a routine loads its exercises; records are saved under the routine's workout (Push/Pull/Legs...). */
+function entryStartWorkout_(routineName) {
   var state = getEntryState_();
   if (state.queue.length) saveCurrentExercise_(state, readInputs_(), true);
-  var names = readRoutine_(workoutName);
+  var routine = readRoutine_(routineName);
   var exercises = exerciseIndex_();
   var queue = [];
-  names.forEach(function (n) {
+  routine.exercises.forEach(function (n) {
     var ex = exercises.byName[n.toLowerCase()];
     if (ex) queue.push(newQueueItem_(ex));
   });
   var sheet = entrySheet_();
   var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
   sheet.getRange(ENTRY.DATE).setValue(isoToDate_(today));
-  state = { date: today, workout: workoutName, queue: queue, index: 0, set: 0, mode: 'lift' };
+  state = { date: today, routine: routineName, workout: routine.workout || routineName, queue: queue, index: 0, set: 0, mode: 'lift' };
   saveEntryState_(state);
   var gymPicked = String(sheet.getRange(ENTRY.GYM).getValue()).trim();
   renderEntry_(state, !queue.length
-    ? 'No routine for "' + workoutName + '" yet. Pick exercises from the dropdown, or add a routine on Master.'
+    ? 'No routine "' + routineName + '" yet. Pick exercises from the dropdown, or add the routine on Master.'
     : (gymPicked ? '' : 'Pick your gym at the top before logging.'));
   var snooze = PropertiesService.getDocumentProperties().getProperty(BODYWEIGHT.PROP_SNOOZE);
   if (needsWeighIn(readBodyweightLog_(), today, snooze)) entryOpenBodyweight_(today);
@@ -210,7 +212,7 @@ function entryFinish_() {
   var gym = state.gym || entrySheet_().getRange(ENTRY.GYM).getValue();
   saveEntryState_({ date: '', workout: '', queue: [], index: 0, set: 0, mode: 'lift', gym: gym });
   var sheet = entrySheet_();
-  sheet.getRange(ENTRY.WORKOUT).setValue('');
+  sheet.getRange(ENTRY.ROUTINE).setValue('');
   var refreshNote = '';
   try { refreshCompiledData(); } catch (err) { refreshNote = ' (Compiled Data refresh failed: ' + err.message + ')'; }
   renderEntry_(getEntryState_(), (done.length
@@ -330,26 +332,33 @@ function readInputs_() {
 function exerciseIndex_() {
   var byName = {}, byId = {};
   readRegistryRows('exercises').forEach(function (r) {
+    var sameGym = r['Same Gym Only'];
+    if (sameGym !== true && sameGym !== false) sameGym = isGymSpecificEquipment(r['Equipment'] || equipmentFromName(r['Name']));
     var ex = { id: String(r['Exercise ID']), name: String(r['Name']), active: r['Active'] !== false,
-      warmup: r['Warm-up'] === true, setup: r['Setup Notes'], increment: r['Increment'] };
+      warmup: r['Warm-up'] === true, setup: r['Setup Notes'], increment: r['Increment'], sameGym: sameGym };
     byName[ex.name.toLowerCase()] = ex;
     byId[ex.id] = ex;
   });
   return { byName: byName, byId: byId };
 }
 
-function readRoutine_(workoutName) {
+/**
+ * Routine templates on Master (CONFIG.ROUTINES): Routine | Workout | Exercise 1..N.
+ * @return {{workout: string, exercises: string[]}}
+ */
+function readRoutine_(routineName) {
   var master = getMasterSheet_();
   var col = columnLetterToIndex(CONFIG.ROUTINES.column);
   var last = master.getLastRow();
-  if (last < 3) return [];
-  var rows = master.getRange(3, col, last - 2, CONFIG.ROUTINES.maxExercises + 1).getValues();
+  if (last < 3) return { workout: '', exercises: [] };
+  var rows = master.getRange(3, col, last - 2, CONFIG.ROUTINES.maxExercises + 2).getValues();
   for (var i = 0; i < rows.length; i++) {
-    if (String(rows[i][0]).trim().toLowerCase() === String(workoutName).trim().toLowerCase()) {
-      return rows[i].slice(1).map(String).map(function (s) { return s.trim(); }).filter(String);
+    if (String(rows[i][0]).trim().toLowerCase() === String(routineName).trim().toLowerCase()) {
+      return { workout: String(rows[i][1]).trim(),
+        exercises: rows[i].slice(2).map(String).map(function (x) { return x.trim(); }).filter(String) };
     }
   }
-  return [];
+  return { workout: '', exercises: [] };
 }
 
 function showEntryMessage_(text) {
@@ -398,8 +407,8 @@ function renderEntry_(state, message) {
   exCell.setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(options.slice(0, 500), true)
     .setAllowInvalid(false).build());
 
-  sheet.getRange(ENTRY.PROGRESS).setValue(state.queue.length
-    ? 'Exercise ' + (state.index + 1) + ' of ' + state.queue.length : '');
+  sheet.getRange(ENTRY.EXERCISE_LABEL).setValue(state.queue.length
+    ? 'Exercise (' + (state.index + 1) + ' of ' + state.queue.length + ')' : 'Exercise');
   if (!item) {
     exCell.setValue('');
     sheet.getRange(ENTRY.SETUP).setValue('');
@@ -409,22 +418,26 @@ function renderEntry_(state, message) {
     showEntryMessage_(message || 'Pick a workout to load its routine.');
     return;
   }
-  var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '' };
+  var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '', sameGym: false };
   exCell.setValue((item.done ? DONE_MARK : '') + item.name);
   sheet.getRange(ENTRY.SETUP).setValue(ex.setup || '');
   sheet.getRange(ENTRY.SET_TITLE).setValue('SET ' + (state.set + 1) + ' of ' + setCount);
 
-  // Last session: same gym first, then any gym. The session being edited is excluded.
+  // History for Last and Goal: for same-gym exercises (machines, cables, PL, Smith) only sessions
+  // at the current gym, falling back to every gym if it has never been done here; for free
+  // weights every gym. The session being edited is excluded.
   var gymName = String(sheet.getRange(ENTRY.GYM).getValue() || state.gym || '').trim();
   var gymId = '';
   readRegistry('gyms').forEach(function (g) { if (g.name.toLowerCase() === gymName.toLowerCase()) gymId = g.id; });
   var history = getExerciseHistory_(item.id).filter(function (h) { return h.recordId !== item.recordId; });
   var gymNames = {};
   readRegistry('gyms').forEach(function (g) { gymNames[g.id] = g.name; });
-  var last = history.filter(function (h) { return gymId && h.gymId === gymId; })[0] || history[0];
+  var hereHistory = gymId ? history.filter(function (h) { return h.gymId === gymId; }) : [];
+  if (ex.sameGym && hereHistory.length) history = hereHistory;
+  var last = history[0];
   if (last) {
     var lastSet = last.sets[state.set];
-    sheet.getRange(ENTRY.LAST_LABEL).setValue('Last · ' + last.date.slice(5).replace('-', '/') +
+    sheet.getRange(ENTRY.LAST_LABEL).setValue('Last · ' + shortDate_(last.date) +
       (gymNames[last.gymId] ? ' ' + gymNames[last.gymId] : ''));
     sheet.getRange(ENTRY.LAST).setValue(lastSet ? formatSetCell(lastSet).replace(/x/, ' x ') : '—');
   } else {
@@ -483,7 +496,9 @@ function entryCreateExercise_() {
   var exercises = exerciseIndex_();
   if (!exercises.byName[name.toLowerCase()]) {
     var equipmentName = n.equipment;
-    ensureRegistryEntries('exercises', [name], function () { return [equipmentName, '', '', true, n.warmup, n.setup, '']; });
+    ensureRegistryEntries('exercises', [name], function () {
+      return [equipmentName, '', '', true, n.warmup, n.setup, '', isGymSpecificEquipment(equipmentName)];
+    });
   }
   var state = getEntryState_();
   state.mode = 'lift';
@@ -581,4 +596,9 @@ function entrySkipBodyweight_() {
   var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
   PropertiesService.getDocumentProperties().setProperty(BODYWEIGHT.PROP_SNOOZE, addDays_(today, BODYWEIGHT.SNOOZE_DAYS));
   setEntryMode_(getEntryState_(), 'lift');
+}
+
+/** '2026-11-14' -> '11/14/26'. */
+function shortDate_(iso) {
+  return parseInt(iso.slice(5, 7), 10) + '/' + parseInt(iso.slice(8, 10), 10) + '/' + iso.slice(2, 4);
 }
