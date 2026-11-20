@@ -30,17 +30,17 @@ test('review -> preview -> import writes registries, quarter tabs, cardio, bodyw
 
   g.migrationPreview();
   const preview = app.ss.getSheetByName('Migration Preview').data;
-  assert.strictEqual(preview[1][1], 3, 'ready: bench, pullups, stair master');
+  assert.strictEqual(preview[1][1], 4, 'ready: bench, pullups, dips (negatives), stair master');
   g.migrationImport();
 
   const q4 = app.ss.getSheetByName('Q4 2025');
   assert.ok(q4 && q4.hidden, 'Q4 2025 created hidden');
   assert.deepStrictEqual(q4.data[0], ['Record ID', 'Date', 'Gym ID', 'Workout ID', 'Exercise ID', 'Unit', 'Notes', 'Source', 'Set 1', 'Set 2', 'Set 3']);
-  assert.strictEqual(q4.data.length, 4, 'bench, pullups, dips (flagged) - mystery blocked');
+  assert.strictEqual(q4.data.length, 4, 'bench, pullups, dips - mystery blocked');
   const bench = q4.data.find(r => r[7] === 'legacy:B2');
   assert.deepStrictEqual(bench.slice(2, 6).concat(bench.slice(8, 10)), ['GY-01', 'WO-01', bench[4], 'lb', '205x3', '185x8']);
   assert.match(bench[4], /^EX-\d{4}$/);
-  assert.strictEqual(q4.data.find(r => r[7] === 'legacy:B5')[8], '295 for 5 (neg)', 'flagged cell kept verbatim');
+  assert.strictEqual(q4.data.find(r => r[7] === 'legacy:B5')[8], '295x0 a5', 'negatives become assisted reps');
 
   const master = app.ss.getSheetByName('Master').data;
   assert.strictEqual(master[1][6], 'Exercise ID');
