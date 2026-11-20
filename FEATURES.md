@@ -79,7 +79,13 @@ All modes share these settings on Master: rep range (min–max), load increment 
 
 - **Plate notation** (`2*45+25`) is the number of plates loaded and is kept exactly as written in the set cell (`2*45+25x10`). Calculations use the evaluated total (115).
 - **`+N` reps** in legacy data (`120 for 10+1`) are assisted reps.
-- **Odd legacy cells** (`(neg)`, `(?)`, `for ?`, reversed `12 for -24`, timed `for 26 sec`, missing `for`) are flagged. They are imported with the original text kept in the set cell so they can be fixed in the quarter tab later.
+- **Odd legacy cells** (confirmed conventions; the original text is kept in the record's Notes):
+  - `(neg)` = negatives (lowered alone, assisted up): `295 for 5 (neg)` → `295x0 a5`.
+  - `(?)` = unsure weight: the question mark is dropped (`85(?) for 10` → `85x10`).
+  - Unknown reps (`for ?`, or plates with no `for`): that set is ignored; an entry with no usable sets is skipped.
+  - Reversed numbers (`12 for -24`): swapped to `-24x12` since reps can't be negative.
+  - Cardio split intervals: `10/2 min` + `7/9 speed` → 12 min at the time-weighted average speed; one time with `6/7 speed` → the plain average.
+  - Timed holds (`315 for 26 sec`) stay flagged and are imported with the original text so they can be fixed in the quarter tab later.
 - **Packed set cell format:** `<load>x<reps>[ a<assisted>][ p<partial>][ @<rir>][ @rpe<rpe>]`, e.g. `205x8 a1 p2 @2`. The unit is stored in its own column per row.
 - **Popups:** desktop shows popups; on mobile, the weekly bodyweight prompt, monthly celebration, and new-exercise prompt appear as an input/banner area on `Workout Entry`.
 
