@@ -118,6 +118,16 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Setup:** menu *Overload Tracker → Set up workout entry form*. The existing mockup tab is renamed "Workout Entry (old mockup)", not deleted.
 - **Mobile limits:** a script cannot move the cursor or choose the keyboard on the Sheets app, so after Next the user taps the Weight box.
 
+### Compiled Data View (Round 6)
+
+- **Layout:** filters across row 1 (Time frame, Gym, Workout, Search, Clear button); status in row 2; headers in row 3: Quarter, Date, Gym, Workout, Exercise, Set 1-N, 1RM per set, Best 1RM, Notes. One row per exercise per day, newest first.
+- **Sets** are shown readably (`225 × 6 · +1 assisted · RIR 1-2`); loads are converted to the Master unit for display only. Unparseable legacy cells are shown as `⚠ <original text>`.
+- **1RM:** per set with the Master formula and display rounding; assisted and bodyweight-only sets show 0.
+- **Time frames:** All time, This month, Last 3 months, This year, and each quarter tab.
+- **Exercise panel** (right of the table) when the filtered rows contain one exercise: times done, best 1RM, last done, and strength gain in the time frame (best 1RM of the last session vs the first).
+- **Refresh:** on Finish workout, on any filter change, from the menu (*Refresh compiled data*), and nightly around midnight via a time-driven trigger installed by *Set up compiled data*.
+- **Read-only:** the data area is protected with a warning that points to the quarter tabs. The previous tab is renamed "Compiled Data (old mockup)", not deleted.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.
@@ -178,8 +188,8 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ### 2.3 Hidden Backend Architecture
 - [x] **Canonical Quarter Logs:** Store raw workout records in quarter-specific tabs, with one row per exercise per date: date, gym ID, workout ID, exercise ID, load unit, one packed cell per set (load, reps, assisted reps, partial reps, RIR/RPE), notes, and source/provenance. Estimated 1RM is computed in `Compiled Data`. Preserve valid signed loads and fractional reps found in assisted exercises or the legacy data. New records are written to the quarter matching their workout date.
 - [ ] **Weekly Bodyweight Log:** Store dated bodyweight observations and their units in a history log; do not overwrite older entries when the current profile weight changes.
-- [ ] **Compiled Data View:** Build `Compiled Data` as a read-only consolidated presentation sourced from the canonical quarter logs, retaining its search, summary, and chart functionality. It must not write back or become a second source of truth.
-- [ ] **Unit-Safe Display:** Show the recorded value and unit in `Compiled Data`, or offer an explicitly view-only conversion to the current preferred unit. Never rewrite canonical quarter-log values when settings change.
+- [x] **Compiled Data View:** Build `Compiled Data` as a read-only consolidated presentation sourced from the canonical quarter logs, retaining its search, summary, and chart functionality. It must not write back or become a second source of truth.
+- [x] **Unit-Safe Display:** Show the recorded value and unit in `Compiled Data`, or offer an explicitly view-only conversion to the current preferred unit. Never rewrite canonical quarter-log values when settings change.
 - [ ] **Backend Organization:** Keep calculation ranges and supporting matrices hidden where appropriate, without hiding the user-facing `Workout Entry`, `Master`, `Compiled Data`, `Cardio`, or quarter-log tabs.
 
 ---
@@ -189,7 +199,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ### 3.1 Adaptive Progression Engines
 - [x] **Progression Rules Proposal:** Specify configurable inputs and propose target-rep, load-increase, and reset/stall rules for Powerlifting, Bodybuilding, and Custom modes; obtain approval of the rules before implementation.
 - [x] **Dynamic Rep Range Calculator:** Once approved, calculate and display target reps and recommended loads week-to-week using the selected modality and user settings. Keep recommendations distinct from recorded workout results.
-- [ ] **Precision 1RM Formatting:** Format calculated 1-Rep Max (1RM) numbers to display to one decimal place when under 100 ($< 100$), and round to whole numbers when $\ge 100$.
+- [x] **Precision 1RM Formatting:** Format calculated 1-Rep Max (1RM) numbers to display to one decimal place when under 100 ($< 100$), and round to whole numbers when $\ge 100$.
 
 ### 3.2 Visual Analytics
 - [ ] **Toggleable Performance Charting:** Create dynamic strength progression charts with UI toggles to switch between:

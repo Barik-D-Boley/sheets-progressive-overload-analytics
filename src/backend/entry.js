@@ -202,8 +202,10 @@ function entryFinish_() {
   saveEntryState_({ date: '', workout: '', queue: [], index: 0, set: 0, mode: 'lift', gym: gym });
   var sheet = entrySheet_();
   sheet.getRange(ENTRY.WORKOUT).setValue('');
-  renderEntry_(getEntryState_(), done.length
-    ? 'Workout saved: ' + done.length + ' exercises, ' + sets + ' sets.' : 'Nothing to save.');
+  var refreshNote = '';
+  try { refreshCompiledData(); } catch (err) { refreshNote = ' (Compiled Data refresh failed: ' + err.message + ')'; }
+  renderEntry_(getEntryState_(), (done.length
+    ? 'Workout saved: ' + done.length + ' exercises, ' + sets + ' sets.' : 'Nothing to save.') + refreshNote);
 }
 
 function entryGymChanged_(gymName) {
