@@ -220,8 +220,21 @@ function formatExerciseCheckboxes_() {
   if (!rows.length) return;
   var col = columnLetterToIndex(spec.column);
   var lastRow = rows[rows.length - 1]._row;
-  ['Active', 'Warm-up'].forEach(function (h) {
-    getMasterSheet_().getRange(REGISTRY_FIRST_DATA_ROW, col + spec.headers.indexOf(h), lastRow - REGISTRY_FIRST_DATA_ROW + 1, 1)
-      .insertCheckboxes();
+  var height = lastRow - REGISTRY_FIRST_DATA_ROW + 1;
+  // Fill blank "Same Gym Only" boxes from the equipment (machines, cables, PL, Smith = same gym).
+  var sameCol = col + spec.headers.indexOf('Same Gym Only');
+  var eqCol = col + spec.headers.indexOf('Equipment');
+  var nameCol = col + spec.headers.indexOf('Name');
+  var master = getMasterSheet_();
+  var eq = master.getRange(REGISTRY_FIRST_DATA_ROW, eqCol, height, 1).getValues();
+  var names = master.getRange(REGISTRY_FIRST_DATA_ROW, nameCol, height, 1).getValues();
+  var same = master.getRange(REGISTRY_FIRST_DATA_ROW, sameCol, height, 1).getValues().map(function (r, i) {
+    if (r[0] === true || r[0] === false) return [r[0]];
+    if (!String(names[i][0]).trim()) return [''];
+    return [isGymSpecificEquipment(eq[i][0] || equipmentFromName(names[i][0]))];
+  });
+  master.getRange(REGISTRY_FIRST_DATA_ROW, sameCol, height, 1).setValues(same);
+  ['Active', 'Warm-up', 'Same Gym Only'].forEach(function (h) {
+    master.getRange(REGISTRY_FIRST_DATA_ROW, col + spec.headers.indexOf(h), height, 1).insertCheckboxes();
   });
 }

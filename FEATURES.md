@@ -150,6 +150,12 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Routines** on Master (AA): `Routine | Workout | Exercise 1..15`, e.g. "Push Day 1 | Push | Bench press (BB) | ...". The Routine dropdown lists routine names; records are saved under the routine's Workout so history and the Compiled Data workout filter stay grouped (Push/Pull/Legs). The older `Workout | Exercise...` layout is converted automatically by *Set up workout entry form*.
 - The six routines from the old sheet (Push/Pull/Legs, Day 1 and Day 2) are the starting templates.
 
+### Gym-Specific History (Round 10)
+
+- **Last and Goal** use every gym's history for free weights (BB, DB, EZ, BW) and the current gym's history for Machine, Cable, PL, and Smith exercises, falling back to any gym when the exercise has never been done at the current gym.
+- Each exercise has a **Same Gym Only** checkbox on Master (exercise list, column P), filled in from its equipment by *Set up workout entry form* and editable for exceptions. The default equipment list is `CONFIG.GYM_SPECIFIC_EQUIPMENT`.
+- Possible later addition (not built): a Machines table and a Machine dropdown to tell apart several machines of the same type at one gym; it needs a Machine column in the quarter tabs.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.

@@ -166,3 +166,34 @@ test('an existing routines table in the old layout is converted, and routines re
   const q = app.ss.getSheetByName('Q4 2026').data;
   assert.strictEqual(q[1][3], 'WO-01', 'saved under the Push workout, not a new "Push Day 2" workout');
 });
+
+test('free weights use every gym; machines use the current gym first (Same Gym Only)', () => {
+  const { app, g, sheet, edit } = setup();
+  const ids = g.ensureRegistryEntries('exercises', ['Pec flys (Machine)'], () => ['Machine', '', '', true, false, '', '']);
+  const pec = ids['pec flys (machine)'];
+  g.appendRows_(app.ss.getSheetByName('Q4 2026'), [
+    ['L-p1', new app.globals.Date(Date.UTC(2026, 10, 12)), 'GY-02', 'WO-01', pec, 'lb', '', 'entry', '150x10', '150x9', '150x8'],
+    ['L-p2', new app.globals.Date(Date.UTC(2026, 10, 15)), 'GY-01', 'WO-01', pec, 'lb', '', 'entry', '200x10', '200x9', '200x8'],
+  ]);
+  g.setupEntryForm(); // fills the Same Gym Only boxes from equipment
+  const master = app.ss.getSheetByName('Master').data;
+  const flag = name => master.find(r => r[7] === name)[15];
+  assert.strictEqual(flag('Bench press (BB)'), false);
+  assert.strictEqual(flag('Pec flys (Machine)'), true);
+
+  edit('B2', 'Eos');
+  edit('B3', 'Push');
+  if (!sheet.hiddenRows.has(45)) edit('B47', true);
+  assert.strictEqual(sheet.value('A7'), 'Last · 11/13/26 BYUI', 'bench (BB): latest session at any gym');
+  edit('B4', 'Pec flys (Machine)');
+  assert.strictEqual(sheet.value('A7'), 'Last · 11/12/26 Eos', 'machine: this gym only');
+  assert.match(sheet.value('B8'), /^150x/, 'goal based on this gym');
+  edit('B2', 'BYUI');
+  assert.strictEqual(sheet.value('A7'), 'Last · 11/15/26 BYUI');
+
+  // Unchecking the box makes a machine compare across gyms.
+  const row = master.findIndex(r => r[7] === 'Pec flys (Machine)');
+  master[row][15] = false;
+  edit('B2', 'Eos');
+  assert.strictEqual(sheet.value('A7'), 'Last · 11/15/26 BYUI');
+});

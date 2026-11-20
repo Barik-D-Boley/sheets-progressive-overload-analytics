@@ -332,8 +332,10 @@ function readInputs_() {
 function exerciseIndex_() {
   var byName = {}, byId = {};
   readRegistryRows('exercises').forEach(function (r) {
+    var sameGym = r['Same Gym Only'];
+    if (sameGym !== true && sameGym !== false) sameGym = isGymSpecificEquipment(r['Equipment'] || equipmentFromName(r['Name']));
     var ex = { id: String(r['Exercise ID']), name: String(r['Name']), active: r['Active'] !== false,
-      warmup: r['Warm-up'] === true, setup: r['Setup Notes'], increment: r['Increment'] };
+      warmup: r['Warm-up'] === true, setup: r['Setup Notes'], increment: r['Increment'], sameGym: sameGym };
     byName[ex.name.toLowerCase()] = ex;
     byId[ex.id] = ex;
   });
@@ -416,19 +418,23 @@ function renderEntry_(state, message) {
     showEntryMessage_(message || 'Pick a workout to load its routine.');
     return;
   }
-  var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '' };
+  var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '', sameGym: false };
   exCell.setValue((item.done ? DONE_MARK : '') + item.name);
   sheet.getRange(ENTRY.SETUP).setValue(ex.setup || '');
   sheet.getRange(ENTRY.SET_TITLE).setValue('SET ' + (state.set + 1) + ' of ' + setCount);
 
-  // Last session: same gym first, then any gym. The session being edited is excluded.
+  // History for Last and Goal: for same-gym exercises (machines, cables, PL, Smith) only sessions
+  // at the current gym, falling back to every gym if it has never been done here; for free
+  // weights every gym. The session being edited is excluded.
   var gymName = String(sheet.getRange(ENTRY.GYM).getValue() || state.gym || '').trim();
   var gymId = '';
   readRegistry('gyms').forEach(function (g) { if (g.name.toLowerCase() === gymName.toLowerCase()) gymId = g.id; });
   var history = getExerciseHistory_(item.id).filter(function (h) { return h.recordId !== item.recordId; });
   var gymNames = {};
   readRegistry('gyms').forEach(function (g) { gymNames[g.id] = g.name; });
-  var last = history.filter(function (h) { return gymId && h.gymId === gymId; })[0] || history[0];
+  var hereHistory = gymId ? history.filter(function (h) { return h.gymId === gymId; }) : [];
+  if (ex.sameGym && hereHistory.length) history = hereHistory;
+  var last = history[0];
   if (last) {
     var lastSet = last.sets[state.set];
     sheet.getRange(ENTRY.LAST_LABEL).setValue('Last · ' + shortDate_(last.date) +
@@ -490,7 +496,9 @@ function entryCreateExercise_() {
   var exercises = exerciseIndex_();
   if (!exercises.byName[name.toLowerCase()]) {
     var equipmentName = n.equipment;
-    ensureRegistryEntries('exercises', [name], function () { return [equipmentName, '', '', true, n.warmup, n.setup, '']; });
+    ensureRegistryEntries('exercises', [name], function () {
+      return [equipmentName, '', '', true, n.warmup, n.setup, '', isGymSpecificEquipment(equipmentName)];
+    });
   }
   var state = getEntryState_();
   state.mode = 'lift';
