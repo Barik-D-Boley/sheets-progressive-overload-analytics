@@ -32,6 +32,10 @@ var ENTRY = {
   NEW_ROWS: [31, 39],
   NEW_FIRST_ROW: 32, // B32:B36 = movement, equipment, detail, warm-up, setup notes
   NEW_PREVIEW: 'B37', NEW_CREATE_BTN: 'B38', NEW_CANCEL_BTN: 'B39',
+
+  BODYWEIGHT_BTN: 'B20',
+  BW_ROWS: [41, 45],
+  BW_PROMPT: 'A42', BW_INPUT: 'B43', BW_SAVE_BTN: 'B44', BW_SKIP_BTN: 'B45',
 };
 var NEW_EXERCISE_OPTION = '+ New exercise…';
 var DONE_MARK = '✓ ';
@@ -78,6 +82,9 @@ function entryOnEdit(e) {
   buttons[ENTRY.CARDIO_CANCEL_BTN] = entryCloseSubform_;
   buttons[ENTRY.NEW_CREATE_BTN] = entryCreateExercise_;
   buttons[ENTRY.NEW_CANCEL_BTN] = entryCloseSubform_;
+  buttons[ENTRY.BODYWEIGHT_BTN] = function () { entryOpenBodyweight_(''); };
+  buttons[ENTRY.BW_SAVE_BTN] = entrySaveBodyweight_;
+  buttons[ENTRY.BW_SKIP_BTN] = entrySkipBodyweight_;
   var newInputs = {};
   for (var r = ENTRY.NEW_FIRST_ROW; r < ENTRY.NEW_FIRST_ROW + 3; r++) newInputs['B' + r] = true;
 
@@ -122,6 +129,8 @@ function entryStartWorkout_(workoutName) {
   renderEntry_(state, !queue.length
     ? 'No routine for "' + workoutName + '" yet. Pick exercises from the dropdown, or add a routine on Master.'
     : (gymPicked ? '' : 'Pick your gym at the top before logging.'));
+  var snooze = PropertiesService.getDocumentProperties().getProperty(BODYWEIGHT.PROP_SNOOZE);
+  if (needsWeighIn(readBodyweightLog_(), today, snooze)) entryOpenBodyweight_(today);
 }
 
 function newQueueItem_(ex) {
@@ -351,7 +360,7 @@ function setEntryMode_(state, mode) {
   state.mode = mode;
   saveEntryState_(state);
   var sheet = entrySheet_();
-  var blocks = { lift: ENTRY.LIFT_ROWS, cardio: ENTRY.CARDIO_ROWS, 'new': ENTRY.NEW_ROWS };
+  var blocks = { lift: ENTRY.LIFT_ROWS, cardio: ENTRY.CARDIO_ROWS, 'new': ENTRY.NEW_ROWS, bodyweight: ENTRY.BW_ROWS };
   Object.keys(blocks).forEach(function (m) {
     var b = blocks[m];
     if (m === mode) sheet.showRows(b[0], b[1] - b[0] + 1);
@@ -362,7 +371,7 @@ function setEntryMode_(state, mode) {
     sheet.getRange(ENTRY.NEW_PREVIEW).setValue('');
   }
   if (mode === 'lift') renderEntry_(state);
-  else showEntryMessage_(mode === 'new' ? 'Fill in the new exercise, then check Create.' : 'Log cardio, then check Save.');
+  else if (mode !== 'bodyweight') showEntryMessage_(mode === 'new' ? 'Fill in the new exercise, then check Create.' : 'Log cardio, then check Save.');
 }
 
 function entryCloseSubform_() {
@@ -536,4 +545,40 @@ function entrySaveCardio_() {
     num(nums[3]), String(v[4][0]).trim(), 'entry']]);
   setEntryMode_(state, 'lift');
   showEntryMessage_('Saved cardio: ' + activity + '.');
+}
+
+// ---- bodyweight ---------------------------------------------------------------
+
+/** Shows the bodyweight block; todayIso is set when opened by the stale-weigh-in check. */
+function entryOpenBodyweight_(todayIso) {
+  var today = todayIso || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var latest = bodyweightOn(today, readBodyweightLog_());
+  var sheet = entrySheet_();
+  var prompt = latest
+    ? 'Last weigh-in: ' + latest.weight + ' ' + latest.unit + ', ' + latest.ageDays + ' days ago. Log today\'s weight?'
+    : 'No bodyweight logged yet. It is used for relative strength.';
+  sheet.getRange(ENTRY.BW_PROMPT).setValue(prompt);
+  sheet.getRange(ENTRY.BW_INPUT).setValue('');
+  sheet.getRange(ENTRY.BW_SKIP_BTN.replace('B', 'A')).setValue(latest ? 'Not now (keep ' + latest.weight + ' ' + latest.unit + ')' : 'Not now');
+  setEntryMode_(getEntryState_(), 'bodyweight');
+  showEntryMessage_('');
+}
+
+function entrySaveBodyweight_() {
+  var sheet = entrySheet_();
+  var unit = weightUnit_(readSettings_());
+  var parsed = parseBodyweightInput(sheet.getRange(ENTRY.BW_INPUT).getValue(), unit);
+  if (!parsed) { showEntryMessage_('⚠ Enter your weight as a number, e.g. 172.4'); return; }
+  var date = dateToIso_(sheet.getRange(ENTRY.DATE).getValue()) ||
+    Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  logBodyweight_(date, parsed.weight, parsed.unit, 'entry');
+  setEntryMode_(getEntryState_(), 'lift');
+  showEntryMessage_('Bodyweight saved: ' + parsed.weight + ' ' + parsed.unit + '.');
+}
+
+/** "Not now": keep using the last weight and don't ask again for a week. */
+function entrySkipBodyweight_() {
+  var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  PropertiesService.getDocumentProperties().setProperty(BODYWEIGHT.PROP_SNOOZE, addDays_(today, BODYWEIGHT.SNOOZE_DAYS));
+  setEntryMode_(getEntryState_(), 'lift');
 }

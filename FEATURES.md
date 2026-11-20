@@ -128,6 +128,13 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Refresh:** on Finish workout, on any filter change, from the menu (*Refresh compiled data*), and nightly around midnight via a time-driven trigger installed by *Set up compiled data*.
 - **Read-only:** the data area is protected with a warning that points to the quarter tabs. The previous tab is renamed "Compiled Data (old mockup)", not deleted.
 
+### Bodyweight Logging (Round 7)
+
+- **Purpose:** relative strength only. Each lift uses the most recent weigh-in on or before its date; lifts before the first weigh-in have no ratio.
+- **Logging:** a small "⚖ Log bodyweight" button below the message line on `Workout Entry` (any time), saved with the form's date to the hidden `Bodyweight Log`; Master "Current weight" shows the latest weigh-in. Older entries are never overwritten.
+- **Stale prompt:** when a workout is started and the latest weigh-in is more than 30 days old (or there is none), the form shows "Last weigh-in: 170 lb, 34 days ago. Log today's weight?" with **Save** and **Not now (keep 170 lb)**. Not now keeps using the old weight and does not ask again for 7 days.
+- **Apple Health (optional, iPhone):** *Overload Tracker → Advanced → Connect Apple Health* shows a private link and Shortcuts steps (a daily automation that sends the latest Health weight). Requires deploying the script as a web app (Execute as: Me, Access: Anyone); requests need a secret token, duplicates are ignored, and *Reset Apple Health link* revokes the old link. Deliberately kept out of the main setup so buyers do not think it is required.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.
@@ -183,11 +190,11 @@ All modes share these settings on Master: rep range (min–max), load increment 
 ### 2.2 Dynamic Exercise & Cardio Handling
 - [x] **Unlisted Exercise Prompt:** Trigger an interactive UI modal prompting the user to create and register a new exercise in the `Master` registry if an unrecognized movement is entered.
 - [x] **Cardio Selector:** Add preset cardio dropdown options (e.g., `20 min`, `30 min`) that log a cardio session for the selected date in the separate `Cardio` tab and update the corresponding daily cardio status.
-- [ ] **Bodyweight History:** Record each prompted or manual bodyweight update with its date; use that history for date-matched ratios and show the latest value in the Master profile.
+- [x] **Bodyweight History:** Record each prompted or manual bodyweight update with its date; use that history for date-matched ratios and show the latest value in the Master profile.
 
 ### 2.3 Hidden Backend Architecture
 - [x] **Canonical Quarter Logs:** Store raw workout records in quarter-specific tabs, with one row per exercise per date: date, gym ID, workout ID, exercise ID, load unit, one packed cell per set (load, reps, assisted reps, partial reps, RIR/RPE), notes, and source/provenance. Estimated 1RM is computed in `Compiled Data`. Preserve valid signed loads and fractional reps found in assisted exercises or the legacy data. New records are written to the quarter matching their workout date.
-- [ ] **Weekly Bodyweight Log:** Store dated bodyweight observations and their units in a history log; do not overwrite older entries when the current profile weight changes.
+- [x] **Weekly Bodyweight Log:** Store dated bodyweight observations and their units in a history log; do not overwrite older entries when the current profile weight changes.
 - [x] **Compiled Data View:** Build `Compiled Data` as a read-only consolidated presentation sourced from the canonical quarter logs, retaining its search, summary, and chart functionality. It must not write back or become a second source of truth.
 - [x] **Unit-Safe Display:** Show the recorded value and unit in `Compiled Data`, or offer an explicitly view-only conversion to the current preferred unit. Never rewrite canonical quarter-log values when settings change.
 - [ ] **Backend Organization:** Keep calculation ranges and supporting matrices hidden where appropriate, without hiding the user-facing `Workout Entry`, `Master`, `Compiled Data`, `Cardio`, or quarter-log tabs.
