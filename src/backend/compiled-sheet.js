@@ -36,6 +36,9 @@ function setupCompiledData() {
   sheet.getRange(COMPILED.WORKOUT).setValue(COMPILED.ALL_WORKOUTS);
   sheet.getRange('H1:I1').merge().setBackground('#ffffff').setBorder(true, true, true, true, false, false);
   sheet.getRange(COMPILED.CLEAR_BTN).insertCheckboxes();
+  sheet.getRange('O1').setValue('Chart lines').setFontWeight('bold').setHorizontalAlignment('right');
+  sheet.getRange(COMPILED.CHART_LINES).setValue(COMPILED.CHART_LINE_OPTIONS[0]).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(COMPILED.CHART_LINE_OPTIONS, true).setAllowInvalid(false).build());
   sheet.getRange('J1:K1').setBackground('#d9d9d9');
   sheet.getRange('A1:K1').setBackground('#f3f3f3');
   sheet.setFrozenRows(COMPILED.HEADER_ROW);
@@ -95,8 +98,8 @@ function refreshCompiledData() {
     workout: sheet.getRange(COMPILED.WORKOUT).getValue(), search: sheet.getRange(COMPILED.SEARCH).getValue(),
   };
   var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
-  var result = compileRecords(data.records, names, { unit: unit, formula: settings['1rm formula'], setCount: settingSetCount_(settings) },
-    filters, today);
+  var result = compileRecords(data.records, names, { unit: unit, formula: settings['1rm formula'], setCount: settingSetCount_(settings),
+    bodyweights: readBodyweightLog_() }, filters, today);
 
   // Filter dropdowns reflect current quarters, gyms, and workouts.
   var quarters = data.tabs.slice().sort(function (a, b) {
@@ -122,6 +125,8 @@ function refreshCompiledData() {
   }
   sheet.getRange(COMPILED.HEADER_ROW, panelCol, result.panel.length, 2).setValues(result.panel);
   sheet.getRange(COMPILED.HEADER_ROW, panelCol, result.panel.length, 1).setFontWeight('bold');
+  drawExerciseChart_(sheet, result, unit, String(sheet.getRange(COMPILED.CHART_LINES).getValue() || COMPILED.CHART_LINE_OPTIONS[0]),
+    panelCol, COMPILED.HEADER_ROW + result.panel.length + 1);
   sheet.getRange(COMPILED.STATUS).setValue('Showing ' + result.rows.length + ' of ' + result.total + ' · weights in ' + unit +
     ' · updated ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'M/d h:mm a'));
 }
@@ -137,9 +142,51 @@ function compiledOnEdit(e) {
     if (!(e.value === 'TRUE' || e.value === true)) return true;
     sheet.getRange(COMPILED.CLEAR_BTN).setValue(false);
     sheet.getRange(COMPILED.SEARCH).setValue('');
-  } else if ([COMPILED.TIMEFRAME, COMPILED.GYM, COMPILED.WORKOUT, COMPILED.SEARCH].indexOf(a1) < 0) {
+  } else if ([COMPILED.TIMEFRAME, COMPILED.GYM, COMPILED.WORKOUT, COMPILED.SEARCH, COMPILED.CHART_LINES].indexOf(a1) < 0) {
     return true;
   }
   refreshCompiledData();
   return true;
+}
+
+/**
+ * Writes the chart's data to hidden helper columns and draws (or removes) the
+ * line chart under the exercise panel. One exercise must match the filters.
+ */
+function drawExerciseChart_(sheet, result, unit, lineMode, col, row) {
+  var dataCol = COMPILED.CHART_DATA_COL;
+  var width = 1 + result.setCount;
+  var last = sheet.getLastRow();
+  if (last >= 1) sheet.getRange(1, dataCol, last, width + 1).clearContent();
+  sheet.getCharts().forEach(function (c) { sheet.removeChart(c); });
+  if (!result.chart || !result.chart.length) return;
+
+  var eachSet = lineMode === 'Each set';
+  var headers = ['Date'];
+  if (eachSet) { for (var i = 1; i <= result.setCount; i++) headers.push('Set ' + i); } else headers.push('Best 1RM');
+  var values = [headers].concat(result.chart.map(function (p) {
+    var d = isoToDate_(p.date);
+    return eachSet ? [d].concat(p.sets.map(function (v) { return v === null ? '' : v; })) : [d, p.best === null ? '' : p.best];
+  }));
+  var range = sheet.getRange(1, dataCol, values.length, headers.length);
+  range.setValues(values);
+  sheet.getRange(2, dataCol, values.length - 1, 1).setNumberFormat('m/d/yy');
+  sheet.hideColumns(dataCol, width + 1);
+
+  var name = result.panel[0][1];
+  var chart = sheet.newChart()
+    .setChartType(Charts.ChartType.LINE)
+    .addRange(range)
+    .setNumHeaders(1)
+    .setPosition(row, col, 0, 0)
+    .setOption('title', name + (eachSet ? ' - estimated 1RM per set' : ' - best estimated 1RM'))
+    .setOption('vAxis.title', '1RM (' + unit + ')')
+    .setOption('legend.position', eachSet ? 'bottom' : 'none')
+    .setOption('pointSize', 4)
+    .setOption('interpolateNulls', true)
+    .setOption('colors', eachSet ? COMPILED.SET_COLORS.slice(0, result.setCount) : [COMPILED.BEST_COLOR])
+    .setOption('width', 520)
+    .setOption('height', 320)
+    .build();
+  sheet.insertChart(chart);
 }

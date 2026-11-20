@@ -135,6 +135,13 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Stale prompt:** when a workout is started and the latest weigh-in is more than 30 days old (or there is none), the form shows "Last weigh-in: 170 lb, 34 days ago. Log today's weight?" with **Save** and **Not now (keep 170 lb)**. Not now keeps using the old weight and does not ask again for 7 days.
 - **Apple Health (optional, iPhone):** *Overload Tracker → Advanced → Connect Apple Health* shows a private link and Shortcuts steps (a daily automation that sends the latest Health weight). Requires deploying the script as a web app (Execute as: Me, Access: Anyone); requests need a secret token, duplicates are ignored, and *Reset Apple Health link* revokes the old link. Deliberately kept out of the main setup so buyers do not think it is required.
 
+### Strength Chart & Relative Strength (Round 8)
+
+- **Where:** on `Compiled Data`, driven by the filters like the original sheet: when the filters (usually Search) match one exercise, a line chart appears under the exercise panel. No chart when several exercises match.
+- **Lines:** a "Chart lines" dropdown (P1): **Best 1RM** (default: best estimated 1RM per session) or **Each set** (1RM per set: red, green, blue, yellow, ...). Y axis in the Master unit. Chart data lives in hidden helper columns (AD onward).
+- **Gym:** the existing Gym filter (default All gyms) applies to the chart too.
+- **Relative strength** is a statistic in the panel rather than a chart toggle: latest (last session's best 1RM ÷ the weigh-in in effect on that date, with the weigh-in shown) and best relative strength in the time frame. Sessions before the first weigh-in are counted as "Sessions without bodyweight"; no current weight is substituted.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.
@@ -209,10 +216,10 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - [x] **Precision 1RM Formatting:** Format calculated 1-Rep Max (1RM) numbers to display to one decimal place when under 100 ($< 100$), and round to whole numbers when $\ge 100$.
 
 ### 3.2 Visual Analytics
-- [ ] **Toggleable Performance Charting:** Create dynamic strength progression charts with UI toggles to switch between:
-  - [ ] Absolute Raw Weight Lifted.
-  - [ ] Bodyweight Ratio (Lifted Weight / Current Bodyweight).
-  - [ ] Use bodyweight recorded for the lift date, convert units consistently, and make missing bodyweight data visible rather than silently substituting a current value.
+- [x] **Toggleable Performance Charting:** (lines toggle Best 1RM / Each set; bodyweight ratio moved to the panel statistics) Create dynamic strength progression charts with UI toggles to switch between:
+  - [x] Absolute Raw Weight Lifted (as estimated 1RM).
+  - [x] Bodyweight Ratio: shown as panel statistics instead of a chart line.
+  - [x] Use bodyweight recorded for the lift date, convert units consistently, and make missing bodyweight data visible rather than silently substituting a current value.
 
 ---
 
