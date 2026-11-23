@@ -64,6 +64,12 @@ async function openPage(browser, g, key, opts) {
       const { g, ids, q, key } = setupGas();
       const page = await openPage(browser, g, key);
       await page.click('text=Not now');
+      assert.ok(!(await page.isVisible('#newGym')), 'new-gym field hidden while a gym is picked');
+      const card = await page.$eval('.card:has(#date)', el => el.getBoundingClientRect().right);
+      const date = await page.$eval('#date', el => el.getBoundingClientRect().right);
+      assert.ok(date <= card, 'date box stays inside its card');
+      await page.selectOption('#gym', '__new');
+      assert.ok(await page.isVisible('#newGym'));
       await page.selectOption('#gym', 'Eos');
       await page.selectOption('#routine', 'Push Day 1');
       await page.click('#start');
@@ -82,12 +88,16 @@ async function openPage(browser, g, key, opts) {
       await page.fill('.set[data-set="2"] input[data-k="weight"]', '270');
       await page.fill('.set[data-set="2"] input[data-k="reps"]', '6');
       await page.click('#next');
+      await page.waitForSelector('text=Set 2: pick the RIR.');
+      await page.click('.set[data-set="1"] [data-rir="1-2"]');
+      await page.click('.set[data-set="2"] [data-rir="0"]');
+      await page.click('#next');
       await page.waitForSelector('h2:has-text("Pec flys (Machine)")');
       const pecHint = await page.textContent('.set[data-set="0"] .hint');
       assert.strictEqual(pecHint, 'Last 150 × 10 · Goal 150 × 10', 'machine uses this gym (Eos)');
       await page.waitForSelector('.chip:has-text("✓ Bench press")');
       const bench = q.data.find(r => r[7] === 'app' && r[4] === ids['bench press (bb)']);
-      assert.deepStrictEqual(bench.slice(8, 11), ['280x6 @1-2', '280x5', '270x6']);
+      assert.deepStrictEqual(bench.slice(8, 11), ['280x6 @1-2', '280x5 @1-2', '270x6 @0']);
       assert.strictEqual(bench[2], 'GY-02');
 
       // Going back and editing rewrites the same record.
@@ -97,13 +107,14 @@ async function openPage(browser, g, key, opts) {
       await page.waitForSelector('h2:has-text("Pec flys (Machine)")');
       await page.fill('.set[data-set="0"] input[data-k="weight"]', '160');
       await page.fill('.set[data-set="0"] input[data-k="reps"]', '10');
+      await page.click('.set[data-set="0"] [data-rir="3-4"]');
       await page.click('#next'); // Save & finish
       try { await page.waitForSelector('text=Workout saved', { timeout: 5000 }); }
       catch (e) { console.error('APP:', await page.textContent('#app'), '| BAR:', await page.textContent('#bar'), '| TOAST:', await page.textContent('#toast')); throw e; }
       assert.ok(await page.isVisible('text=2 exercises · 4 sets'));
       const appRows = q.data.filter(r => r[7] === 'app');
       assert.strictEqual(appRows.length, 2, 'one row per exercise; the edit did not duplicate');
-      assert.strictEqual(appRows.find(r => r[4] === ids['bench press (bb)'])[9], '280x6');
+      assert.strictEqual(appRows.find(r => r[4] === ids['bench press (bb)'])[9], '280x6 @1-2');
       await page.close();
     }
 
@@ -120,11 +131,13 @@ async function openPage(browser, g, key, opts) {
       assert.deepStrictEqual(picks, ['Dips (BW)']);
       await page.click('.pick');
       await page.fill('.set[data-set="0"] input[data-k="reps"]', '12');
+      await page.click('.set[data-set="0"] [data-rir="0"]');
       await page.click('#addEx');
       await page.fill('#pickFind', 'curl');
       await page.click('.pick:has-text("Bicep curls (DB)")');
       await page.waitForSelector('h2:has-text("Bicep curls (DB)")');
       await page.fill('.set[data-set="0"] input[data-k="reps"]', '10');
+      await page.click('.set[data-set="0"] [data-rir="1-2"]');
       await page.click('#next');
       await page.waitForSelector('text=enter a weight');
       await page.reload();
@@ -135,7 +148,26 @@ async function openPage(browser, g, key, opts) {
       await page.click('#next');
       await page.waitForSelector('text=Workout saved');
       const rows = q.data.filter(r => r[7] === 'app');
-      assert.deepStrictEqual(rows.map(r => [r[3], r[8]]), [['WO-02', '0x12'], ['WO-02', '40x10']], 'Custom workout; BW saved with 0');
+      assert.deepStrictEqual(rows.map(r => [r[3], r[8]]), [['WO-02', '0x12 @0'], ['WO-02', '40x10 @1-2']], 'Custom workout; BW saved with 0');
+      await page.close();
+    }
+
+    // 2b. Creating an exercise from the picker adds it to the list and to today's workout.
+    {
+      const { app, g, key } = setupGas();
+      const page = await openPage(browser, g, key);
+      await page.click('text=Not now');
+      await page.selectOption('#routine', 'Custom');
+      await page.click('#start');
+      await page.fill('#pickFind', 'face pulls');
+      await page.click('#pickNew');
+      assert.strictEqual(await page.inputValue('#nxMove'), 'face pulls');
+      await page.selectOption('#nxEq', 'Cable');
+      await page.fill('#nxDetail', 'rope');
+      await page.click('#nxSave');
+      await page.waitForSelector('h2:has-text("Face pulls (Cable, Rope)")');
+      const row = app.ss.getSheetByName('Master').data.find(r => r[7] === 'Face pulls (Cable, Rope)');
+      assert.deepStrictEqual([row[8], row[11], row[15]], ['Cable', true, true]);
       await page.close();
     }
 

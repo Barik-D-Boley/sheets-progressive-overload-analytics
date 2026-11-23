@@ -21,6 +21,7 @@
   }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; background: var(--bg); color: var(--text);
   font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body { padding: env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom)); }
@@ -31,9 +32,11 @@ h2 { font-size: 19px; margin: 0; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; box-shadow: var(--shadow); }
 label.field { display: block; margin: 10px 0; }
 label.field > span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-input, select, textarea { width: 100%; font: inherit; color: var(--text); background: var(--input);
+input, select, textarea { width: 100%; max-width: 100%; min-width: 0; display: block; font: inherit; color: var(--text); background: var(--input);
   border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; min-height: 44px; }
 textarea { min-height: 60px; resize: vertical; }
+input[type="date"] { -webkit-appearance: none; appearance: none; text-align: left; }
+.card { overflow: hidden; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
 button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; padding: 0 16px; cursor: pointer; }
 .btn { background: var(--chip); color: var(--text); }
@@ -363,6 +366,7 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
       if (!hasData(item.sets[i])) continue;
       if (String(s.weight).trim() === '' && !isBodyweight(item)) return 'Set ' + (i + 1) + ': enter a weight (0 for none).';
       if (String(s.reps).trim() === '' || isNaN(parseFloat(s.reps))) return 'Set ' + (i + 1) + ': enter the reps.';
+      if (String(s.rir || '').trim() === '') return 'Set ' + (i + 1) + ': pick the RIR.';
     }
     return '';
   }
@@ -418,7 +422,9 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
       var shown = list.filter(function (e) { return !q || e.name.toLowerCase().indexOf(q) >= 0; });
       $('#pickList').innerHTML = shown.length ? shown.map(function (e) {
         return '<button class="pick" data-id="' + esc(e.id) + '">' + esc(e.name) + '</button>';
-      }).join('') : '<p class="muted">No matches. Add new exercises on the Master tab.</p>';
+      }).join('') : '<p class="muted">No matches.</p>';
+      $('#pickList').innerHTML += '<button class="btn block" id="pickNew" style="margin-top:12px">+ New exercise</button>';
+      $('#pickNew').onclick = function () { var q = $('#pickFind').value; document.body.removeChild(bg); openNewExercise(q, true); };
       Array.prototype.forEach.call(document.querySelectorAll('.pick'), function (b) {
         b.onclick = function () {
           var ex = exById(b.getAttribute('data-id'));
@@ -437,6 +443,41 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
     bg.onclick = function (e) { if (e.target === bg) document.body.removeChild(bg); };
     draw();
     $('#pickFind').focus();
+  }
+
+  /** New exercise form (movement + equipment + detail); the name is formatted on the server. */
+  function openNewExercise(movement, addToWorkout, done) {
+    var bg = document.createElement('div');
+    bg.className = 'sheet-bg';
+    var eqOptions = data.equipment.map(function (e) { return '<option>' + esc(e) + '</option>'; }).join('');
+    bg.innerHTML = '<div class="sheet"><h2>New exercise</h2>' +
+      '<label class="field"><span>Movement</span><input id="nxMove" value="' + esc(movement || '') + '" placeholder="e.g. incline bench press"></label>' +
+      '<label class="field"><span>Equipment</span><select id="nxEq">' + eqOptions + '</select></label>' +
+      '<label class="field"><span>Detail (optional)</span><input id="nxDetail" placeholder="e.g. rope, 15%"></label>' +
+      '<label class="field"><span>Setup notes (optional)</span><input id="nxSetup"></label>' +
+      '<label class="row" style="margin:10px 0"><input type="checkbox" id="nxWarm" style="flex:0;width:22px;min-height:22px"> Warm-up ladder</label>' +
+      '<div class="row"><button class="btn" id="nxCancel">Cancel</button><button class="btn primary" id="nxSave">Create</button></div></div>';
+    document.body.appendChild(bg);
+    $('#nxCancel').onclick = function () { document.body.removeChild(bg); };
+    $('#nxSave').onclick = function () {
+      $('#nxSave').disabled = true;
+      call('webAppCreateExercise', { movement: $('#nxMove').value, equipment: $('#nxEq').value, detail: $('#nxDetail').value,
+        setup: $('#nxSetup').value, warmup: $('#nxWarm').checked }).then(function (ex) {
+        document.body.removeChild(bg);
+        if (!exById(ex.id)) data.exercises.push(ex);
+        data.exercises.sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
+        toast((ex.existed ? 'Already in your list: ' : 'Created ') + ex.name + '.');
+        if (addToWorkout && w) {
+          var cur = w.items[w.index];
+          if (cur && !saveItem(cur, true)) return;
+          var at = w.items.length ? w.index + 1 : 0;
+          w.items.splice(at, 0, newItem(ex));
+          w.index = at; saveDraft(); renderWorkout(); refreshViews([ex.id]);
+        }
+        if (done) done(ex);
+      }).catch(function (e) { $('#nxSave').disabled = false; toast(e.message); });
+    };
+    $('#nxMove').focus();
   }
 
   function editSetup(item) {

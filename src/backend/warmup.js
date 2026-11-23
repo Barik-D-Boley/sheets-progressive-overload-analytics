@@ -2,7 +2,7 @@
  * Warm-up ladder for exercises with Warm-up checked in the registry.
  * Uses standard plate jumps below the working weight, heaviest first, with
  * reps 1, 2, 4, 6, 8 ... and skips any step within `skipWithin` of the working weight.
- * e.g. 275 lb -> 225x1, 185x2, 135x4, 95x6, 45x8
+ * e.g. 275 lb -> 45x8, 95x6, 135x4, 185x2, 225x1 (returned lightest first)
  */
 var WARMUP_DEFAULTS = {
   ladders: {
@@ -21,7 +21,7 @@ function warmupLadder(workingLoad, unit, cfg) {
   return steps.map(function (load, i) {
     var reps = i < cfg.reps.length ? cfg.reps[i] : cfg.reps[cfg.reps.length - 1] + 2 * (i - cfg.reps.length + 1);
     return { load: load, reps: reps };
-  });
+  }).reverse(); // lightest first, in the order you do them
 }
 
 function formatWarmup(ladder) {

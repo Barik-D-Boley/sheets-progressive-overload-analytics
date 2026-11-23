@@ -124,6 +124,7 @@ function webAppLoad(key) {
     gyms: readRegistry('gyms').map(function (g) { return g.name; }),
     lastGym: String(getEntryState_().gym || ''),
     routines: routines, exercises: exercises, cardio: cardio,
+    equipment: Object.keys(readNamingSettings_().equipmentTags),
     bodyweight: { latest: latest, needsWeighIn: needsWeighIn(log, today, snooze) },
   };
 }
@@ -273,4 +274,31 @@ function webAppSaveSetupNotes(key, exerciseId, text) {
   requireKey_(key);
   updateRegistryValue('exercises', exerciseId, 'Setup Notes', String(text || ''));
   return true;
+}
+
+/**
+ * Creates an exercise from movement + equipment + detail (formatted with the naming rules),
+ * or returns the existing one with that name. payload: {movement, equipment, detail, setup, warmup}
+ */
+function webAppCreateExercise(key, payload) {
+  requireKey_(key);
+  var movement = String(payload.movement || '').trim();
+  if (!movement) throw new Error('Enter the movement name.');
+  var equipment = String(payload.equipment || '').trim();
+  var name = formatExerciseName({ movement: movement, equipment: equipment, detail: String(payload.detail || '').trim() }, readNamingSettings_());
+  var lock = LockService.getDocumentLock();
+  lock.waitLock(20000);
+  try {
+    var existed = !!exerciseIndex_().byName[name.toLowerCase()];
+    if (!existed) {
+      ensureRegistryEntries('exercises', [name], function () {
+        return [equipment, '', '', true, payload.warmup === true, String(payload.setup || ''), '', isGymSpecificEquipment(equipment)];
+      });
+    }
+    var ex = exerciseIndex_().byName[name.toLowerCase()];
+    return { id: ex.id, name: ex.name, equipment: equipment, warmup: ex.warmup, setup: String(ex.setup || ''),
+      sameGym: ex.sameGym, active: ex.active, existed: existed };
+  } finally {
+    lock.releaseLock();
+  }
 }
