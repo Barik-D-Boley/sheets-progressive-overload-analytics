@@ -25,7 +25,7 @@ function setup() {
     sheet.getRange(a1).setValue(value);
     return g.entryOnEdit({ range: sheet.getRange(a1), value: value === true ? 'TRUE' : value, source: app.ss });
   };
-  const type = (weight, reps, extra = {}) => sheet.getRange('B10:B15').setValues([[weight], [reps], [extra.assisted || ''],
+  const type = (weight, reps, extra = {}) => sheet.getRange('B11:B16').setValues([[weight], [reps], [extra.assisted || ''],
     [extra.partial || ''], [extra.rir || ''], [extra.note || '']]);
   return { app, g, sheet, edit, type, ex };
 }
@@ -33,109 +33,134 @@ function setup() {
 test('setup keeps the mockup, seeds the routine, and builds the form', () => {
   const { app, sheet } = setup();
   assert.ok(app.ss.getSheetByName('Workout Entry (old mockup)'), 'old tab renamed, not deleted');
-  assert.strictEqual(sheet.getRange('C1').getNote(), 'entry-form-v2');
+  assert.strictEqual(sheet.getRange('C1').getNote(), 'entry-form-v3');
   const master = app.ss.getSheetByName('Master').data;
   const routineRow = master.find(r => r[26] === 'Push');
   assert.deepStrictEqual(routineRow.slice(27, 30), ['Push', 'Bench press (BB)', 'Lateral raises (DB)'], 'seeded from last session order');
   assert.deepStrictEqual(master[1].slice(26, 29), ['Routine', 'Workout', 'Exercise 1']);
   assert.ok(master.some(r => r[0] === 'Target RIR'), 'missing settings appended');
-  assert.ok(sheet.hiddenRows.has(24) && sheet.hiddenRows.has(35), 'cardio and new-exercise blocks hidden');
-  assert.strictEqual(sheet.getRange('B11').getValue(), '');
+  assert.ok(sheet.hiddenRows.has(25) && sheet.hiddenRows.has(36), 'cardio and bodyweight blocks hidden');
+  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[26] === 'Custom' && r[27] === 'Custom'), 'Custom routine added');
+  assert.strictEqual(sheet.getRange('B12').getValue(), '');
 });
 
 test('a workout: last/goal/warm-up, set-by-set entry, save on move, ✓ in dropdown, finish', () => {
   const { app, g, sheet, edit, type } = setup();
   edit('B2', 'BYUI');
   edit('B3', 'Push');
-  assert.strictEqual(sheet.value('B4'), 'Bench press (BB)');
-  assert.strictEqual(sheet.value('A4'), 'Exercise (1 of 2)');
+  assert.strictEqual(sheet.value('B5'), 'Bench press (BB)');
+  assert.strictEqual(sheet.value('A5'), 'Exercise (1 of 2)');
   assert.deepStrictEqual(['A1', 'A2', 'A3'].map(a => sheet.value(a)), ['Date', 'Gym', 'Routine'], 'labels in column A');
-  assert.strictEqual(sheet.value('A6'), 'SET 1 of 3');
-  assert.strictEqual(sheet.value('A7'), 'Last · 11/13/26 BYUI', 'same gym preferred, with the year');
-  assert.strictEqual(sheet.value('B7'), '275 x 6 @1-2');
-  assert.strictEqual(sheet.value('B8'), '275x6  (+1 rep on set 2)', 'last: 275x6, 275x5, 265x6 -> set 2 is weakest');
-  assert.strictEqual(sheet.value('B9'), '225×1 · 185×2 · 135×4 · 95×6 · 45×8');
+  assert.strictEqual(sheet.value('A7'), 'SET 1 of 3');
+  assert.strictEqual(sheet.value('A8'), 'Last · 11/13/26 BYUI', 'same gym preferred, with the year');
+  assert.strictEqual(sheet.value('B8'), '275 x 6 @1-2');
+  assert.strictEqual(sheet.value('B9'), '275x6  (+1 rep on set 2)', 'last: 275x6, 275x5, 265x6 -> set 2 is weakest');
+  assert.strictEqual(sheet.value('B10'), '225×1 · 185×2 · 135×4 · 95×6 · 45×8');
 
   type(275, 7, { rir: new app.globals.Date(2026, 0, 2), note: 'paused' }); // Sheets stores "1-2" as Jan 2
-  edit('B17', true);
-  assert.strictEqual(sheet.value('B17'), false, 'button unchecked');
-  assert.strictEqual(sheet.value('A6'), 'SET 2 of 3');
-  assert.strictEqual(sheet.value('B10'), 275, 'weight carried to the next set');
-  assert.strictEqual(sheet.value('B9'), '', 'warm-up only on set 1');
+  edit('B18', true);
+  assert.strictEqual(sheet.value('B18'), false, 'button unchecked');
+  assert.strictEqual(sheet.value('A7'), 'SET 2 of 3');
+  assert.strictEqual(sheet.value('B11'), 275, 'weight carried to the next set');
+  assert.strictEqual(sheet.value('B10'), '', 'warm-up only on set 1');
 
   type(275, '', {});
-  edit('B17', true);
-  assert.match(sheet.value('A19'), /reps/, 'invalid set is reported');
-  assert.strictEqual(sheet.value('B10'), 275, 'form kept after a failed set');
+  edit('B18', true);
+  assert.match(sheet.value('A20'), /reps/, 'invalid set is reported');
+  assert.strictEqual(sheet.value('B11'), 275, 'form kept after a failed set');
 
   type(275, 6, { assisted: 1 });
-  edit('B17', true);
+  edit('B18', true);
   type(265, 7, { partial: 2, rir: '0' });
-  edit('B17', true);
+  edit('B18', true);
 
   const q = app.ss.getSheetByName('Q4 2026');
   const saved = q.data.find(r => r[7] === 'entry' && r[0] !== 'L-old1' && r[0] !== 'L-old2' && r[0] !== 'L-old3');
   assert.deepStrictEqual(saved.slice(2, 11), ['GY-01', 'WO-01', 'EX-0001', 'lb', 'S1: paused', 'entry', '275x7 @1-2', '275x6 a1', '265x7 p2 @0']);
-  assert.strictEqual(sheet.value('B4'), 'Lateral raises (DB)', 'moved to the next exercise');
-  assert.match(sheet.value('A19'), /Saved Bench press/);
-  const options = sheet.validations.B4.list;
+  assert.strictEqual(sheet.value('B5'), 'Lateral raises (DB)', 'moved to the next exercise');
+  assert.match(sheet.value('A20'), /Saved Bench press/);
+  const options = sheet.validations.B5.list;
   assert.ok(options.includes('✓ Bench press (BB)'), 'done exercises are checked in the dropdown');
-  assert.ok(options.includes('Hanging leg raises (DB)') && options.includes('+ New exercise…'));
+  assert.ok(options.includes('Hanging leg raises (DB)') && !options.some(o => /New exercise/.test(o)), 'no new-exercise option');
 
   // Back reopens the saved exercise; Next rewrites the same record instead of adding one.
-  edit('B16', true);
-  assert.strictEqual(sheet.value('B4'), '✓ Bench press (BB)');
-  assert.strictEqual(sheet.value('A6'), 'SET 3 of 3');
-  type(265, 8, { rir: '0' });
   edit('B17', true);
+  assert.strictEqual(sheet.value('B5'), '✓ Bench press (BB)');
+  assert.strictEqual(sheet.value('A7'), 'SET 3 of 3');
+  type(265, 8, { rir: '0' });
+  edit('B18', true);
   assert.strictEqual(q.data.filter(r => r[4] === 'EX-0001').length, 3, 'still one new bench record');
   assert.strictEqual(q.data.find(r => r[0] === saved[0])[10], '265x8 @0');
 
   // Jump to an exercise outside the routine; all-zero hanging leg raises save as the BW variant.
-  edit('B4', 'Hanging leg raises (DB)');
-  assert.strictEqual(sheet.value('A4'), 'Exercise (3 of 3)');
-  for (const reps of [12, 10, 8]) { type(0, reps); edit('B17', true); }
+  edit('B5', 'Hanging leg raises (DB)');
+  assert.strictEqual(sheet.value('A5'), 'Exercise (3 of 3)');
+  for (const reps of [12, 10, 8]) { type(0, reps); edit('B18', true); }
   const hlr = q.data.find(r => r[4] === 'EX-0004');
   assert.ok(hlr, 'saved as Hanging leg raises (BW)');
 
-  edit('B18', true);
-  assert.match(sheet.value('A19'), /Workout saved: 2 exercises, 6 sets/);
-  assert.strictEqual(sheet.value('B4'), '');
+  edit('B19', true);
+  assert.match(sheet.value('A20'), /Workout saved: 2 exercises, 6 sets/);
+  assert.strictEqual(sheet.value('B5'), '');
 });
 
-test('setup notes are saved with the exercise; new exercise creator formats the name', () => {
-  const { app, sheet, edit, type } = setup();
+test('setup notes are saved with the exercise', () => {
+  const { app, edit } = setup();
   edit('B3', 'Push');
-  edit('B5', 'Bench pins 28, seat 2');
+  edit('B6', 'Bench pins 28, seat 2');
   const master = app.ss.getSheetByName('Master').data;
   assert.strictEqual(master[2][13], 'Bench pins 28, seat 2');
+});
 
-  edit('B4', '+ New exercise…');
-  assert.ok(!sheet.hiddenRows.has(34) && sheet.hiddenRows.has(10), 'new-exercise block shown, lifting hidden');
-  edit('B34', 'incline bench press');
-  edit('B35', 'Smith machine');
-  assert.strictEqual(sheet.value('B39'), 'Incline bench press (Smith)');
-  sheet.getRange('B37').setValue(true);
-  edit('B40', true);
-  assert.strictEqual(sheet.value('B4'), 'Incline bench press (Smith)');
-  const row = app.ss.getSheetByName('Master').data.find(r => r[7] === 'Incline bench press (Smith)');
-  assert.deepStrictEqual(row.slice(8, 13), ['Smith machine', '', '', true, true]);
-  assert.strictEqual(sheet.value('A6'), 'SET 1 of 3');
-  assert.strictEqual(sheet.value('B7'), 'First time');
+test('Custom routine starts empty; Find narrows the list; picked exercises are added for the day', () => {
+  const { app, sheet, edit, type } = setup();
+  edit('B2', 'BYUI');
+  edit('B3', 'Custom');
+  if (!sheet.hiddenRows.has(36)) edit('B38', true);
+  assert.strictEqual(sheet.value('B5'), '');
+  assert.match(sheet.value('A20'), /Custom workout/);
+  edit('B4', 'raise');
+  assert.deepStrictEqual([...sheet.validations.B5.list], ['Hanging leg raises (BW)', 'Hanging leg raises (DB)', 'Lateral raises (DB)']);
+  assert.match(sheet.value('A20'), /3 matches/);
+  edit('B5', 'Lateral raises (DB)');
+  assert.strictEqual(sheet.value('A5'), 'Exercise (1 of 1)');
+  edit('B4', 'bench');
+  assert.deepStrictEqual([...sheet.validations.B5.list], ['Lateral raises (DB)', '──────────', 'Bench press (BB)'], 'today\'s exercises stay listed');
+  edit('B5', 'Bench press (BB)');
+  assert.strictEqual(sheet.value('A5'), 'Exercise (2 of 2)');
+  type(225, 5); edit('B18', true);
+  assert.strictEqual(sheet.value('A7'), 'SET 2 of 3');
+  const routines = app.ss.getSheetByName('Master').data.filter(r => r[26] === 'Custom');
+  assert.strictEqual(routines.length, 1);
+  assert.deepStrictEqual(routines[0].slice(28, 43).filter(Boolean), [], 'the Custom template itself stays empty');
+});
+
+test('history is read once per exercise; moving between sets reuses it', () => {
+  const { g, sheet, edit, type } = setup();
+  edit('B2', 'BYUI');
+  edit('B3', 'Push');
+  let reads = 0;
+  const original = g.getExerciseHistory_;
+  g.getExerciseHistory_ = id => { reads++; return original(id); };
+  type(275, 7); edit('B18', true);
+  type(275, 6); edit('B18', true);
+  edit('B17', true);
+  assert.strictEqual(reads, 0, 'Next/Back within an exercise use the cached view');
+  assert.strictEqual(sheet.value('B8'), '275 x 5', 'Last for set 2 is last session\'s set 2');
 });
 
 test('cardio logs to the Cardio tab with units from the last time', () => {
   const { app, sheet, edit } = setup();
   edit('B2', 'Eos');
-  edit('B20', true);
-  assert.ok(!sheet.hiddenRows.has(24));
-  edit('B24', 'Treadmill (15°)');
-  assert.strictEqual(sheet.value('C26'), 'mph');
-  sheet.getRange('B25:B29').setValues([[30], [3.1], [1.6], [350], ['']]);
-  edit('B30', true);
+  edit('B21', true);
+  assert.ok(!sheet.hiddenRows.has(25));
+  edit('B25', 'Treadmill (15°)');
+  assert.strictEqual(sheet.value('C27'), 'mph');
+  sheet.getRange('B26:B30').setValues([[30], [3.1], [1.6], [350], ['']]);
+  edit('B31', true);
   const cardio = app.ss.getSheetByName('Cardio').data;
   assert.deepStrictEqual(cardio[1].slice(2, 12), ['GY-02', 'CA-01', 30, 3.1, 'mph', 1.6, 'mi', 350, '', 'entry']);
-  assert.ok(sheet.hiddenRows.has(24), 'back to lifting');
+  assert.ok(sheet.hiddenRows.has(25), 'back to lifting');
 });
 
 test('an existing routines table in the old layout is converted, and routines record their workout', () => {
@@ -159,10 +184,10 @@ test('an existing routines table in the old layout is converted, and routines re
   const edit = (a1, value) => { sheet.getRange(a1).setValue(value); g.entryOnEdit({ range: sheet.getRange(a1), value: value === true ? 'TRUE' : value }); };
   edit('B2', 'BYUI');
   edit('B3', 'Push Day 2');
-  assert.strictEqual(sheet.value('B4'), 'Dips (BW)');
-  if (!sheet.hiddenRows.has(45)) edit('B47', true); // dismiss the weigh-in prompt
-  sheet.getRange('B10:B11').setValues([[0], [12]]);
-  edit('B17', true);
+  assert.strictEqual(sheet.value('B5'), 'Dips (BW)');
+  if (!sheet.hiddenRows.has(36)) edit('B38', true); // dismiss the weigh-in prompt
+  sheet.getRange('B11:B12').setValues([[0], [12]]);
+  edit('B18', true);
   const q = app.ss.getSheetByName('Q4 2026').data;
   assert.strictEqual(q[1][3], 'WO-01', 'saved under the Push workout, not a new "Push Day 2" workout');
 });
@@ -183,32 +208,30 @@ test('free weights use every gym; machines use the current gym first (Same Gym O
 
   edit('B2', 'Eos');
   edit('B3', 'Push');
-  if (!sheet.hiddenRows.has(45)) edit('B47', true);
-  assert.strictEqual(sheet.value('A7'), 'Last · 11/13/26 BYUI', 'bench (BB): latest session at any gym');
-  edit('B4', 'Pec flys (Machine)');
-  assert.strictEqual(sheet.value('A7'), 'Last · 11/12/26 Eos', 'machine: this gym only');
-  assert.match(sheet.value('B8'), /^150x/, 'goal based on this gym');
+  if (!sheet.hiddenRows.has(36)) edit('B38', true);
+  assert.strictEqual(sheet.value('A8'), 'Last · 11/13/26 BYUI', 'bench (BB): latest session at any gym');
+  edit('B5', 'Pec flys (Machine)');
+  assert.strictEqual(sheet.value('A8'), 'Last · 11/12/26 Eos', 'machine: this gym only');
+  assert.match(sheet.value('B9'), /^150x/, 'goal based on this gym');
   edit('B2', 'BYUI');
-  assert.strictEqual(sheet.value('A7'), 'Last · 11/15/26 BYUI');
+  assert.strictEqual(sheet.value('A8'), 'Last · 11/15/26 BYUI');
 
   // Unchecking the box makes a machine compare across gyms.
   const row = master.findIndex(r => r[7] === 'Pec flys (Machine)');
   master[row][15] = false;
   edit('B2', 'Eos');
-  assert.strictEqual(sheet.value('A7'), 'Last · 11/15/26 BYUI');
+  assert.strictEqual(sheet.value('A8'), 'Last · 11/15/26 BYUI');
 });
 
 test('exercise and cardio lists stay sorted A-Z; IDs and row data move together', () => {
-  const { app, g, sheet, edit } = setup();
+  const { app, g } = setup();
   const master = app.ss.getSheetByName('Master').data;
   const names = () => master.slice(2).map(r => r[7]).filter(Boolean);
   assert.deepStrictEqual(names(), ['Bench press (BB)', 'Hanging leg raises (BW)', 'Hanging leg raises (DB)', 'Lateral raises (DB)']);
   const bench = master.find(r => r[7] === 'Bench press (BB)');
   assert.strictEqual(bench[6], 'EX-0001'); assert.strictEqual(bench[12], true, 'warm-up box moved with its row');
 
-  edit('B4', '+ New exercise…');
-  edit('B34', 'face pulls'); edit('B35', 'Cable');
-  edit('B40', true);
+  g.ensureRegistryEntries('exercises', ['Face pulls (Cable)'], () => ['Cable', '', '', true, false, '', '', true]);
   assert.deepStrictEqual(names(), ['Bench press (BB)', 'Face pulls (Cable)', 'Hanging leg raises (BW)', 'Hanging leg raises (DB)', 'Lateral raises (DB)']);
   assert.strictEqual(master.find(r => r[7] === 'Face pulls (Cable)')[6], 'EX-0005', 'new exercise keeps the next ID');
 

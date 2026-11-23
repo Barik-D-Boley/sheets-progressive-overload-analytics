@@ -124,9 +124,9 @@ test('sheet: setup keeps the mockup, filters refresh, clear button, nightly trig
   const entry = app.ss.getSheetByName('Workout Entry');
   const eEdit = (a1, value) => { entry.getRange(a1).setValue(value); gs.entryOnEdit({ range: entry.getRange(a1), value: value === true ? 'TRUE' : value }); };
   eEdit('B2', 'BYUI');
-  eEdit('B4', 'Squats (BB)');
-  entry.getRange('B10:B11').setValues([[325], [5]]);
-  eEdit('B18', true);
-  assert.match(entry.value('A19'), /Workout saved: 1 exercises, 1 sets/, entry.value('A19'));
+  eEdit('B5', 'Squats (BB)');
+  entry.getRange('B11:B12').setValues([[325], [5]]);
+  eEdit('B19', true);
+  assert.match(entry.value('A20'), /Workout saved: 1 exercises, 1 sets/, entry.value('A20'));
   assert.match(sheet.value('A2'), /^Showing 3 of 3/);
 });

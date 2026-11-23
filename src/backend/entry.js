@@ -12,33 +12,30 @@
 var ENTRY = {
   // Header: labels in column A, values and dropdowns in column B.
   DATE: 'B1', GYM: 'B2', ROUTINE: 'B3',
-  EXERCISE_LABEL: 'A4', EXERCISE: 'B4',
-  SETUP: 'B5',
-  SET_TITLE: 'A6',
-  LAST_LABEL: 'A7', LAST: 'B7',
-  GOAL_LABEL: 'A8', GOAL: 'B8',
-  WARMUP_LABEL: 'A9', WARMUP: 'B9',
-  INPUT_FIRST_ROW: 10, // B10:B15 = weight, reps, assisted, partial, rir, set note
-  BACK_BTN: 'B16', NEXT_BTN: 'B17', FINISH_BTN: 'B18',
-  MESSAGE: 'A19',
-  CARDIO_BTN: 'B20', BODYWEIGHT_BTN: 'B21',
-  LIFT_ROWS: [4, 18],
+  FIND: 'B4',
+  EXERCISE_LABEL: 'A5', EXERCISE: 'B5',
+  SETUP: 'B6',
+  SET_TITLE: 'A7',
+  LAST_LABEL: 'A8', LAST: 'B8',
+  GOAL_LABEL: 'A9', GOAL: 'B9',
+  WARMUP_LABEL: 'A10', WARMUP: 'B10',
+  INPUT_FIRST_ROW: 11, // B11:B16 = weight, reps, assisted, partial, rir, set note
+  BACK_BTN: 'B17', NEXT_BTN: 'B18', FINISH_BTN: 'B19',
+  MESSAGE: 'A20',
+  CARDIO_BTN: 'B21', BODYWEIGHT_BTN: 'B22',
+  LIFT_ROWS: [5, 19],
 
-  CARDIO_ROWS: [23, 31],
-  CARDIO_ACTIVITY: 'B24', CARDIO_FIRST_ROW: 25, // B25:B29 = duration, speed, distance, calories, notes
-  CARDIO_SPEED_UNIT: 'C26', CARDIO_DIST_UNIT: 'C27',
-  CARDIO_SAVE_BTN: 'B30', CARDIO_CANCEL_BTN: 'B31',
+  CARDIO_ROWS: [24, 32],
+  CARDIO_ACTIVITY: 'B25', CARDIO_FIRST_ROW: 26, // B26:B30 = duration, speed, distance, calories, notes
+  CARDIO_SPEED_UNIT: 'C27', CARDIO_DIST_UNIT: 'C28',
+  CARDIO_SAVE_BTN: 'B31', CARDIO_CANCEL_BTN: 'B32',
 
-  NEW_ROWS: [33, 41],
-  NEW_FIRST_ROW: 34, // B34:B38 = movement, equipment, detail, warm-up, setup notes
-  NEW_PREVIEW: 'B39', NEW_CREATE_BTN: 'B40', NEW_CANCEL_BTN: 'B41',
+  BW_ROWS: [34, 38],
+  BW_PROMPT: 'A35', BW_INPUT: 'B36', BW_SAVE_BTN: 'B37', BW_SKIP_BTN: 'B38',
 
-  BW_ROWS: [43, 47],
-  BW_PROMPT: 'A44', BW_INPUT: 'B45', BW_SAVE_BTN: 'B46', BW_SKIP_BTN: 'B47',
-
-  LAST_ROW: 47,
+  LAST_ROW: 38,
 };
-var NEW_EXERCISE_OPTION = '+ New exercise…';
+var CUSTOM_ROUTINE = 'Custom';
 var DONE_MARK = '✓ ';
 var DROPDOWN_DIVIDER = '──────────';
 
@@ -74,6 +71,7 @@ function entryOnEdit(e) {
   actions[ENTRY.EXERCISE] = function () { entryExerciseChosen_(e.value); };
   actions[ENTRY.SETUP] = function () { entrySetupNotesChanged_(e.value); };
   actions[ENTRY.CARDIO_ACTIVITY] = function () { entryCardioActivityChanged_(e.value); };
+  actions[ENTRY.FIND] = function () { entryFindChanged_(e.value); };
   var buttons = {};
   buttons[ENTRY.NEXT_BTN] = entryNext_;
   buttons[ENTRY.BACK_BTN] = entryBack_;
@@ -81,14 +79,9 @@ function entryOnEdit(e) {
   buttons[ENTRY.CARDIO_BTN] = entryOpenCardio_;
   buttons[ENTRY.CARDIO_SAVE_BTN] = entrySaveCardio_;
   buttons[ENTRY.CARDIO_CANCEL_BTN] = entryCloseSubform_;
-  buttons[ENTRY.NEW_CREATE_BTN] = entryCreateExercise_;
-  buttons[ENTRY.NEW_CANCEL_BTN] = entryCloseSubform_;
   buttons[ENTRY.BODYWEIGHT_BTN] = function () { entryOpenBodyweight_(''); };
   buttons[ENTRY.BW_SAVE_BTN] = entrySaveBodyweight_;
   buttons[ENTRY.BW_SKIP_BTN] = entrySkipBodyweight_;
-  var newInputs = {};
-  for (var r = ENTRY.NEW_FIRST_ROW; r < ENTRY.NEW_FIRST_ROW + 3; r++) newInputs['B' + r] = true;
-
   var lock = LockService.getDocumentLock();
   lock.waitLock(20000);
   try {
@@ -98,8 +91,6 @@ function entryOnEdit(e) {
       buttons[a1]();
     } else if (actions[a1]) {
       actions[a1]();
-    } else if (newInputs[a1]) {
-      entryUpdateNewPreview_();
     }
   } catch (err) {
     showEntryMessage_('⚠ ' + err.message);
@@ -128,9 +119,10 @@ function entryStartWorkout_(routineName) {
   state = { date: today, routine: routineName, workout: routine.workout || routineName, queue: queue, index: 0, set: 0, mode: 'lift' };
   saveEntryState_(state);
   var gymPicked = String(sheet.getRange(ENTRY.GYM).getValue()).trim();
-  renderEntry_(state, !queue.length
-    ? 'No routine "' + routineName + '" yet. Pick exercises from the dropdown, or add the routine on Master.'
-    : (gymPicked ? '' : 'Pick your gym at the top before logging.'));
+  var emptyMessage = String(routineName).trim().toLowerCase() === CUSTOM_ROUTINE.toLowerCase()
+    ? 'Custom workout: type in Find, then pick exercises from the Exercise list.'
+    : 'No exercises in "' + routineName + '" yet. Pick exercises from the list, or add them to the routine on Master.';
+  renderEntry_(state, !queue.length ? emptyMessage : (gymPicked ? '' : 'Pick your gym at the top before logging.'));
   var snooze = PropertiesService.getDocumentProperties().getProperty(BODYWEIGHT.PROP_SNOOZE);
   if (needsWeighIn(readBodyweightLog_(), today, snooze)) entryOpenBodyweight_(today);
 }
@@ -142,7 +134,6 @@ function newQueueItem_(ex) {
 function entryExerciseChosen_(label) {
   var state = getEntryState_();
   if (!label || label === DROPDOWN_DIVIDER) { renderEntry_(state); return; }
-  if (label === NEW_EXERCISE_OPTION) { setEntryMode_(state, 'new'); return; }
   var name = String(label).replace(DONE_MARK, '');
   if (state.queue.length) saveCurrentExercise_(state, readInputs_(), true);
   var idx = -1;
@@ -217,6 +208,15 @@ function entryFinish_() {
   try { refreshCompiledData(); } catch (err) { refreshNote = ' (Compiled Data refresh failed: ' + err.message + ')'; }
   renderEntry_(getEntryState_(), (done.length
     ? 'Workout saved: ' + done.length + ' exercises, ' + sets + ' sets.' : 'Nothing to save.') + refreshNote);
+}
+
+/** Find box: limits the Exercise list to names containing the text (routine exercises always stay). */
+function entryFindChanged_(text) {
+  var state = getEntryState_();
+  state.find = String(text || '').trim();
+  saveEntryState_(state);
+  var count = renderEntry_(state);
+  if (state.find) showEntryMessage_(count ? count + ' match' + (count === 1 ? '' : 'es') + ' in the Exercise list.' : 'No exercises match "' + state.find + '".');
 }
 
 function entryGymChanged_(gymName) {
@@ -369,25 +369,49 @@ function setEntryMode_(state, mode) {
   state.mode = mode;
   saveEntryState_(state);
   var sheet = entrySheet_();
-  var blocks = { lift: ENTRY.LIFT_ROWS, cardio: ENTRY.CARDIO_ROWS, 'new': ENTRY.NEW_ROWS, bodyweight: ENTRY.BW_ROWS };
+  var blocks = { lift: ENTRY.LIFT_ROWS, cardio: ENTRY.CARDIO_ROWS, bodyweight: ENTRY.BW_ROWS };
   Object.keys(blocks).forEach(function (m) {
     var b = blocks[m];
     if (m === mode) sheet.showRows(b[0], b[1] - b[0] + 1);
     else sheet.hideRows(b[0], b[1] - b[0] + 1);
   });
-  if (mode === 'new') {
-    sheet.getRange(ENTRY.NEW_FIRST_ROW, 2, 5, 1).setValues([[''], [''], [''], [false], ['']]);
-    sheet.getRange(ENTRY.NEW_PREVIEW).setValue('');
-  }
   if (mode === 'lift') renderEntry_(state);
-  else if (mode !== 'bodyweight') showEntryMessage_(mode === 'new' ? 'Fill in the new exercise, then check Create.' : 'Log cardio, then check Save.');
+  else if (mode === 'cardio') showEntryMessage_('Log cardio, then check Save.');
 }
 
 function entryCloseSubform_() {
   setEntryMode_(getEntryState_(), 'lift');
 }
 
-/** Redraws the lifting block for the current exercise and set. */
+/**
+ * Per-exercise display data (Last, Goal, warm-up for every set), computed once when an
+ * exercise is opened and cached on the queue item. Recomputed when the gym changes or
+ * the exercise is saved. History: same-gym exercises (machines, cables, PL, Smith) use
+ * the current gym's sessions, falling back to every gym; free weights use every gym.
+ */
+function exerciseView_(item, ex, ctx) {
+  var key = ctx.gymId + '|' + (item.recordId || '');
+  if (item.view && item.view.key === key) return item.view;
+  var history = getExerciseHistory_(item.id).filter(function (h) { return h.recordId !== item.recordId; });
+  var hereHistory = ctx.gymId ? history.filter(function (h) { return h.gymId === ctx.gymId; }) : [];
+  if (ex.sameGym && hereHistory.length) history = hereHistory;
+  var last = history[0];
+  var goals = computeGoals(history, ctx.setCount, progressionSettings(ctx.settings, ex.increment));
+  var view = { key: key, lastLabel: 'Last', last: [], goals: [], warmup: '' };
+  if (last) view.lastLabel = 'Last · ' + shortDate_(last.date) + (ctx.gymNames[last.gymId] ? ' ' + ctx.gymNames[last.gymId] : '');
+  for (var i = 0; i < ctx.setCount; i++) {
+    view.last.push(!last ? 'First time' : (last.sets[i] ? formatSetCell(last.sets[i]).replace(/x/, ' x ') : '—'));
+    view.goals.push(goals.goals[i] ? formatGoal(goals.goals[i]) + '  (' + goals.reason + ')' : '');
+  }
+  if (ex.warmup) {
+    var working = goals.goals[0] ? goals.goals[0].load : (last && last.sets[0] ? last.sets[0].loadValue : 0);
+    view.warmup = formatWarmup(warmupLadder(working, ctx.unit));
+  }
+  item.view = view;
+  return view;
+}
+
+/** Redraws the lifting block for the current exercise and set. Returns the number of Find matches. */
 function renderEntry_(state, message) {
   var sheet = entrySheet_();
   var settings = readSettings_();
@@ -396,67 +420,44 @@ function renderEntry_(state, message) {
   var exercises = exerciseIndex_();
   var item = state.queue[state.index];
 
-  // Exercise dropdown: routine first (✓ when saved), then every other active exercise.
+  // Exercise dropdown: routine first (✓ when saved), then other active exercises matching Find.
   var inQueue = {};
   var options = state.queue.map(function (q) { inQueue[q.name.toLowerCase()] = true; return (q.done ? DONE_MARK : '') + q.name; });
+  var find = String(state.find || '').toLowerCase();
   var others = Object.keys(exercises.byName).map(function (k) { return exercises.byName[k]; })
-    .filter(function (ex) { return ex.active && !inQueue[ex.name.toLowerCase()]; })
+    .filter(function (ex) { return ex.active && !inQueue[ex.name.toLowerCase()] && (!find || ex.name.toLowerCase().indexOf(find) >= 0); })
     .map(function (ex) { return ex.name; }).sort();
-  options = options.concat([DROPDOWN_DIVIDER], others, [NEW_EXERCISE_OPTION]);
-  var exCell = sheet.getRange(ENTRY.EXERCISE);
-  exCell.setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(options.slice(0, 500), true)
-    .setAllowInvalid(false).build());
+  if (others.length) options = options.concat(options.length ? [DROPDOWN_DIVIDER] : [], others);
+  if (!options.length) options = [DROPDOWN_DIVIDER];
+  var optionsKey = hashText_(options.join('\n'));
+  if (state.optionsKey !== optionsKey) { // rebuilding the dropdown is slow; only when it changed
+    sheet.getRange(ENTRY.EXERCISE).setDataValidation(SpreadsheetApp.newDataValidation()
+      .requireValueInList(options.slice(0, 500), true).setAllowInvalid(false).build());
+    state.optionsKey = optionsKey;
+  }
+  var exerciseLabel = state.queue.length ? 'Exercise (' + (state.index + 1) + ' of ' + state.queue.length + ')' : 'Exercise';
 
-  sheet.getRange(ENTRY.EXERCISE_LABEL).setValue(state.queue.length
-    ? 'Exercise (' + (state.index + 1) + ' of ' + state.queue.length + ')' : 'Exercise');
   if (!item) {
-    exCell.setValue('');
-    sheet.getRange(ENTRY.SETUP).setValue('');
+    sheet.getRange(ENTRY.EXERCISE_LABEL).setValue(exerciseLabel);
+    sheet.getRange('B5:B6').setValues([[''], ['']]);
     sheet.getRange(ENTRY.SET_TITLE).setValue('');
-    [ENTRY.LAST_LABEL, ENTRY.LAST, ENTRY.GOAL, ENTRY.WARMUP].forEach(function (a) { sheet.getRange(a).setValue(''); });
-    sheet.getRange(ENTRY.INPUT_FIRST_ROW, 2, 6, 1).setValues([[''], [''], [''], [''], [''], ['']]);
-    showEntryMessage_(message || 'Pick a workout to load its routine.');
-    return;
+    sheet.getRange('A8:A11').setValues([['Last'], ['Goal'], [''], ['Weight (' + unit + ')']]);
+    sheet.getRange('B8:B16').setValues([[''], [''], [''], [''], [''], [''], [''], [''], ['']]);
+    var isCustom = String(state.routine || '').toLowerCase() === CUSTOM_ROUTINE.toLowerCase();
+    showEntryMessage_(message || (isCustom ? 'Custom workout: type in Find, then pick exercises from the Exercise list.'
+      : 'Pick a routine (or Custom) to start.'));
+    saveEntryState_(state);
+    return others.length;
   }
+
   var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '', sameGym: false };
-  exCell.setValue((item.done ? DONE_MARK : '') + item.name);
-  sheet.getRange(ENTRY.SETUP).setValue(ex.setup || '');
-  sheet.getRange(ENTRY.SET_TITLE).setValue('SET ' + (state.set + 1) + ' of ' + setCount);
-
-  // History for Last and Goal: for same-gym exercises (machines, cables, PL, Smith) only sessions
-  // at the current gym, falling back to every gym if it has never been done here; for free
-  // weights every gym. The session being edited is excluded.
-  var gymName = String(sheet.getRange(ENTRY.GYM).getValue() || state.gym || '').trim();
-  var gymId = '';
-  readRegistry('gyms').forEach(function (g) { if (g.name.toLowerCase() === gymName.toLowerCase()) gymId = g.id; });
-  var history = getExerciseHistory_(item.id).filter(function (h) { return h.recordId !== item.recordId; });
-  var gymNames = {};
-  readRegistry('gyms').forEach(function (g) { gymNames[g.id] = g.name; });
-  var hereHistory = gymId ? history.filter(function (h) { return h.gymId === gymId; }) : [];
-  if (ex.sameGym && hereHistory.length) history = hereHistory;
-  var last = history[0];
-  if (last) {
-    var lastSet = last.sets[state.set];
-    sheet.getRange(ENTRY.LAST_LABEL).setValue('Last · ' + shortDate_(last.date) +
-      (gymNames[last.gymId] ? ' ' + gymNames[last.gymId] : ''));
-    sheet.getRange(ENTRY.LAST).setValue(lastSet ? formatSetCell(lastSet).replace(/x/, ' x ') : '—');
-  } else {
-    sheet.getRange(ENTRY.LAST_LABEL).setValue('Last');
-    sheet.getRange(ENTRY.LAST).setValue('First time');
-  }
-
-  var ps = progressionSettings(settings, ex.increment);
-  var goals = computeGoals(history, setCount, ps);
-  var goal = goals.goals[state.set];
-  sheet.getRange(ENTRY.GOAL).setValue(goal ? formatGoal(goal) + '  (' + goals.reason + ')' : '');
-
-  var warm = '';
-  if (ex.warmup && state.set === 0) {
-    var working = goal ? goal.load : (last && last.sets[0] ? last.sets[0].loadValue : 0);
-    warm = formatWarmup(warmupLadder(working, unit));
-  }
-  sheet.getRange(ENTRY.WARMUP_LABEL).setValue(ex.warmup && state.set === 0 ? 'Warm-up' : '');
-  sheet.getRange(ENTRY.WARMUP).setValue(warm);
+  var header = sheet.getRange('B2:B3').getValues();
+  var gymName = String(header[0][0] || state.gym || '').trim();
+  var gyms = readRegistry('gyms');
+  var gymId = '', gymNames = {};
+  gyms.forEach(function (g) { gymNames[g.id] = g.name; if (g.name.toLowerCase() === gymName.toLowerCase()) gymId = g.id; });
+  var view = exerciseView_(item, ex, { gymId: gymId, gymNames: gymNames, settings: settings, setCount: setCount, unit: unit });
+  var showWarmup = ex.warmup && state.set === 0;
 
   // Inputs: what was entered before, else the previous set's weight.
   var inp = item.inputs[state.set];
@@ -464,48 +465,16 @@ function renderEntry_(state, message) {
     var prev = item.inputs[state.set - 1];
     inp = { weight: prev && hasSetData_(prev) ? prev.weight : '', reps: '', assisted: '', partial: '', rir: '', note: '' };
   }
-  sheet.getRange(ENTRY.INPUT_FIRST_ROW - 0, 1).setValue('Weight (' + unit + ')');
-  sheet.getRange(ENTRY.INPUT_FIRST_ROW, 2, 6, 1).setValues([[inp.weight], [inp.reps], [inp.assisted], [inp.partial],
-    [inp.rir], [inp.note]]);
+  // Batched writes (each range call costs a round trip).
+  sheet.getRange(ENTRY.EXERCISE_LABEL).setValue(exerciseLabel);
+  sheet.getRange('B5:B6').setValues([[(item.done ? DONE_MARK : '') + item.name], [ex.setup || '']]);
+  sheet.getRange(ENTRY.SET_TITLE).setValue('SET ' + (state.set + 1) + ' of ' + setCount);
+  sheet.getRange('A8:A11').setValues([[view.lastLabel], ['Goal'], [showWarmup ? 'Warm-up' : ''], ['Weight (' + unit + ')']]);
+  sheet.getRange('B8:B16').setValues([[view.last[state.set] || '—'], [view.goals[state.set] || ''],
+    [showWarmup ? view.warmup : ''], [inp.weight], [inp.reps], [inp.assisted], [inp.partial], [inp.rir], [inp.note]]);
   showEntryMessage_(message || '');
-}
-
-// ---- new exercise -----------------------------------------------------------
-
-function readNewExerciseInputs_() {
-  var v = entrySheet_().getRange(ENTRY.NEW_FIRST_ROW, 2, 5, 1).getValues();
-  return { movement: String(v[0][0]).trim(), equipment: String(v[1][0]).trim(), detail: String(v[2][0]).trim(),
-    warmup: v[3][0] === true, setup: String(v[4][0]).trim() };
-}
-
-function entryUpdateNewPreview_() {
-  var n = readNewExerciseInputs_();
-  var preview = '';
-  if (n.movement) {
-    try { preview = formatExerciseName({ movement: n.movement, equipment: n.equipment, detail: n.detail }, readNamingSettings_()); }
-    catch (err) { preview = err.message; }
-  }
-  entrySheet_().getRange(ENTRY.NEW_PREVIEW).setValue(preview);
-}
-
-function entryCreateExercise_() {
-  var n = readNewExerciseInputs_();
-  if (!n.movement) { showEntryMessage_('⚠ Enter the movement name.'); return; }
-  if (!n.equipment) { showEntryMessage_('⚠ Pick the equipment.'); return; }
-  var name = formatExerciseName({ movement: n.movement, equipment: n.equipment, detail: n.detail }, readNamingSettings_());
-  var exercises = exerciseIndex_();
-  if (!exercises.byName[name.toLowerCase()]) {
-    var equipmentName = n.equipment;
-    ensureRegistryEntries('exercises', [name], function () {
-      return [equipmentName, '', '', true, n.warmup, n.setup, '', isGymSpecificEquipment(equipmentName)];
-    });
-  }
-  var state = getEntryState_();
-  state.mode = 'lift';
   saveEntryState_(state);
-  setEntryMode_(state, 'lift');
-  entryExerciseChosen_(name);
-  showEntryMessage_('Added ' + name + '.');
+  return others.length;
 }
 
 // ---- cardio -----------------------------------------------------------------
@@ -601,4 +570,11 @@ function entrySkipBodyweight_() {
 /** '2026-11-14' -> '11/14/26'. */
 function shortDate_(iso) {
   return parseInt(iso.slice(5, 7), 10) + '/' + parseInt(iso.slice(8, 10), 10) + '/' + iso.slice(2, 4);
+}
+
+/** Short fingerprint of a string (document properties are size-limited). */
+function hashText_(text) {
+  var h = 5381;
+  for (var i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+  return h.toString(36) + ':' + text.length;
 }

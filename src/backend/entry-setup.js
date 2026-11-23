@@ -27,7 +27,7 @@ function setupEntryForm() {
   ss.setActiveSheet(sheet);
 }
 
-var ENTRY_FORM_MARKER = 'entry-form-v2';
+var ENTRY_FORM_MARKER = 'entry-form-v3';
 
 /** Any version of the generated form (rebuilt in place); anything else is the user's own tab. */
 function isEntryFormSheet_(sheet) {
@@ -71,15 +71,18 @@ function buildEntryLayout_(sheet) {
   label('A3', 'Routine');
   cell(ENTRY.ROUTINE).setDataValidation(rangeRule(routineCol + '3:' + routineCol, false)).setFontWeight('bold');
 
-  // Lifting block
+  // Find + lifting block
+  label('A4', 'Find');
+  cell(ENTRY.FIND).setBackground(ENTRY_COLORS.input).setBorder(true, true, true, true, false, false)
+    .setNote('Type part of a name (e.g. "curl") to narrow the Exercise list.');
   label(ENTRY.EXERCISE_LABEL, 'Exercise');
   cell(ENTRY.EXERCISE).setFontSize(14).setFontWeight('bold');
-  sheet.setRowHeight(4, 40);
-  label('A5', 'Setup');
+  sheet.setRowHeight(5, 40);
+  label('A6', 'Setup');
   cell(ENTRY.SETUP).setNote('Saved with this exercise (seat height, pins, grip...).');
-  sheet.getRange('A6:B6').merge().setBackground(ENTRY_COLORS.title).setHorizontalAlignment('center').setFontWeight('bold');
-  [[7, 'Last'], [8, 'Goal'], [9, '']].forEach(function (r) { label('A' + r[0], r[1]); });
-  sheet.getRange('B7:B9').setFontColor('#444444');
+  sheet.getRange('A7:B7').merge().setBackground(ENTRY_COLORS.title).setHorizontalAlignment('center').setFontWeight('bold');
+  [[8, 'Last'], [9, 'Goal'], [10, '']].forEach(function (r) { label('A' + r[0], r[1]); });
+  sheet.getRange('B8:B10').setFontColor('#444444');
   var inputs = ['Weight', 'Reps', 'Assisted reps', 'Partial reps', 'RIR', 'Set notes'];
   inputs.forEach(function (t, i) {
     label('A' + (ENTRY.INPUT_FIRST_ROW + i), t);
@@ -87,14 +90,14 @@ function buildEntryLayout_(sheet) {
       .setBorder(true, true, true, true, false, false).setFontSize(16);
     sheet.setRowHeight(ENTRY.INPUT_FIRST_ROW + i, 38);
   });
-  sheet.getRange(ENTRY.INPUT_FIRST_ROW + 4, 2).setDataValidation(listRule(RIR_OPTIONS, false));
-  button(16, '◀ Back');
-  button(17, 'Next ▶');
-  button(18, 'Finish workout');
-  sheet.getRange('A19:B19').merge().setBackground(ENTRY_COLORS.message).setFontStyle('italic');
-  sheet.setRowHeight(19, 40);
-  button(20, '🏃 Log cardio', true);
-  button(21, '⚖ Log bodyweight', true);
+  sheet.getRange(ENTRY.INPUT_FIRST_ROW + 4, 2).setDataValidation(listRule(RIR_OPTIONS, false)).setNumberFormat('@');
+  button(17, '◀ Back');
+  button(18, 'Next ▶');
+  button(19, 'Finish workout');
+  sheet.getRange('A20:B20').merge().setBackground(ENTRY_COLORS.message).setFontStyle('italic');
+  sheet.setRowHeight(20, 40);
+  button(21, '🏃 Log cardio', true);
+  button(22, '⚖ Log bodyweight', true);
 
   // Cardio block
   var c0 = ENTRY.CARDIO_ROWS[0];
@@ -108,18 +111,6 @@ function buildEntryLayout_(sheet) {
   sheet.getRange(ENTRY.CARDIO_FIRST_ROW, 2, 5, 1).setBackground(ENTRY_COLORS.input).setBorder(true, true, true, true, false, false);
   button(ENTRY.CARDIO_ROWS[1] - 1, 'Save cardio');
   button(ENTRY.CARDIO_ROWS[1], 'Cancel');
-
-  // New exercise block
-  var n0 = ENTRY.NEW_ROWS[0], nf = ENTRY.NEW_FIRST_ROW;
-  sheet.getRange('A' + n0 + ':C' + n0).merge().setValue('NEW EXERCISE').setBackground(ENTRY_COLORS.title).setFontWeight('bold').setHorizontalAlignment('center');
-  ['Movement', 'Equipment', 'Detail (optional)', 'Warm-up ladder', 'Setup notes', 'Name'].forEach(function (t, i) { label('A' + (nf + i), t); });
-  sheet.getRange(nf + 1, 2).setDataValidation(listRule(Object.keys(readNamingSettings_().equipmentTags), false));
-  sheet.getRange(nf + 3, 2).insertCheckboxes();
-  sheet.getRange(nf, 2).setNote('e.g. "incline bench press" - the name is formatted for you.');
-  sheet.getRange(nf + 2, 2).setNote('Attachment or angle, e.g. "rope" or "15%".');
-  cell(ENTRY.NEW_PREVIEW).setFontWeight('bold');
-  button(ENTRY.NEW_ROWS[1] - 1, 'Create');
-  button(ENTRY.NEW_ROWS[1], 'Cancel');
 
   // Bodyweight block
   var b0 = ENTRY.BW_ROWS[0];
@@ -205,6 +196,16 @@ function ensureRoutinesTable_() {
       return row;
     });
     if (rows.length) master.getRange(3, col, rows.length, width).setValues(rows);
+  }
+  // A "Custom" routine with no exercises, for one-off workouts built on the day.
+  var names = master.getRange(3, col, Math.max(master.getLastRow(), 3) - 2, 1).getValues()
+    .map(function (r) { return String(r[0]).trim().toLowerCase(); });
+  if (names.indexOf(CUSTOM_ROUTINE.toLowerCase()) < 0) {
+    var free = names.indexOf('');
+    var row = free >= 0 ? 3 + free : 3 + names.length;
+    var customRow = [CUSTOM_ROUTINE, CUSTOM_ROUTINE];
+    while (customRow.length < width) customRow.push('');
+    master.getRange(row, col, 1, width).setValues([customRow]);
   }
   var exerciseRange = master.getRange(registryNameRangeA1('exercises'));
   master.getRange(3, col + 2, 30, spec.maxExercises).setDataValidation(

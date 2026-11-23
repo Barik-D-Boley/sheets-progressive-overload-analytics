@@ -46,42 +46,42 @@ test('stale weigh-in prompt on starting a workout: save logs it and updates Mast
   const { app, gs, sheet, edit, master } = setup();
   gs.logBodyweight_('2026-10-01', 170, 'lb', 'legacy:X1');
   edit('B3', 'Push');
-  assert.ok(!sheet.hiddenRows.has(45) && sheet.hiddenRows.has(10), 'bodyweight block shown');
-  assert.strictEqual(sheet.value('A44'), "Last weigh-in: 170 lb, 50 days ago. Log today's weight?");
-  assert.strictEqual(sheet.value('A47'), 'Not now (keep 170 lb)');
-  sheet.getRange('B45').setValue('abc');
-  edit('B46', true);
-  assert.match(sheet.value('A19'), /Enter your weight/);
-  sheet.getRange('B45').setValue(172.4);
-  edit('B46', true);
-  assert.ok(sheet.hiddenRows.has(45) && !sheet.hiddenRows.has(10), 'back to lifting');
+  assert.ok(!sheet.hiddenRows.has(36) && sheet.hiddenRows.has(11), 'bodyweight block shown');
+  assert.strictEqual(sheet.value('A35'), "Last weigh-in: 170 lb, 50 days ago. Log today's weight?");
+  assert.strictEqual(sheet.value('A38'), 'Not now (keep 170 lb)');
+  sheet.getRange('B36').setValue('abc');
+  edit('B37', true);
+  assert.match(sheet.value('A20'), /Enter your weight/);
+  sheet.getRange('B36').setValue(172.4);
+  edit('B37', true);
+  assert.ok(sheet.hiddenRows.has(36) && !sheet.hiddenRows.has(11), 'back to lifting');
   assert.deepStrictEqual(app.ss.getSheetByName('Bodyweight Log').data[2].slice(1, 4), [172.4, 'lb', 'entry']);
   assert.strictEqual(master.data[3][1], 172.4, 'Master Current weight updated');
   edit('B3', 'Push');
-  assert.ok(sheet.hiddenRows.has(45), 'fresh weigh-in: no prompt');
+  assert.ok(sheet.hiddenRows.has(36), 'fresh weigh-in: no prompt');
 });
 
 test('"Not now" keeps the old weight and does not ask again for a week', () => {
   const { app, gs, sheet, edit } = setup();
   gs.logBodyweight_('2026-10-01', 170, 'lb', 'legacy:X1');
   edit('B3', 'Push');
-  edit('B47', true);
-  assert.ok(sheet.hiddenRows.has(45));
+  edit('B38', true);
+  assert.ok(sheet.hiddenRows.has(36));
   assert.strictEqual(app.store.BODYWEIGHT_SNOOZE_UNTIL, '2026-11-27');
   edit('B3', 'Push');
-  assert.ok(sheet.hiddenRows.has(45), 'snoozed');
+  assert.ok(sheet.hiddenRows.has(36), 'snoozed');
   assert.strictEqual(gs.bodyweightOn('2026-11-20', gs.readBodyweightLog_()).weight, 170, 'old weight still used');
   app.setNow(new Date(Date.UTC(2026, 10, 28, 12)));
   edit('B3', 'Push');
-  assert.ok(!sheet.hiddenRows.has(45), 'asks again after the snooze');
+  assert.ok(!sheet.hiddenRows.has(36), 'asks again after the snooze');
 });
 
 test('the Log bodyweight button works any time', () => {
   const { app, sheet, edit } = setup();
-  edit('B21', true);
-  assert.strictEqual(sheet.value('A44'), 'No bodyweight logged yet. It is used for relative strength.');
-  sheet.getRange('B45').setValue('78 kg');
-  edit('B46', true);
+  edit('B22', true);
+  assert.strictEqual(sheet.value('A35'), 'No bodyweight logged yet. It is used for relative strength.');
+  sheet.getRange('B36').setValue('78 kg');
+  edit('B37', true);
   assert.deepStrictEqual(app.ss.getSheetByName('Bodyweight Log').data[1].slice(1, 4), [78, 'kg', 'entry']);
 });
 
