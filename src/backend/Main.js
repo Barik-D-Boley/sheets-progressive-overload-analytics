@@ -1,6 +1,7 @@
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('Overload Tracker')
+    .addItem('Open phone app', 'showWebAppLink')
     .addItem('Set up workout entry form', 'setupEntryForm')
     .addItem('Set up compiled data', 'setupCompiledData')
     .addItem('Refresh compiled data', 'refreshCompiledData')

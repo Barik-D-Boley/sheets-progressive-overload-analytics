@@ -147,8 +147,18 @@ function createFakeApp(sheets) {
         getUuid: () => (++uuid).toString(16).padStart(8, '0') + '-0000',
         formatDate: (d, tz, fmt) => d.toISOString().slice(0, 10),
       },
-      Session: { getScriptTimeZone: () => 'UTC' },
+      Session: {
+        getScriptTimeZone: () => 'UTC',
+        activeEmail: 'owner@example.com',
+        getActiveUser() { return { getEmail: () => this.activeEmail }; },
+        getEffectiveUser() { return { getEmail: () => 'owner@example.com' }; },
+      },
       Charts: { ChartType: { LINE: 'LINE' } },
+      HtmlService: {
+        createHtmlOutputFromFile: name => chainable({ kind: 'file', name }),
+        createHtmlOutput: html => chainable({ kind: 'html', html }),
+      },
+      ContentService: { MimeType: { JSON: 'json' }, createTextOutput: text => chainable({ kind: 'text', text }) },
       ScriptApp: {
         triggers: [],
         getProjectTriggers() { return this.triggers; },

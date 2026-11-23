@@ -167,6 +167,16 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Layout v3:** rows shift down one below Find; cardio block 24-32, bodyweight block 34-38. The RIR cell is plain text so "1-2" is not turned into a date.
 - **Next:** a phone-first web app (Apps Script web app) becomes the main way to log; the sheet form remains as a fallback.
 
+### Phone Web App (Round 12)
+
+- **What:** a phone-first page (`src/ui/app.html`) served by the sheet's own Apps Script project as a web app; the main way to log workouts. The sheet's Workout Entry tab remains as a fallback. Data, Master settings, and Compiled Data stay in the sheet.
+- **Access:** deploy as a web app (Execute as: Me, Who has access: Only myself); *Overload Tracker → Open phone app* shows the link; add it to the home screen. Only the sheet owner can use it: every server call checks the signed-in user (the Apple Health link, which needs an "Anyone" deployment, cannot open the app).
+- **Start screen:** date, gym (or new gym), routine (including Custom); bodyweight prompt when the last weigh-in is over 30 days old; Log cardio; Log bodyweight; resume a workout in progress (draft kept in the browser).
+- **Workout screen:** exercise chips (✓ when saved) and **+ Add** (searchable picker of active exercises); one card per exercise with every set visible: Last (that set from the last session) and Goal per set, weight and reps inputs (goal as placeholder; weight carries to later sets until edited; plate notation allowed for PL), RIR buttons, optional assisted / partial / notes; warm-up ladder and setup notes (editable).
+- **Saving:** "Save & next" validates, then saves the exercise in the background (one record per exercise per day; editing rewrites it; clearing every set deletes it). Finish waits for pending saves, shows a summary, and refreshes Compiled Data.
+- **Speed:** one load call; history for the whole routine is read in one pass; taps update the page instantly.
+- **Tests:** server functions in `test/webapp.test.js`; the page itself in headless Chromium against the sheet fake (`npm run test:ui`).
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.

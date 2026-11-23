@@ -1,0 +1,165 @@
+// End-to-end check of the phone web app (src/ui/app.html) in headless Chromium.
+// google.script.run is bridged to the real server code running on the in-memory sheet fake.
+// Run with: npm run test:ui   (needs Playwright with Chromium installed)
+const assert = require('node:assert');
+const fs = require('fs');
+const path = require('path');
+const { chromium } = require('playwright');
+const { createFakeApp } = require('../fake-sheets');
+const loadGas = require('../load-gas');
+
+function setupGas() {
+  const master = [['Profile'], ['Weight system', 'Imperial'], ['Num of sets', '3'], ['Rep range', 'Bodybuilding']];
+  const app = createFakeApp({ Master: master });
+  const g = loadGas(app.globals);
+  g.ensureRegistryEntries('workouts', ['Push']);
+  g.ensureRegistryEntries('gyms', ['BYUI', 'Eos']);
+  const ids = g.ensureRegistryEntries('exercises', ['Bench press (BB)', 'Pec flys (Machine)', 'Dips (BW)', 'Bicep curls (DB)'],
+    name => [g.equipmentFromName(name), '', '', true, name === 'Bench press (BB)', name === 'Bench press (BB)' ? 'pins 28' : '', '', g.isGymSpecificEquipment(g.equipmentFromName(name))]);
+  const m = app.ss.getSheetByName('Master');
+  m.getRange(1, 27).setValue('Routines');
+  m.getRange(2, 27, 1, 4).setValues([['Routine', 'Workout', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 27, 2, 4).setValues([['Push Day 1', 'Push', 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', '', '']]);
+  const q = g.getOrCreateQuarterSheet('Q4 2026');
+  const D = d => new app.globals.Date(Date.UTC(2026, 10, d));
+  g.appendRows_(q, [
+    ['L-b', D(13), 'GY-01', 'WO-01', ids['bench press (bb)'], 'lb', '', 'entry', '275x6 @1-2', '275x5', '265x6'],
+    ['L-c', D(12), 'GY-02', 'WO-01', ids['pec flys (machine)'], 'lb', '', 'entry', '150x10', '150x9', '150x8'],
+  ]);
+  return { app, g, ids, q };
+}
+
+async function openPage(browser, g, opts) {
+  const page = await browser.newPage(opts || { viewport: { width: 390, height: 844 } });
+  await page.exposeFunction('__gas', (fn, argsJson) => {
+    try { return JSON.stringify({ ok: g[fn].apply(null, JSON.parse(argsJson)) }); }
+    catch (e) { return JSON.stringify({ error: e.message }); }
+  });
+  await page.addInitScript(() => {
+    function runner(ok, fail) {
+      return new Proxy({}, { get(_, name) {
+        if (name === 'withSuccessHandler') return f => runner(f, fail);
+        if (name === 'withFailureHandler') return f => runner(ok, f);
+        return (...args) => { window.__gas(name, JSON.stringify(args)).then(r => {
+          const res = JSON.parse(r);
+          setTimeout(() => (res.error ? fail && fail(new Error(res.error)) : ok && ok(res.ok)), 30); // simulate latency
+        }); };
+      } });
+    }
+    window.google = { script: { run: runner() } };
+  });
+  const html = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'ui', 'app.html'), 'utf8');
+  await page.route('http://app.test/**', route => route.fulfill({ contentType: 'text/html', body: html }));
+  page.on('pageerror', e => console.error('page error:', e.message));
+  await page.goto('http://app.test/');
+  await page.waitForSelector('text=Start a workout');
+  return page;
+}
+
+(async () => {
+  const browser = await chromium.launch();
+  try {
+    // 1. A routine workout: last/goal per set, weight carry-over, RIR, background saves, finish.
+    {
+      const { g, ids, q } = setupGas();
+      const page = await openPage(browser, g);
+      await page.click('text=Not now');
+      await page.selectOption('#gym', 'Eos');
+      await page.selectOption('#routine', 'Push Day 1');
+      await page.click('#start');
+      await page.waitForSelector('text=Goal 275 × 6');
+      const hints = await page.$$eval('.set .hint', els => els.map(e => e.textContent));
+      assert.deepStrictEqual(hints, ['Last 275 × 6 @1-2 · Goal 275 × 6', 'Last 275 × 5 · Goal 275 × 6', 'Last 265 × 6 · Goal 265 × 6']);
+      assert.ok(await page.isVisible('text=Warm-up'), 'warm-up shown for bench');
+      assert.ok(await page.isVisible('text=pins 28'), 'setup notes shown');
+      if (process.env.SHOT_DIR) await page.screenshot({ path: path.join(process.env.SHOT_DIR, 'exercise.png') });
+
+      await page.fill('.set[data-set="0"] input[data-k="weight"]', '280');
+      assert.strictEqual(await page.inputValue('.set[data-set="2"] input[data-k="weight"]'), '280', 'weight carries to later sets');
+      await page.fill('.set[data-set="0"] input[data-k="reps"]', '6');
+      await page.click('.set[data-set="0"] [data-rir="1-2"]');
+      await page.fill('.set[data-set="1"] input[data-k="reps"]', '5');
+      await page.fill('.set[data-set="2"] input[data-k="weight"]', '270');
+      await page.fill('.set[data-set="2"] input[data-k="reps"]', '6');
+      await page.click('#next');
+      await page.waitForSelector('h2:has-text("Pec flys (Machine)")');
+      const pecHint = await page.textContent('.set[data-set="0"] .hint');
+      assert.strictEqual(pecHint, 'Last 150 × 10 · Goal 150 × 10', 'machine uses this gym (Eos)');
+      await page.waitForSelector('.chip:has-text("✓ Bench press")');
+      const bench = q.data.find(r => r[7] === 'app' && r[4] === ids['bench press (bb)']);
+      assert.deepStrictEqual(bench.slice(8, 11), ['280x6 @1-2', '280x5', '270x6']);
+      assert.strictEqual(bench[2], 'GY-02');
+
+      // Going back and editing rewrites the same record.
+      await page.click('.chip:has-text("Bench press")');
+      await page.fill('.set[data-set="1"] input[data-k="reps"]', '6');
+      await page.click('#next');
+      await page.waitForSelector('h2:has-text("Pec flys (Machine)")');
+      await page.fill('.set[data-set="0"] input[data-k="weight"]', '160');
+      await page.fill('.set[data-set="0"] input[data-k="reps"]', '10');
+      await page.click('#next'); // Save & finish
+      try { await page.waitForSelector('text=Workout saved', { timeout: 5000 }); }
+      catch (e) { console.error('APP:', await page.textContent('#app'), '| BAR:', await page.textContent('#bar'), '| TOAST:', await page.textContent('#toast')); throw e; }
+      assert.ok(await page.isVisible('text=2 exercises · 4 sets'));
+      const appRows = q.data.filter(r => r[7] === 'app');
+      assert.strictEqual(appRows.length, 2, 'one row per exercise; the edit did not duplicate');
+      assert.strictEqual(appRows.find(r => r[4] === ids['bench press (bb)'])[9], '280x6');
+      await page.close();
+    }
+
+    // 2. Custom workout: search picker, bodyweight exercise without weight, validation message, draft resume.
+    {
+      const { g, ids, q } = setupGas();
+      const page = await openPage(browser, g);
+      await page.click('text=Not now');
+      await page.selectOption('#routine', 'Custom');
+      await page.click('#start');
+      await page.waitForSelector('#pickFind');
+      await page.fill('#pickFind', 'dip');
+      const picks = await page.$$eval('.pick', els => els.map(e => e.textContent));
+      assert.deepStrictEqual(picks, ['Dips (BW)']);
+      await page.click('.pick');
+      await page.fill('.set[data-set="0"] input[data-k="reps"]', '12');
+      await page.click('#addEx');
+      await page.fill('#pickFind', 'curl');
+      await page.click('.pick:has-text("Bicep curls (DB)")');
+      await page.waitForSelector('h2:has-text("Bicep curls (DB)")');
+      await page.fill('.set[data-set="0"] input[data-k="reps"]', '10');
+      await page.click('#next');
+      await page.waitForSelector('text=enter a weight');
+      await page.reload();
+      await page.waitForSelector('text=Workout in progress');
+      await page.click('#resume');
+      await page.waitForSelector('h2:has-text("Bicep curls (DB)")');
+      await page.fill('.set[data-set="0"] input[data-k="weight"]', '40');
+      await page.click('#next');
+      await page.waitForSelector('text=Workout saved');
+      const rows = q.data.filter(r => r[7] === 'app');
+      assert.deepStrictEqual(rows.map(r => [r[3], r[8]]), [['WO-02', '0x12'], ['WO-02', '40x10']], 'Custom workout; BW saved with 0');
+      await page.close();
+    }
+
+    // 3. Cardio and bodyweight from the start screen.
+    {
+      const { app, g } = setupGas();
+      const page = await openPage(browser, g);
+      await page.fill('#bwInput', '172.4');
+      await page.click('#bwSave');
+      await page.waitForSelector('text=Bodyweight saved');
+      await page.click('#cardio');
+      await page.selectOption('#cAct', '__new');
+      await page.fill('#cNew', 'Treadmill (15%)');
+      await page.click('[data-min="30"]');
+      await page.fill('#cSpeed', '3.1');
+      await page.fill('#cDist', '1.6');
+      await page.click('#cSave');
+      await page.waitForSelector('text=Saved cardio');
+      assert.deepStrictEqual(app.ss.getSheetByName('Cardio').data[1].slice(3, 9), ['CA-01', 30, 3.1, 'mph', 1.6, 'mi']);
+      assert.strictEqual(app.ss.getSheetByName('Bodyweight Log').data[1][1], 172.4);
+      await page.close();
+    }
+    console.log('web app UI: all checks passed');
+  } finally {
+    await browser.close();
+  }
+})().catch(e => { console.error(e); process.exit(1); });

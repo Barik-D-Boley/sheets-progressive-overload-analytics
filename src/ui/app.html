@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Overload Tracker</title>
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --text: #16181d; --muted: #6b7280; --line: #e4e6eb;
+  --accent: #2563eb; --accent-text: #ffffff; --accent-soft: #e8efff;
+  --good: #15803d; --good-soft: #e7f6ec; --warn: #b45309; --warn-soft: #fff4e5; --bad: #b91c1c; --bad-soft: #fdecec;
+  --input: #f8f9fb; --chip: #eef0f4; --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115; --card: #181b21; --text: #eceef2; --muted: #9aa3b2; --line: #2a2f38;
+    --accent: #4f8bff; --accent-text: #0b1020; --accent-soft: #1b2a4a;
+    --good: #4ade80; --good-soft: #13281b; --warn: #fbbf24; --warn-soft: #2c2310; --bad: #f87171; --bad-soft: #2d1515;
+    --input: #11141a; --chip: #232832; --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { padding: env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom)); }
+.wrap { max-width: 560px; margin: 0 auto; padding: 12px 16px; }
+h1 { font-size: 22px; margin: 8px 0 12px; }
+h2 { font-size: 19px; margin: 0; }
+.muted { color: var(--muted); font-size: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; box-shadow: var(--shadow); }
+label.field { display: block; margin: 10px 0; }
+label.field > span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+input, select, textarea { width: 100%; font: inherit; color: var(--text); background: var(--input);
+  border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; min-height: 44px; }
+textarea { min-height: 60px; resize: vertical; }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; padding: 0 16px; cursor: pointer; }
+.btn { background: var(--chip); color: var(--text); }
+.btn.primary { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.btn.ghost { background: transparent; color: var(--accent); padding: 0 8px; }
+.btn.block { width: 100%; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row > * { flex: 1; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: 0 0 auto; background: var(--chip); color: var(--text); border-radius: 999px; padding: 8px 12px;
+  font-size: 14px; min-height: 36px; white-space: nowrap; }
+.chip.current { background: var(--accent); color: var(--accent-text); }
+.chip.add { background: transparent; border: 1px dashed var(--muted); color: var(--muted); }
+.badge { font-size: 12px; border-radius: 999px; padding: 2px 8px; margin-left: 6px; }
+.badge.saved { background: var(--good-soft); color: var(--good); }
+.badge.saving { background: var(--accent-soft); color: var(--accent); }
+.badge.error { background: var(--bad-soft); color: var(--bad); }
+.set { border-top: 1px solid var(--line); padding: 12px 0 4px; }
+.set:first-of-type { border-top: 0; }
+.set-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.set-head b { font-size: 15px; }
+.hint { font-size: 13px; color: var(--muted); text-align: right; }
+.hint .goal { color: var(--accent); font-weight: 600; }
+.inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.inputs input { font-size: 20px; text-align: center; }
+.unit { font-size: 12px; color: var(--muted); text-align: center; margin-top: 2px; }
+.rir { display: grid; grid-template-columns: auto repeat(4, 1fr); gap: 6px; margin-top: 8px; align-items: center; }
+.rir .rir-label { font-size: 13px; color: var(--muted); padding-right: 2px; }
+.rir button { min-height: 38px; background: var(--chip); color: var(--text); font-size: 15px; border-radius: 10px; white-space: nowrap; padding: 0 4px; }
+.rir button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.more { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.more .full { grid-column: 1 / -1; }
+.warm { background: var(--warn-soft); color: var(--warn); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin-top: 8px; }
+.notes-line { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+.bar .inner { max-width: 560px; margin: 0 auto; display: flex; gap: 10px; }
+.bar .inner > :last-child { flex: 2; }
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 10px; font-size: 14px; max-width: 90vw;
+  opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
+.toast.show { opacity: 1; }
+.sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 20; display: flex; align-items: flex-end; }
+.sheet { background: var(--card); width: 100%; max-height: 80vh; border-radius: 16px 16px 0 0; padding: 14px 16px;
+  overflow: auto; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.pick { display: block; width: 100%; text-align: left; background: transparent; color: var(--text);
+  border-bottom: 1px solid var(--line); border-radius: 0; min-height: 48px; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.presets button { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.center { text-align: center; }
+.loading { padding: 40px 0; text-align: center; color: var(--muted); }
+.err { color: var(--bad); font-size: 14px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="loading">Loading…</div></div>
+<div class="bar" id="bar" hidden><div class="inner" id="barInner"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var DRAFT_KEY = 'overload-tracker-workout';
+  var data = null;        // webAppLoad() result
+  var w = null;           // current workout
+  var screen = 'start';
+
+  // ---- helpers ------------------------------------------------------------
+  function call(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve, reject) {
+      var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (e) {
+        reject(e && e.message ? e : new Error(String(e)));
+      });
+      runner[fn].apply(runner, args);
+    });
+  }
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function $(sel) { return document.querySelector(sel); }
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.timer); toast.timer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+  function shortDate(iso) {
+    if (!iso) return '';
+    return parseInt(iso.slice(5, 7), 10) + '/' + parseInt(iso.slice(8, 10), 10) + '/' + iso.slice(2, 4);
+  }
+  function setText(s) {
+    if (!s) return '';
+    var t = s.load + ' × ' + s.reps;
+    if (s.assisted) t += ' +' + s.assisted + 'a';
+    if (s.partial) t += ' +' + s.partial + 'p';
+    if (s.rir !== '' && s.rir !== null && s.rir !== undefined) t += ' @' + s.rir;
+    return t;
+  }
+  function saveDraft() {
+    try { if (w) localStorage.setItem(DRAFT_KEY, JSON.stringify(w)); else localStorage.removeItem(DRAFT_KEY); } catch (e) { /* storage unavailable */ }
+  }
+  function loadDraft() {
+    try { var raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+  }
+  function exById(id) { return data.exercises.filter(function (e) { return e.id === id; })[0]; }
+  function exByName(name) {
+    var n = String(name).toLowerCase();
+    return data.exercises.filter(function (e) { return e.name.toLowerCase() === n; })[0];
+  }
+  function blankSets() {
+    var out = [];
+    for (var i = 0; i < data.setCount; i++) out.push({ weight: '', reps: '', assisted: '', partial: '', rir: '', note: '', touched: false });
+    return out;
+  }
+  function newItem(ex) {
+    return { id: ex.id, name: ex.name, sets: blankSets(), recordId: '', tab: '', status: 'new', dirty: false, open: {} };
+  }
+  /** A weight carried over from the set above, with nothing else entered, does not count as a set. */
+  function effective(s) {
+    var others = ['reps', 'assisted', 'partial', 'rir', 'note'].some(function (k) { return String(s[k] || '').trim() !== ''; });
+    return { weight: others || s.touched ? s.weight : '', reps: s.reps, assisted: s.assisted, partial: s.partial, rir: s.rir, note: s.note };
+  }
+  function hasData(s) {
+    var e = effective(s);
+    return ['weight', 'reps', 'assisted', 'partial', 'rir', 'note'].some(function (k) { return String(e[k] || '').trim() !== ''; });
+  }
+  function isBodyweight(item) { return /\(BW\b/.test(item.name); }
+
+  // ---- start screen ---------------------------------------------------------
+  function renderStart() {
+    screen = 'start';
+    var draft = loadDraft();
+    var bw = data.bodyweight;
+    var gymOptions = data.gyms.map(function (g) {
+      return '<option' + (g === (data.lastGym || data.gyms[0]) ? ' selected' : '') + '>' + esc(g) + '</option>';
+    }).join('') + '<option value="__new">+ New gym…</option>';
+    var routineOptions = data.routines.map(function (r) { return '<option>' + esc(r.name) + '</option>'; }).join('');
+    var html = '<h1>Overload Tracker</h1>';
+    if (draft && draft.items) {
+      var saved = draft.items.filter(function (i) { return i.status === 'saved'; }).length;
+      html += '<div class="card"><b>Workout in progress</b><div class="muted">' + esc(draft.routine) + ' · ' +
+        esc(shortDate(draft.date)) + ' · ' + saved + ' of ' + draft.items.length + ' saved</div>' +
+        '<div class="row" style="margin-top:10px"><button class="btn" id="discard">Discard</button>' +
+        '<button class="btn primary" id="resume">Resume</button></div></div>';
+    }
+    if (bw.needsWeighIn) {
+      html += '<div class="card"><b>Bodyweight</b><div class="muted">' + (bw.latest
+        ? 'Last weigh-in: ' + esc(bw.latest.weight) + ' ' + esc(bw.latest.unit) + ', ' + bw.latest.ageDays + ' days ago.'
+        : 'No bodyweight logged yet. It is used for relative strength.') + '</div>' +
+        '<div class="row" style="margin-top:10px"><input id="bwInput" inputmode="decimal" placeholder="' + esc(data.unit) + '">' +
+        '<button class="btn primary" id="bwSave">Save</button></div>' +
+        '<button class="btn ghost" id="bwSkip">Not now' + (bw.latest ? ' (keep ' + esc(bw.latest.weight) + ')' : '') + '</button></div>';
+    }
+    html += '<div class="card"><h2>Start a workout</h2>' +
+      '<label class="field"><span>Date</span><input type="date" id="date" value="' + esc(data.today) + '"></label>' +
+      '<label class="field"><span>Gym</span><select id="gym">' + gymOptions + '</select></label>' +
+      '<label class="field" id="newGymWrap" hidden><span>New gym name</span><input id="newGym"></label>' +
+      '<label class="field"><span>Routine</span><select id="routine">' + routineOptions + '</select></label>' +
+      '</div>' +
+      '<div class="row"><button class="btn" id="cardio">🏃 Log cardio</button><button class="btn" id="logBw">⚖ Bodyweight</button></div>';
+    $('#app').innerHTML = html;
+    setBar([{ id: 'start', label: 'Start workout', primary: true }]);
+
+    $('#gym').onchange = function () { $('#newGymWrap').hidden = this.value !== '__new'; };
+    if ($('#resume')) $('#resume').onclick = function () { w = draft; renderWorkout(); refreshViews(); };
+    if ($('#discard')) $('#discard').onclick = function () { if (confirm('Discard the workout in progress? Saved exercises stay saved.')) { w = null; saveDraft(); renderStart(); } };
+    if ($('#bwSave')) $('#bwSave').onclick = function () { saveBodyweight($('#bwInput').value, $('#date').value); };
+    if ($('#bwSkip')) $('#bwSkip').onclick = function () {
+      data.bodyweight.needsWeighIn = false; renderStart();
+      call('webAppSnoozeBodyweight').catch(function (e) { toast(e.message); });
+    };
+    $('#logBw').onclick = openBodyweightSheet;
+    $('#cardio').onclick = function () { renderCardio(); };
+    $('#start').onclick = startWorkout;
+  }
+
+  function currentGym() {
+    var g = $('#gym') ? $('#gym').value : '';
+    if (g === '__new') g = ($('#newGym').value || '').trim();
+    return g;
+  }
+
+  function startWorkout() {
+    var gym = currentGym();
+    if (!gym) { toast('Pick or enter your gym.'); return; }
+    var routine = data.routines.filter(function (r) { return r.name === $('#routine').value; })[0];
+    if (!routine) { toast('Pick a routine.'); return; }
+    if (data.gyms.indexOf(gym) < 0) data.gyms.push(gym);
+    data.lastGym = gym;
+    w = { date: $('#date').value || data.today, gym: gym, routine: routine.name, workout: routine.workout,
+      items: [], index: 0, views: {} };
+    routine.exercises.forEach(function (n) { var ex = exByName(n); if (ex) w.items.push(newItem(ex)); });
+    saveDraft();
+    if (!w.items.length) { renderWorkout(); openPicker(); return; }
+    renderWorkout();
+    refreshViews();
+  }
+
+  // ---- workout screen ---------------------------------------------------------
+  function refreshViews(onlyIds) {
+    var items = w.items.filter(function (i) { return !onlyIds || onlyIds.indexOf(i.id) >= 0; })
+      .map(function (i) { return { id: i.id, excludeRecordId: i.recordId || '' }; });
+    if (!items.length) return;
+    var token = w;
+    call('webAppExerciseViews', items, w.gym).then(function (views) {
+      if (w !== token) return;
+      Object.keys(views).forEach(function (id) { w.views[id] = views[id]; });
+      saveDraft();
+      if (screen === 'workout') renderWorkout();
+    }).catch(function (e) { toast('Could not load history: ' + e.message); });
+  }
+
+  function renderWorkout() {
+    screen = 'workout';
+    var item = w.items[w.index];
+    var chips = w.items.map(function (it, i) {
+      return '<button class="chip' + (i === w.index ? ' current' : '') + '" data-jump="' + i + '">' +
+        (it.status === 'saved' && !it.dirty ? '✓ ' : '') + esc(it.name.replace(/\s*\(.*\)$/, '')) + '</button>';
+    }).join('') + '<button class="chip add" id="addEx">+ Add</button>';
+    var html = '<div class="row" style="justify-content:space-between"><div><b>' + esc(w.routine) + '</b>' +
+      '<div class="muted">' + esc(shortDate(w.date)) + ' · ' + esc(w.gym) + '</div></div>' +
+      '<button class="btn ghost" id="finish" style="flex:0">Finish</button></div>' +
+      '<div class="chips">' + chips + '</div>';
+    if (!item) {
+      html += '<div class="card center muted">No exercises yet. Tap <b>+ Add</b> to pick one.</div>';
+      $('#app').innerHTML = html;
+      wireWorkoutHeader();
+      setBar([{ id: 'add2', label: '+ Add exercise', primary: true }]);
+      $('#add2').onclick = openPicker;
+      return;
+    }
+    var ex = exById(item.id) || {};
+    var view = w.views[item.id];
+    var badge = item.status === 'saving' ? '<span class="badge saving">Saving…</span>'
+      : item.status === 'error' ? '<span class="badge error">Not saved</span>'
+      : item.status === 'saved' && !item.dirty ? '<span class="badge saved">Saved</span>' : '';
+    html += '<div class="card"><div class="row" style="align-items:flex-start"><div><h2>' + esc(item.name) + badge + '</h2>' +
+      '<div class="muted">' + (view ? (view.lastDate ? 'Last · ' + esc(shortDate(view.lastDate)) + (view.lastGym ? ' ' + esc(view.lastGym) : '') +
+        (view.reason ? ' · ' + esc(view.reason) : '') : 'First time') : 'Loading history…') + '</div></div></div>';
+    if (view && view.warmup && view.warmup.length) {
+      html += '<div class="warm">Warm-up: ' + view.warmup.map(function (s) { return esc(s.load) + '×' + esc(s.reps); }).join(' · ') + '</div>';
+    }
+    html += '<div class="notes-line" id="setupLine">Setup: ' + (ex.setup ? esc(ex.setup) : '<i>none</i>') +
+      ' <button class="btn ghost" id="editSetup" style="min-height:32px">Edit</button></div>';
+    if (item.error) html += '<div class="err">' + esc(item.error) + '</div>';
+    var plates = ex.equipment === 'Plate-loaded';
+    item.sets.forEach(function (s, i) {
+      var v = view && view.sets[i];
+      var last = v && v.last ? setText(v.last) : '';
+      var goal = v && v.goal ? v.goal.load + ' × ' + v.goal.reps : '';
+      html += '<div class="set" data-set="' + i + '"><div class="set-head"><b>Set ' + (i + 1) + '</b><div class="hint">' +
+        (last ? 'Last ' + esc(last) : '') + (goal ? (last ? ' · ' : '') + '<span class="goal">Goal ' + esc(goal) + '</span>' : '') + '</div></div>' +
+        '<div class="inputs"><div><input data-k="weight" inputmode="' + (plates ? 'text' : 'decimal') + '" value="' + esc(s.weight) +
+        '" placeholder="' + esc(v && v.goal ? v.goal.load : '') + '"><div class="unit">' + esc(data.unit) + (plates ? ' · plates OK (2*45+25)' : '') + '</div></div>' +
+        '<div><input data-k="reps" inputmode="decimal" value="' + esc(s.reps) + '" placeholder="' + esc(v && v.goal ? v.goal.reps : '') +
+        '"><div class="unit">reps</div></div></div>' +
+        '<div class="rir"><span class="rir-label">RIR</span>' + data.rirOptions.map(function (o) {
+          return '<button data-rir="' + esc(o) + '" class="' + (String(s.rir) === o ? 'on' : '') + '">' + esc(o) + '</button>';
+        }).join('') + '</div>' +
+        (item.open[i] || s.assisted || s.partial || s.note
+          ? '<div class="more"><input data-k="assisted" inputmode="decimal" placeholder="Assisted reps" value="' + esc(s.assisted) + '">' +
+            '<input data-k="partial" inputmode="decimal" placeholder="Partial reps" value="' + esc(s.partial) + '">' +
+            '<input class="full" data-k="note" placeholder="Set notes" value="' + esc(s.note) + '"></div>'
+          : '<button class="btn ghost" data-more="' + i + '" style="min-height:32px">+ assisted / partial / notes</button>') +
+        '</div>';
+    });
+    html += '</div>';
+    $('#app').innerHTML = html;
+    wireWorkoutHeader();
+
+    Array.prototype.forEach.call(document.querySelectorAll('.set'), function (el) {
+      var i = parseInt(el.getAttribute('data-set'), 10);
+      Array.prototype.forEach.call(el.querySelectorAll('input[data-k]'), function (inp) {
+        inp.oninput = function () {
+          var k = inp.getAttribute('data-k');
+          item.sets[i][k] = inp.value;
+          item.dirty = true;
+          if (k === 'weight') {
+            item.sets[i].touched = true;
+            for (var j = i + 1; j < item.sets.length; j++) {   // carry the weight to later untouched sets
+              if (item.sets[j].touched) break;
+              item.sets[j].weight = inp.value;
+              var next = document.querySelector('.set[data-set="' + j + '"] input[data-k="weight"]');
+              if (next) next.value = inp.value;
+            }
+          }
+          saveDraft();
+        };
+      });
+      Array.prototype.forEach.call(el.querySelectorAll('[data-rir]'), function (b) {
+        b.onclick = function () {
+          var val = b.getAttribute('data-rir');
+          item.sets[i].rir = item.sets[i].rir === val ? '' : val;
+          item.dirty = true; saveDraft();
+          Array.prototype.forEach.call(el.querySelectorAll('[data-rir]'), function (o) {
+            o.classList.toggle('on', o.getAttribute('data-rir') === item.sets[i].rir);
+          });
+        };
+      });
+      var more = el.querySelector('[data-more]');
+      if (more) more.onclick = function () { item.open[i] = true; renderWorkout(); };
+    });
+    $('#editSetup').onclick = function () { editSetup(item); };
+
+    var lastIndex = w.index === w.items.length - 1;
+    setBar([{ id: 'prev', label: '◀', disabled: w.index === 0 },
+      { id: 'next', label: lastIndex ? 'Save & finish' : 'Save & next ▶', primary: true }]);
+    $('#prev').onclick = function () { go(w.index - 1); };
+    $('#next').onclick = function () { if (lastIndex) { if (saveItem(item, true)) finish(); } else go(w.index + 1); };
+  }
+
+  function wireWorkoutHeader() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-jump]'), function (b) {
+      b.onclick = function () { go(parseInt(b.getAttribute('data-jump'), 10)); };
+    });
+    $('#addEx').onclick = openPicker;
+    $('#finish').onclick = function () { var it = w.items[w.index]; if (!it || saveItem(it, true)) finish(); };
+  }
+
+  /** Validates and saves the exercise in the background. Returns false when the input needs fixing. */
+  function validate(item) {
+    for (var i = 0; i < item.sets.length; i++) {
+      var s = effective(item.sets[i]);
+      if (!hasData(item.sets[i])) continue;
+      if (String(s.weight).trim() === '' && !isBodyweight(item)) return 'Set ' + (i + 1) + ': enter a weight (0 for none).';
+      if (String(s.reps).trim() === '' || isNaN(parseFloat(s.reps))) return 'Set ' + (i + 1) + ': enter the reps.';
+    }
+    return '';
+  }
+
+  function saveItem(item, quiet) {
+    if (!item.dirty && item.status !== 'error') return true;
+    var problem = validate(item);
+    if (problem) { item.error = problem; renderWorkout(); toast(problem); return false; }
+    item.error = '';
+    if (!item.sets.some(hasData) && !item.recordId) { item.dirty = false; return true; }
+    if (item.saving) { item.pending = true; return true; }
+    item.saving = true; item.status = 'saving'; item.dirty = false; saveDraft();
+    var payload = { date: w.date, gym: w.gym, workout: w.workout, exerciseId: item.id, recordId: item.recordId, tab: item.tab,
+      sets: item.sets.map(effective) };
+    var token = w;
+    item.promise = call('webAppSaveExercise', payload).then(function (res) {
+      item.saving = false;
+      item.recordId = res.recordId; item.tab = res.tab;
+      item.status = res.deleted ? 'new' : 'saved';
+      if (token === w) saveDraft();
+      if (item.pending) { item.pending = false; item.dirty = true; saveItem(item, true); }
+      if (screen === 'workout' && token === w) renderWorkout();
+    }).catch(function (e) {
+      item.saving = false; item.status = 'error'; item.error = e.message; item.dirty = true;
+      if (token === w) saveDraft();
+      if (screen === 'workout' && token === w) renderWorkout();
+      toast('Not saved: ' + e.message);
+    });
+    Object.defineProperty(item, 'promise', { enumerable: false, writable: true, value: item.promise }); // not stored in the draft
+    if (!quiet) renderWorkout();
+    return true;
+  }
+
+  function go(index) {
+    var item = w.items[w.index];
+    if (item && !saveItem(item, true)) return;
+    if (index < 0 || index >= w.items.length) return;
+    w.index = index; saveDraft(); renderWorkout(); window.scrollTo(0, 0);
+  }
+
+  function openPicker() {
+    var inToday = {};
+    w.items.forEach(function (i) { inToday[i.id] = true; });
+    var list = data.exercises.filter(function (e) { return e.active && !inToday[e.id]; })
+      .sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
+    var bg = document.createElement('div');
+    bg.className = 'sheet-bg';
+    bg.innerHTML = '<div class="sheet"><div class="row"><input id="pickFind" placeholder="Search exercises" autocomplete="off">' +
+      '<button class="btn" id="pickClose" style="flex:0">Close</button></div><div id="pickList"></div></div>';
+    document.body.appendChild(bg);
+    function draw() {
+      var q = $('#pickFind').value.trim().toLowerCase();
+      var shown = list.filter(function (e) { return !q || e.name.toLowerCase().indexOf(q) >= 0; });
+      $('#pickList').innerHTML = shown.length ? shown.map(function (e) {
+        return '<button class="pick" data-id="' + esc(e.id) + '">' + esc(e.name) + '</button>';
+      }).join('') : '<p class="muted">No matches. Add new exercises on the Master tab.</p>';
+      Array.prototype.forEach.call(document.querySelectorAll('.pick'), function (b) {
+        b.onclick = function () {
+          var ex = exById(b.getAttribute('data-id'));
+          var cur = w.items[w.index];
+          if (cur && !saveItem(cur, true)) return;
+          var at = w.items.length ? w.index + 1 : 0;
+          w.items.splice(at, 0, newItem(ex));
+          w.index = at; saveDraft();
+          document.body.removeChild(bg);
+          renderWorkout(); refreshViews([ex.id]);
+        };
+      });
+    }
+    $('#pickFind').oninput = draw;
+    $('#pickClose').onclick = function () { document.body.removeChild(bg); };
+    bg.onclick = function (e) { if (e.target === bg) document.body.removeChild(bg); };
+    draw();
+    $('#pickFind').focus();
+  }
+
+  function editSetup(item) {
+    var ex = exById(item.id);
+    var text = prompt('Setup notes for ' + item.name + ' (seat, pins, grip…)', ex.setup || '');
+    if (text === null) return;
+    ex.setup = text; renderWorkout();
+    call('webAppSaveSetupNotes', item.id, text).then(function () { toast('Setup notes saved.'); })
+      .catch(function (e) { toast('Not saved: ' + e.message); });
+  }
+
+  /** Waits for background saves, then shows the summary. */
+  function finish() {
+    var token = w;
+    setBar([{ id: 'wait', label: 'Saving…', primary: true, disabled: true }]);
+    var waits = w.items.map(function (i) { return i.promise; }).filter(Boolean);
+    Promise.all(waits.map(function (p) { return p.catch(function () {}); })).then(function () {
+      if (token !== w) return;
+      var waiting = w.items.filter(function (i) { return i.saving || i.pending; });
+      if (waiting.length) { setTimeout(finish, 300); return; }
+      if (w.items.some(function (i) { return i.status === 'error'; })) {
+        renderWorkout(); toast('Some exercises did not save. Open them and tap Save again.'); return;
+      }
+      var done = w.items.filter(function (i) { return i.status === 'saved'; });
+      var sets = done.reduce(function (n, i) { return n + i.sets.filter(hasData).length; }, 0);
+      screen = 'done';
+      $('#app').innerHTML = '<div class="card center"><h1>Workout saved</h1><p>' + done.length + ' exercises · ' + sets + ' sets</p>' +
+        '<p class="muted">' + esc(w.routine) + ' · ' + esc(shortDate(w.date)) + ' · ' + esc(w.gym) + '</p></div>';
+      w = null; saveDraft();
+      setBar([{ id: 'home', label: 'Done', primary: true }]);
+      $('#home').onclick = renderStart;
+      call('webAppFinish').catch(function () { /* Compiled Data also refreshes nightly */ });
+    });
+  }
+
+  // ---- cardio & bodyweight -------------------------------------------------------
+  function renderCardio() {
+    screen = 'cardio';
+    var opts = data.cardio.map(function (c) { return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('') +
+      '<option value="__new">+ New activity…</option>';
+    var unitSel = function (id, values, current) {
+      return '<select id="' + id + '">' + values.map(function (v) { return '<option' + (v === current ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select>';
+    };
+    var first = data.cardio[0] || { speedUnit: 'mph', distanceUnit: 'mi' };
+    $('#app').innerHTML = '<h1>Log cardio</h1><div class="card">' +
+      '<label class="field"><span>Date</span><input type="date" id="cDate" value="' + esc(data.today) + '"></label>' +
+      '<label class="field"><span>Activity</span><select id="cAct">' + opts + '</select></label>' +
+      '<label class="field" id="cNewWrap" hidden><span>New activity name</span><input id="cNew"></label>' +
+      '<label class="field"><span>Duration (min)</span><input id="cDur" inputmode="decimal"></label>' +
+      '<div class="presets">' + [10, 15, 20, 30, 45, 60].map(function (m) { return '<button class="btn" data-min="' + m + '">' + m + '</button>'; }).join('') + '</div>' +
+      '<div class="row"><label class="field"><span>Speed</span><input id="cSpeed" inputmode="decimal"></label>' +
+      '<label class="field" style="flex:0 0 110px"><span>&nbsp;</span>' + unitSel('cSpeedU', ['mph', 'kph', 'level'], first.speedUnit) + '</label></div>' +
+      '<div class="row"><label class="field"><span>Distance</span><input id="cDist" inputmode="decimal"></label>' +
+      '<label class="field" style="flex:0 0 110px"><span>&nbsp;</span>' + unitSel('cDistU', ['mi', 'km', 'floors'], first.distanceUnit) + '</label></div>' +
+      '<label class="field"><span>Calories</span><input id="cCal" inputmode="decimal"></label>' +
+      '<label class="field"><span>Notes</span><input id="cNotes"></label></div>';
+    setBar([{ id: 'cBack', label: 'Back' }, { id: 'cSave', label: 'Save cardio', primary: true }]);
+    $('#cAct').onchange = function () {
+      $('#cNewWrap').hidden = this.value !== '__new';
+      var c = data.cardio.filter(function (x) { return x.name === $('#cAct').value; })[0];
+      if (c) { $('#cSpeedU').value = c.speedUnit; $('#cDistU').value = c.distanceUnit; }
+    };
+    $('#cAct').onchange();
+    Array.prototype.forEach.call(document.querySelectorAll('[data-min]'), function (b) {
+      b.onclick = function () { $('#cDur').value = b.getAttribute('data-min'); };
+    });
+    $('#cBack').onclick = function () { if (w) renderWorkout(); else renderStart(); };
+    $('#cSave').onclick = function () {
+      var act = $('#cAct').value === '__new' ? $('#cNew').value.trim() : $('#cAct').value;
+      var payload = { date: $('#cDate').value, gym: (w && w.gym) || data.lastGym || '', activity: act, duration: $('#cDur').value,
+        speed: $('#cSpeed').value, speedUnit: $('#cSpeedU').value, distance: $('#cDist').value, distanceUnit: $('#cDistU').value,
+        calories: $('#cCal').value, notes: $('#cNotes').value };
+      $('#cSave').disabled = true;
+      call('webAppSaveCardio', payload).then(function () {
+        toast('Saved cardio: ' + act + '.');
+        if (!data.cardio.some(function (c) { return c.name === act; })) data.cardio.push({ name: act, speedUnit: payload.speedUnit, distanceUnit: payload.distanceUnit });
+        if (w) renderWorkout(); else renderStart();
+      }).catch(function (e) { $('#cSave').disabled = false; toast(e.message); });
+    };
+  }
+
+  function openBodyweightSheet() {
+    var bg = document.createElement('div');
+    bg.className = 'sheet-bg';
+    bg.innerHTML = '<div class="sheet"><h2>Log bodyweight</h2><div class="row" style="margin-top:12px">' +
+      '<input id="bwSheetInput" inputmode="decimal" placeholder="' + esc(data.unit) + '">' +
+      '<button class="btn primary" id="bwSheetSave" style="flex:0">Save</button></div></div>';
+    document.body.appendChild(bg);
+    bg.onclick = function (e) { if (e.target === bg) document.body.removeChild(bg); };
+    $('#bwSheetSave').onclick = function () { saveBodyweight($('#bwSheetInput').value, data.today, bg); };
+    $('#bwSheetInput').focus();
+  }
+
+  function saveBodyweight(value, date, sheetEl) {
+    call('webAppSaveBodyweight', { weight: value, date: date }).then(function (res) {
+      data.bodyweight = { latest: { date: res.date, weight: res.weight, unit: res.unit, ageDays: 0 }, needsWeighIn: false };
+      toast('Bodyweight saved: ' + res.weight + ' ' + res.unit + '.');
+      if (sheetEl) document.body.removeChild(sheetEl);
+      if (screen === 'start') renderStart();
+    }).catch(function (e) { toast(e.message); });
+  }
+
+  // ---- bottom bar ---------------------------------------------------------------
+  function setBar(buttons) {
+    var inner = $('#barInner');
+    inner.innerHTML = buttons.map(function (b) {
+      return '<button class="btn' + (b.primary ? ' primary' : '') + '" id="' + b.id + '"' + (b.disabled ? ' disabled' : '') + '>' + esc(b.label) + '</button>';
+    }).join('');
+    $('#bar').hidden = !buttons.length;
+  }
+
+  // ---- boot -----------------------------------------------------------------------
+  call('webAppLoad').then(function (d) {
+    data = d;
+    renderStart();
+  }).catch(function (e) {
+    $('#app').innerHTML = '<div class="card"><b>Could not load your sheet.</b><div class="err">' + esc(e.message) + '</div></div>';
+  });
+})();
+</script>
+</body>
+</html>
