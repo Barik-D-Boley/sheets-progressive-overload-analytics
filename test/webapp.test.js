@@ -13,8 +13,9 @@ function setup() {
     name => [g.equipmentFromName(name), '', '', true, name === 'Bench press (BB)', 'pins 28', '', g.isGymSpecificEquipment(g.equipmentFromName(name))]);
   const m = app.ss.getSheetByName('Master');
   m.getRange(1, 27).setValue('Routines');
-  m.getRange(2, 27, 1, 4).setValues([['Routine', 'Workout', 'Exercise 1', 'Exercise 2']]);
-  m.getRange(3, 27, 2, 4).setValues([['Push Day 1', 'Push', 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', '', '']]);
+  m.getRange(2, 27, 1, 5).setValues([['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 27, 3, 5).setValues([['Push Day 1', 'Push', true, 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', true, '', ''],
+    ['Old Push', 'Push', false, 'Dips (BW)', '']]);
   const q = g.getOrCreateQuarterSheet('Q4 2026');
   const D = (d) => new app.globals.Date(Date.UTC(2026, 10, d));
   g.appendRows_(q, [
@@ -32,8 +33,8 @@ test('load returns everything the page needs', () => {
   assert.strictEqual(d.unit, 'lb'); assert.strictEqual(d.setCount, 3);
   assert.deepStrictEqual(d.rirOptions, ['0', '1-2', '3-4', '5+']);
   assert.deepStrictEqual(d.gyms, ['BYUI', 'Eos']);
-  assert.deepStrictEqual(d.routines, [{ name: 'Push Day 1', workout: 'Push', exercises: ['Bench press (BB)', 'Pec flys (Machine)'] },
-    { name: 'Custom', workout: 'Custom', exercises: [] }]);
+  assert.deepStrictEqual(d.routines, [{ name: 'Push Day 1', workout: 'Push', active: true, exercises: ['Bench press (BB)', 'Pec flys (Machine)'] },
+    { name: 'Custom', workout: 'Custom', active: true, exercises: [] }, { name: 'Old Push', workout: 'Push', active: false, exercises: ['Dips (BW)'] }]);
   const bench = d.exercises.find(e => e.name === 'Bench press (BB)');
   assert.deepStrictEqual([bench.warmup, bench.setup, bench.sameGym], [true, 'pins 28', false]);
   assert.strictEqual(d.exercises.find(e => e.name === 'Pec flys (Machine)').sameGym, true);
@@ -111,4 +112,56 @@ test('Open phone app asks for the deployment URL once, then shows the link with 
   assert.notStrictEqual(app.store.WEBAPP_KEY, key, 'reset replaces the key');
   g.showWebAppLink();
   assert.match(app.alerts.pop()[0], /does not look like a web app URL/);
+});
+
+test('settings: read with types, save known fields, keep RIR as text', () => {
+  const { app, g, key } = setup();
+  const fields = JSON.parse(JSON.stringify(g.webAppGetSettings(key)));
+  const f = label => fields.find(x => x.label === label);
+  assert.deepStrictEqual(f('Rep range'), Object.assign(f('Rep range'), { value: 'Bodybuilding', type: 'select' }));
+  assert.deepStrictEqual(f('1RM Formula').options.slice(0, 2), ['Epley', 'Brzycki']);
+  g.webAppSaveSettings(key, { 'Rep range': 'Powerlifting', 'Target RIR': '3-4', 'Load increment': '2.5', 'Bogus': 'x' });
+  const master = app.ss.getSheetByName('Master').data;
+  assert.strictEqual(master.find(r => r[0] === 'Rep range')[1], 'Powerlifting');
+  assert.strictEqual(master.find(r => r[0] === 'Target RIR')[1], '3-4');
+  assert.strictEqual(master.find(r => r[0] === 'Load increment')[1], 2.5);
+  assert.ok(!master.some(r => r[0] === 'Bogus'));
+  assert.throws(() => g.webAppSaveSettings(key, { 'Rep range': 'Yoga' }), /from the list/);
+  assert.throws(() => g.webAppSaveSettings(key, { 'Num of sets': 'three' }), /must be a number/);
+});
+
+test('exercise edit: rename keeps the ID, re-sorts, renames inside routines; duplicates refused', () => {
+  const { app, g, ids, key } = setup();
+  const id = ids['bench press (bb)'];
+  const ex = g.webAppUpdateExercise(key, { id, name: 'Zercher bench (BB)', equipment: 'Barbell', warmup: false, sameGym: false, active: true, increment: '10', setup: 'pins 30' });
+  assert.deepStrictEqual([ex.id, ex.name, ex.warmup, ex.setup, ex.increment], [id, 'Zercher bench (BB)', false, 'pins 30', 10]);
+  const master = app.ss.getSheetByName('Master').data;
+  const list = master.slice(2).map(r => r[7]).filter(Boolean);
+  assert.strictEqual(list[list.length - 1], 'Zercher bench (BB)');
+  assert.ok(master.some(r => r[26] === 'Push Day 1' && r[29] === 'Zercher bench (BB)'), 'routine updated');
+  assert.throws(() => g.webAppUpdateExercise(key, { id, name: 'Dips (BW)' }), /already exists/);
+  assert.throws(() => g.webAppUpdateExercise(key, { id, name: 'X (BB)', increment: '-1' }), /Increment/);
+});
+
+test('routines: create, edit, rename, archive; unknown exercises and duplicate names refused', () => {
+  const { app, g, key } = setup();
+  let list = g.webAppSaveRoutine(key, { name: 'Pull Day 1', workout: 'Pull', exercises: ['Dips (BW)', 'Bench press (BB)'] });
+  assert.ok(list.some(r => r.name === 'Pull Day 1' && r.workout === 'Pull' && r.active && r.exercises.length === 2));
+  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[17] === 'Pull'), 'new workout registered');
+  list = g.webAppSaveRoutine(key, { originalName: 'Pull Day 1', name: 'Pull A', workout: 'Pull', active: false, exercises: ['Dips (BW)'] });
+  assert.ok(!list.some(r => r.name === 'Pull Day 1'));
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(list.find(r => r.name === 'Pull A'))), { name: 'Pull A', workout: 'Pull', active: false, exercises: ['Dips (BW)'] });
+  assert.throws(() => g.webAppSaveRoutine(key, { name: 'X', exercises: ['Nope'] }), /Unknown exercise/);
+  assert.throws(() => g.webAppSaveRoutine(key, { name: 'push day 1', exercises: [] }), /already exists/);
+});
+
+test('history returns readable rows newest first with 1RMs and bodyweights', () => {
+  const { g, key } = setup();
+  g.webAppSaveBodyweight(key, { weight: '170', date: '2026-11-01' });
+  const h = JSON.parse(JSON.stringify(g.webAppHistory(key)));
+  assert.strictEqual(h.unit, 'lb');
+  assert.strictEqual(h.rows.length, 4);
+  assert.deepStrictEqual(h.rows[0], { quarter: 'Q4 2026', date: '2026-11-15', gym: 'BYUI', workout: 'Push', exercise: 'Pec flys (Machine)',
+    sets: ['200 × 10', '200 × 9', '200 × 8'], oneRms: [267, 260, 253], best: 267, notes: '' });
+  assert.strictEqual(h.bodyweights[0].weight, 170);
 });

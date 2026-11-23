@@ -342,23 +342,11 @@ function exerciseIndex_() {
   return { byName: byName, byId: byId };
 }
 
-/**
- * Routine templates on Master (CONFIG.ROUTINES): Routine | Workout | Exercise 1..N.
- * @return {{workout: string, exercises: string[]}}
- */
+/** @return {{workout: string, exercises: string[]}} the named routine (archived ones included). */
 function readRoutine_(routineName) {
-  var master = getMasterSheet_();
-  var col = columnLetterToIndex(CONFIG.ROUTINES.column);
-  var last = master.getLastRow();
-  if (last < 3) return { workout: '', exercises: [] };
-  var rows = master.getRange(3, col, last - 2, CONFIG.ROUTINES.maxExercises + 2).getValues();
-  for (var i = 0; i < rows.length; i++) {
-    if (String(rows[i][0]).trim().toLowerCase() === String(routineName).trim().toLowerCase()) {
-      return { workout: String(rows[i][1]).trim(),
-        exercises: rows[i].slice(2).map(String).map(function (x) { return x.trim(); }).filter(String) };
-    }
-  }
-  return { workout: '', exercises: [] };
+  var key = String(routineName).trim().toLowerCase();
+  var r = readRoutines_().filter(function (x) { return x.name.toLowerCase() === key; })[0];
+  return r ? { workout: r.workout, exercises: r.exercises } : { workout: '', exercises: [] };
 }
 
 function showEntryMessage_(text) {

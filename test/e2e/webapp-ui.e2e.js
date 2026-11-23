@@ -18,13 +18,15 @@ function setupGas() {
     name => [g.equipmentFromName(name), '', '', true, name === 'Bench press (BB)', name === 'Bench press (BB)' ? 'pins 28' : '', '', g.isGymSpecificEquipment(g.equipmentFromName(name))]);
   const m = app.ss.getSheetByName('Master');
   m.getRange(1, 27).setValue('Routines');
-  m.getRange(2, 27, 1, 4).setValues([['Routine', 'Workout', 'Exercise 1', 'Exercise 2']]);
-  m.getRange(3, 27, 2, 4).setValues([['Push Day 1', 'Push', 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', '', '']]);
+  m.getRange(2, 27, 1, 5).setValues([['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 27, 3, 5).setValues([['Push Day 1', 'Push', true, 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', true, '', ''],
+    ['Old Push', 'Push', false, 'Dips (BW)', '']]);
   const q = g.getOrCreateQuarterSheet('Q4 2026');
   const D = d => new app.globals.Date(Date.UTC(2026, 10, d));
   g.appendRows_(q, [
     ['L-b', D(13), 'GY-01', 'WO-01', ids['bench press (bb)'], 'lb', '', 'entry', '275x6 @1-2', '275x5', '265x6'],
     ['L-c', D(12), 'GY-02', 'WO-01', ids['pec flys (machine)'], 'lb', '', 'entry', '150x10', '150x9', '150x8'],
+    ['L-d', D(15), 'GY-01', 'WO-01', ids['pec flys (machine)'], 'lb', '', 'entry', '200x10', '200x9', '200x8'],
   ]);
   return { app, g, ids, q, key: g.webAppKey_() };
 }
@@ -190,6 +192,65 @@ async function openPage(browser, g, key, opts) {
       assert.strictEqual(app.ss.getSheetByName('Bodyweight Log').data[1][1], 172.4);
       await page.close();
     }
+    // 4. Exercises, routines (with archive), settings, and history screens.
+    {
+      const { app, g, key, ids } = setupGas();
+      const page = await openPage(browser, g, key);
+      const master = () => app.ss.getSheetByName('Master').data;
+      assert.deepStrictEqual(await page.$$eval('#routine option', o => o.map(x => x.textContent)), ['Push Day 1', 'Custom'], 'archived routine hidden');
+
+      await page.click('[data-nav="exercises"]');
+      await page.fill('#exFind', 'bench');
+      assert.deepStrictEqual(await page.$$eval('[data-ex]', els => els.length), 1);
+      await page.click('[data-ex]');
+      await page.fill('#eName', 'Bench press (BB, Paused)');
+      await page.fill('#eInc', '10');
+      await page.click('#eSave');
+      await page.waitForSelector('text=Saved Bench press (BB, Paused).');
+      const row = master().find(r => r[6] === ids['bench press (bb)']);
+      assert.deepStrictEqual([row[7], row[14]], ['Bench press (BB, Paused)', 10]);
+      assert.ok(master().some(r => r[26] === 'Push Day 1' && r[29] === 'Bench press (BB, Paused)'), 'routine follows the rename');
+
+      await page.click('[data-nav="routines"]');
+      await page.click('#rNew');
+      await page.fill('#rName', 'Arms');
+      await page.fill('#rWorkout', 'Pull');
+      for (const q of ['curl', 'dip']) {
+        await page.click('#rAdd');
+        await page.fill('#peFind', q);
+        await page.click('#peList .pick');
+      }
+      await page.click('[data-up="1"]');
+      assert.deepStrictEqual(await page.$$eval('.order-row span', s => s.map(x => x.textContent)), ['Dips (BW)', 'Bicep curls (DB)']);
+      await page.click('#rSave');
+      try { await page.waitForSelector('text=Saved Arms.', { timeout: 5000 }); } catch (e) { console.error('TOAST:', await page.textContent('#toast')); throw e; }
+      assert.ok(master().some(r => r[26] === 'Arms' && r[27] === 'Pull' && r[28] === true && r[29] === 'Dips (BW)' && r[30] === 'Bicep curls (DB)'));
+      await page.click('[data-routine="Push Day 1"]');
+      await page.uncheck('#rActive');
+      await page.click('#rSave');
+      await page.waitForSelector('h2:has-text("Archived")');
+      await page.click('[data-nav="start"]');
+      assert.deepStrictEqual(await page.$$eval('#routine option', o => o.map(x => x.textContent)), ['Custom', 'Arms']);
+
+      await page.click('[data-nav="settings"]');
+      await page.waitForSelector('#sSave');
+      const rirSelect = await page.$('label:has-text("Target RIR") select');
+      await rirSelect.selectOption('3-4');
+      await page.click('#sSave');
+      await page.waitForSelector('text=Settings saved.');
+      assert.strictEqual(master().find(r => r[0] === 'Target RIR')[1], '3-4');
+
+      await page.click('[data-nav="history"]');
+      await page.waitForSelector('#hFind');
+      await page.fill('#hFind', 'pec');
+      await page.waitForSelector('text=Times done');
+      assert.ok(await page.isVisible('svg.chart'), 'chart drawn for one exercise');
+      await page.selectOption('#hLines', 'sets');
+      assert.ok(await page.isVisible('text=Set 1'));
+      if (process.env.SHOT_DIR) await page.screenshot({ path: path.join(process.env.SHOT_DIR, 'history.png'), fullPage: true });
+      await page.close();
+    }
+
     console.log('web app UI: all checks passed');
   } finally {
     await browser.close();

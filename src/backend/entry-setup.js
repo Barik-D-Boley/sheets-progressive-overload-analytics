@@ -22,6 +22,7 @@ function setupEntryForm() {
   }
   var sheet = existing || ss.insertSheet(CONFIG.SHEETS.ENTRY, 0);
   buildEntryLayout_(sheet);
+  refreshRoutineDropdown_();
   saveEntryState_({ date: '', workout: '', queue: [], index: 0, set: 0, mode: 'lift' });
   setEntryMode_(getEntryState_(), 'lift');
   ss.setActiveSheet(sheet);
@@ -60,7 +61,6 @@ function buildEntryLayout_(sheet) {
     sheet.getRange(row, 1, 1, 2).setBackground(ENTRY_COLORS.button).setFontSize(quiet ? 13 : 16).setFontWeight('bold');
     sheet.setRowHeight(row, quiet ? 36 : 44);
   };
-  var routineCol = CONFIG.ROUTINES.column;
 
   // Header: every dropdown has its label in column A.
   label('A1', 'Date');
@@ -69,7 +69,7 @@ function buildEntryLayout_(sheet) {
   cell(ENTRY.GYM).setDataValidation(rangeRule(registryNameRangeA1('gyms'), true))
     .setNote('Pick your gym (a new name is added automatically).');
   label('A3', 'Routine');
-  cell(ENTRY.ROUTINE).setDataValidation(rangeRule(routineCol + '3:' + routineCol, false)).setFontWeight('bold');
+  cell(ENTRY.ROUTINE).setFontWeight('bold'); // dropdown of active routines: refreshRoutineDropdown_()
 
   // Find + lifting block
   label('A4', 'Find');
@@ -152,67 +152,6 @@ function readNamingSettings_() {
   });
   if (Object.keys(tags).length) settings.equipmentTags = tags;
   return settings;
-}
-
-/**
- * Routine templates on Master: Routine | Workout | Exercise 1..N, one row per routine
- * (e.g. "Push Day 1" | "Push" | ...). Workout groups history; blank means the routine name.
- * An older layout (Workout | Exercise 1..N) is converted in place. Empty tables are
- * seeded with one routine per workout from the last logged session.
- */
-function ensureRoutinesTable_() {
-  var spec = CONFIG.ROUTINES;
-  var master = getMasterSheet_();
-  var col = columnLetterToIndex(spec.column);
-  var width = spec.maxExercises + 2;
-  var headers = ['Routine', 'Workout'];
-  for (var i = 1; i <= spec.maxExercises; i++) headers.push('Exercise ' + i);
-  var top = master.getRange(1, col, 2, width).getValues();
-  var last = Math.max(master.getLastRow(), 3);
-
-  if (top[1][0] === 'Workout' && top[1][1] === 'Exercise 1') {
-    var old = master.getRange(3, col, last - 2, width - 1).getValues();
-    var converted = old.map(function (r) { return r[0] === '' ? [''].concat(r) : [r[0], r[0]].concat(r.slice(1)); });
-    master.getRange(3, col, converted.length, width).setValues(converted);
-    master.getRange(2, col, 1, width).setValues([headers]).setFontWeight('bold');
-  } else if (top[1][0] !== 'Routine') {
-    if (top[0].concat(top[1]).some(function (v) { return v !== '' && v !== spec.title; })) {
-      throw new Error('Master ' + spec.column + '1 already has other content; change CONFIG.ROUTINES.column.');
-    }
-    master.getRange(1, col).setValue(spec.title).setFontWeight('bold');
-    master.getRange(2, col, 1, width).setValues([headers]).setFontWeight('bold');
-  }
-
-  var existing = master.getRange(3, col, last - 2, 2).getValues();
-  var used = existing.filter(function (r) { return String(r[0]).trim(); }).length;
-  if (!used) {
-    var exerciseNames = {};
-    readRegistry('exercises').forEach(function (e) { exerciseNames[e.id] = e.name; });
-    var rows = readRegistry('workouts').map(function (w) {
-      var names = lastSessionOrder_(w.id).map(function (id) { return exerciseNames[id] || ''; }).filter(String)
-        .slice(0, spec.maxExercises);
-      var row = [w.name, w.name].concat(names);
-      while (row.length < width) row.push('');
-      return row;
-    });
-    if (rows.length) master.getRange(3, col, rows.length, width).setValues(rows);
-  }
-  // A "Custom" routine with no exercises, for one-off workouts built on the day.
-  var names = master.getRange(3, col, Math.max(master.getLastRow(), 3) - 2, 1).getValues()
-    .map(function (r) { return String(r[0]).trim().toLowerCase(); });
-  if (names.indexOf(CUSTOM_ROUTINE.toLowerCase()) < 0) {
-    var free = names.indexOf('');
-    var row = free >= 0 ? 3 + free : 3 + names.length;
-    var customRow = [CUSTOM_ROUTINE, CUSTOM_ROUTINE];
-    while (customRow.length < width) customRow.push('');
-    master.getRange(row, col, 1, width).setValues([customRow]);
-  }
-  var exerciseRange = master.getRange(registryNameRangeA1('exercises'));
-  master.getRange(3, col + 2, 30, spec.maxExercises).setDataValidation(
-    SpreadsheetApp.newDataValidation().requireValueInRange(exerciseRange, true).setAllowInvalid(true).build());
-  master.getRange(3, col + 1, 30, 1).setDataValidation(
-    SpreadsheetApp.newDataValidation().requireValueInRange(master.getRange(registryNameRangeA1('workouts')), true)
-      .setAllowInvalid(true).build());
 }
 
 /** Active and Warm-up columns of the exercise registry as checkboxes. */

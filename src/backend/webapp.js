@@ -89,19 +89,10 @@ function webAppLoad(key) {
     var sameGym = r['Same Gym Only'];
     if (sameGym !== true && sameGym !== false) sameGym = isGymSpecificEquipment(r['Equipment'] || equipmentFromName(r['Name']));
     return { id: String(r['Exercise ID']), name: String(r['Name']), equipment: String(r['Equipment'] || ''),
-      warmup: r['Warm-up'] === true, setup: String(r['Setup Notes'] || ''), sameGym: sameGym, active: r['Active'] !== false };
+      warmup: r['Warm-up'] === true, setup: String(r['Setup Notes'] || ''), sameGym: sameGym, active: r['Active'] !== false,
+      increment: r['Increment'] === '' ? '' : r['Increment'] };
   });
-  var master = getMasterSheet_();
-  var col = columnLetterToIndex(CONFIG.ROUTINES.column);
-  var last = master.getLastRow();
-  var routines = [];
-  if (last >= 3) {
-    master.getRange(3, col, last - 2, CONFIG.ROUTINES.maxExercises + 2).getValues().forEach(function (r) {
-      if (!String(r[0]).trim()) return;
-      routines.push({ name: String(r[0]).trim(), workout: String(r[1]).trim() || String(r[0]).trim(),
-        exercises: r.slice(2).map(String).map(function (x) { return x.trim(); }).filter(String) });
-    });
-  }
+  var routines = readRoutines_().map(function (r) { return { name: r.name, workout: r.workout, active: r.active, exercises: r.exercises }; });
   var unit = weightUnit_(settings);
   var lastCardioUnits = {};
   var cardioSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEETS.CARDIO);
@@ -301,4 +292,156 @@ function webAppCreateExercise(key, payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// ---- Settings, exercises, routines, history (the app's admin screens) ----------
+
+var WEBAPP_SETTING_FIELDS = [
+  { label: 'Current weight', type: 'number', help: 'Updated by bodyweight logging' },
+  { label: 'Birth date', type: 'text' },
+  { label: 'Height (in)', type: 'number' },
+  { label: 'Weight system', type: 'select', options: ['Imperial', 'Metric'] },
+  { label: 'Rep range', type: 'select', options: ['Bodybuilding', 'Powerlifting', 'Custom'] },
+  { label: 'Custom rep min', type: 'number' },
+  { label: 'Custom rep max', type: 'number' },
+  { label: 'Target RIR', type: 'select', options: RIR_OPTIONS },
+  { label: 'Num of sets', type: 'number' },
+  { label: 'Load increment', type: 'number' },
+  { label: 'Stall threshold (sessions)', type: 'number' },
+  { label: 'Strength goal', type: 'text' },
+  { label: '1RM Formula', type: 'select', options: Object.keys(ONE_RM_FORMULAS) },
+];
+
+function webAppGetSettings(key) {
+  requireKey_(key);
+  var values = readSettings_();
+  var help = {};
+  SETTING_DEFAULTS.forEach(function (d) { help[d[0].toLowerCase()] = d[2]; });
+  return WEBAPP_SETTING_FIELDS.map(function (f) {
+    var v = values[f.label.toLowerCase()];
+    if (f.label === 'Target RIR') v = normalizeRir(v);
+    else if (Object.prototype.toString.call(v) === '[object Date]') v = dateToIso_(v);
+    return { label: f.label, type: f.type, options: f.options || null, help: f.help || help[f.label.toLowerCase()] || '',
+      value: v === undefined || v === null ? '' : v };
+  });
+}
+
+/** values: {label: value}; only the known fields are written. */
+function webAppSaveSettings(key, values) {
+  requireKey_(key);
+  var known = {};
+  WEBAPP_SETTING_FIELDS.forEach(function (f) { known[f.label] = f; });
+  Object.keys(values || {}).forEach(function (label) {
+    var f = known[label];
+    if (!f) return;
+    var v = values[label];
+    if (f.type === 'number' && String(v).trim() !== '') {
+      if (isNaN(parseFloat(v))) throw new Error(label + ' must be a number.');
+      v = parseFloat(v);
+    }
+    if (f.type === 'select' && f.options.indexOf(String(v)) < 0) throw new Error('Pick ' + label + ' from the list.');
+    setMasterSetting_(label, v, f.type !== 'number');
+  });
+  return webAppGetSettings(key);
+}
+
+/** e: {id, name, equipment, warmup, sameGym, active, increment, setup} */
+function webAppUpdateExercise(key, e) {
+  requireKey_(key);
+  var name = String(e.name || '').trim();
+  if (!name) throw new Error('The name cannot be empty.');
+  var lock = LockService.getDocumentLock();
+  lock.waitLock(20000);
+  try {
+    var rows = readRegistryRows('exercises');
+    var row = rows.filter(function (r) { return String(r['Exercise ID']) === String(e.id); })[0];
+    if (!row) throw new Error('Unknown exercise ' + e.id);
+    var clash = rows.filter(function (r) { return String(r['Name']).toLowerCase() === name.toLowerCase() && String(r['Exercise ID']) !== String(e.id); })[0];
+    if (clash) throw new Error('"' + name + '" already exists.');
+    var increment = String(e.increment === undefined || e.increment === null ? '' : e.increment).trim();
+    if (increment !== '' && !(parseFloat(increment) > 0)) throw new Error('Increment must be a positive number (or blank).');
+    var spec = CONFIG.REGISTRIES.exercises;
+    var values = {};
+    spec.headers.forEach(function (h) { values[h] = row[h]; });
+    var oldName = String(row['Name']);
+    values['Name'] = name;
+    values['Equipment'] = String(e.equipment || '');
+    values['Warm-up'] = e.warmup === true;
+    values['Same Gym Only'] = e.sameGym === true;
+    values['Active'] = e.active !== false;
+    values['Increment'] = increment === '' ? '' : parseFloat(increment);
+    values['Setup Notes'] = String(e.setup || '');
+    getMasterSheet_().getRange(row._row, columnLetterToIndex(spec.column), 1, spec.headers.length)
+      .setValues([spec.headers.map(function (h) { return values[h]; })]);
+    if (oldName !== name) {
+      renameInRoutines_(oldName, name);
+      sortRegistry('exercises');
+    }
+    return webAppLoad(key).exercises.filter(function (x) { return x.id === String(e.id); })[0];
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Routines store exercise names, so a rename is applied to them too. */
+function renameInRoutines_(oldName, newName) {
+  readRoutines_().forEach(function (r) {
+    var changed = false;
+    var list = r.exercises.map(function (n) { if (n === oldName) { changed = true; return newName; } return n; });
+    if (changed) writeRoutine_({ name: r.name, workout: r.workout, active: r.active, exercises: list }, r.row);
+  });
+}
+
+/** r: {originalName, name, workout, active, exercises: [names]} */
+function webAppSaveRoutine(key, r) {
+  requireKey_(key);
+  var name = String(r.name || '').trim();
+  if (!name) throw new Error('The routine needs a name.');
+  var known = exerciseIndex_().byName;
+  var exercises = (r.exercises || []).map(function (n) { return String(n).trim(); }).filter(String);
+  exercises.forEach(function (n) { if (!known[n.toLowerCase()]) throw new Error('Unknown exercise "' + n + '".'); });
+  var lock = LockService.getDocumentLock();
+  lock.waitLock(20000);
+  try {
+    var all = readRoutines_();
+    var original = String(r.originalName || '').trim().toLowerCase();
+    var existing = original ? all.filter(function (x) { return x.name.toLowerCase() === original; })[0] : null;
+    if (all.some(function (x) { return x.name.toLowerCase() === name.toLowerCase() && x !== existing; })) {
+      throw new Error('A routine named "' + name + '" already exists.');
+    }
+    var workout = String(r.workout || '').trim() || name;
+    ensureRegistryEntries('workouts', [workout]);
+    writeRoutine_({ name: name, workout: workout, active: r.active !== false, exercises: exercises }, existing ? existing.row : 0);
+    refreshRoutineDropdown_();
+    return readRoutines_().map(function (x) { return { name: x.name, workout: x.workout, active: x.active, exercises: x.exercises }; });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Workout names for the routine editor. */
+function webAppWorkouts(key) {
+  requireKey_(key);
+  return readRegistry('workouts').map(function (w) { return w.name; });
+}
+
+/**
+ * Every record in readable form for the History screen (filtered on the phone):
+ * {unit, rows: [{date, quarter, gym, workout, exercise, sets: [text], oneRms: [n], best, notes}], bodyweights, quarters}
+ */
+function webAppHistory(key) {
+  requireKey_(key);
+  var settings = readSettings_();
+  var unit = weightUnit_(settings);
+  var data = readAllRecords_();
+  var names = { exercises: nameMap_('exercises'), gyms: nameMap_('gyms'), workouts: nameMap_('workouts') };
+  var result = compileRecords(data.records, names, { unit: unit, formula: settings['1rm formula'], setCount: settingSetCount_(settings) },
+    {}, todayIsoForScript_());
+  var setCount = result.setCount;
+  var rows = result.rows.map(function (r) {
+    var v = r.values;
+    return { quarter: v[0], date: v[1], gym: v[2], workout: v[3], exercise: v[4],
+      sets: v.slice(5, 5 + setCount), oneRms: v.slice(5 + setCount, 5 + 2 * setCount), best: r.best || 0, notes: v[5 + 2 * setCount + 1] || '' };
+  });
+  return { unit: unit, rows: rows, bodyweights: readBodyweightLog_(), quarters: data.tabs };
 }

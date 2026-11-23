@@ -66,14 +66,17 @@ function logBodyweight_(dateIso, weight, unit, source) {
 }
 
 /** Writes the value next to a column-A label on Master (adds the row if missing). */
-function setMasterSetting_(label, value) {
+function setMasterSetting_(label, value, asText) {
   var master = getMasterSheet_();
   var values = master.getRange(1, 1, SETTINGS_MAX_ROWS, 1).getValues();
-  var lastUsed = 0;
+  var lastUsed = 0, row = 0;
   for (var i = 0; i < values.length; i++) {
-    if (String(values[i][0]).trim().toLowerCase() === label.toLowerCase()) { master.getRange(i + 1, 2).setValue(value); return; }
+    if (String(values[i][0]).trim().toLowerCase() === label.toLowerCase()) { row = i + 1; break; }
     if (String(values[i][0]).trim()) lastUsed = i + 1;
   }
-  master.getRange(lastUsed + 1, 1, 1, 2).setValues([[label, value]]);
+  if (!row) { row = lastUsed + 1; master.getRange(row, 1).setValue(label); }
+  var cell = master.getRange(row, 2);
+  if (asText) cell.setNumberFormat('@'); // keeps "1-2" from becoming a date
+  cell.setValue(value);
 }
 

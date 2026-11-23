@@ -88,6 +88,28 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
 .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .presets button { min-height: 36px; padding: 0 12px; font-size: 14px; }
 .center { text-align: center; }
+.nav { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav button { flex: 1 0 auto; min-height: 38px; border-radius: 999px; padding: 0 9px; background: var(--chip); color: var(--text); font-size: 14px; }
+.nav button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.list-item { display: block; width: 100%; text-align: left; background: var(--card); color: var(--text); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px; margin: 8px 0; min-height: 52px; }
+.list-item .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.tag { display: inline-block; font-size: 12px; border-radius: 999px; padding: 1px 8px; margin: 4px 4px 0 0; background: var(--chip); color: var(--muted); }
+.tag.blue { background: var(--accent-soft); color: var(--accent); }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.toggle input { width: 24px; min-height: 24px; flex: 0 0 auto; }
+.order-row { display: flex; align-items: center; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.order-row span { flex: 1; }
+.order-row button { min-height: 36px; min-width: 40px; padding: 0 8px; }
+.filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.filters .full { grid-column: 1 / -1; }
+.stat { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.stat span:first-child { color: var(--muted); }
+.hist-row { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.hist-row .sets { font-size: 14px; margin-top: 2px; }
+svg.chart { width: 100%; height: 200px; display: block; }
+svg.chart text { fill: var(--muted); font-size: 10px; }
 .loading { padding: 40px 0; text-align: center; color: var(--muted); }
 .err { color: var(--bad); font-size: 14px; margin-top: 6px; }
 </style>
@@ -176,8 +198,9 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
     var gymOptions = data.gyms.map(function (g) {
       return '<option' + (g === (data.lastGym || data.gyms[0]) ? ' selected' : '') + '>' + esc(g) + '</option>';
     }).join('') + '<option value="__new">+ New gym…</option>';
-    var routineOptions = data.routines.map(function (r) { return '<option>' + esc(r.name) + '</option>'; }).join('');
-    var html = '<h1>Overload Tracker</h1>';
+    var routineOptions = data.routines.filter(function (r) { return r.active !== false; })
+      .map(function (r) { return '<option>' + esc(r.name) + '</option>'; }).join('');
+    var html = nav('start');
     if (draft && draft.items) {
       var saved = draft.items.filter(function (i) { return i.status === 'saved'; }).length;
       html += '<div class="card"><b>Workout in progress</b><div class="muted">' + esc(draft.routine) + ' · ' +
@@ -203,6 +226,7 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
     $('#app').innerHTML = html;
     setBar([{ id: 'start', label: 'Start workout', primary: true }]);
 
+    wireNav();
     $('#gym').onchange = function () { $('#newGymWrap').hidden = this.value !== '__new'; };
     if ($('#resume')) $('#resume').onclick = function () { w = draft; renderWorkout(); refreshViews(); };
     if ($('#discard')) $('#discard').onclick = function () { if (confirm('Discard the workout in progress? Saved exercises stay saved.')) { w = null; saveDraft(); renderStart(); } };
@@ -509,6 +533,7 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
       w = null; saveDraft();
       setBar([{ id: 'home', label: 'Done', primary: true }]);
       $('#home').onclick = renderStart;
+      hist = null;
       call('webAppFinish').catch(function () { /* Compiled Data also refreshes nightly */ });
     });
   }
@@ -578,6 +603,347 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
       if (sheetEl) document.body.removeChild(sheetEl);
       if (screen === 'start') renderStart();
     }).catch(function (e) { toast(e.message); });
+  }
+
+
+  // ---- navigation -----------------------------------------------------------------
+  var SECTIONS = [['start', 'Log'], ['history', 'History'], ['exercises', 'Exercises'], ['routines', 'Routines'], ['settings', 'Settings']];
+  function nav(current) {
+    return '<div class="nav">' + SECTIONS.map(function (s) {
+      return '<button data-nav="' + s[0] + '" class="' + (s[0] === current ? 'on' : '') + '">' + s[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  function wireNav() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-nav]'), function (b) {
+      b.onclick = function () { openSection(b.getAttribute('data-nav')); };
+    });
+  }
+  function openSection(name) {
+    window.scrollTo(0, 0);
+    if (name === 'start') renderStart();
+    else if (name === 'history') renderHistory();
+    else if (name === 'exercises') renderExercises();
+    else if (name === 'routines') renderRoutines();
+    else if (name === 'settings') renderSettings();
+  }
+  function checkbox(id, label, checked, sub) {
+    return '<label class="toggle"><span>' + esc(label) + (sub ? '<div class="sub muted">' + esc(sub) + '</div>' : '') + '</span>' +
+      '<input type="checkbox" id="' + id + '"' + (checked ? ' checked' : '') + '></label>';
+  }
+
+  // ---- exercises ------------------------------------------------------------------
+  function renderExercises(query) {
+    screen = 'exercises';
+    var q = String(query || '').toLowerCase();
+    var list = data.exercises.filter(function (e) { return !q || e.name.toLowerCase().indexOf(q) >= 0; });
+    var item = function (e) {
+      return '<button class="list-item" data-ex="' + esc(e.id) + '"><div>' + esc(e.name) + '</div><div>' +
+        (e.warmup ? '<span class="tag blue">Warm-up</span>' : '') + (e.sameGym ? '<span class="tag">Same gym</span>' : '') +
+        (e.active ? '' : '<span class="tag">Inactive</span>') + (e.setup ? '<span class="tag">Setup notes</span>' : '') + '</div></button>';
+    };
+    $('#app').innerHTML = nav('exercises') + '<input id="exFind" placeholder="Search ' + data.exercises.length + ' exercises" value="' + esc(query || '') + '">' +
+      '<div id="exList">' + (list.length ? list.map(item).join('') : '<p class="muted">No matches.</p>') + '</div>';
+    wireNav();
+    setBar([{ id: 'exNew', label: '+ New exercise', primary: true }]);
+    $('#exFind').oninput = function () {
+      var pos = this.selectionStart; renderExercises(this.value);
+      var f = $('#exFind'); f.focus(); f.setSelectionRange(pos, pos);
+    };
+    $('#exNew').onclick = function () { openNewExercise($('#exFind').value, false, function () { renderExercises(); }); };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ex]'), function (b) {
+      b.onclick = function () { editExercise(exById(b.getAttribute('data-ex'))); };
+    });
+  }
+
+  function editExercise(ex) {
+    screen = 'exercise-edit';
+    var eqOptions = data.equipment.map(function (e) { return '<option' + (e === ex.equipment ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('');
+    $('#app').innerHTML = '<h1>Edit exercise</h1><div class="card">' +
+      '<label class="field"><span>Name</span><input id="eName" value="' + esc(ex.name) + '"></label>' +
+      '<label class="field"><span>Equipment</span><select id="eEq">' + eqOptions + '</select></label>' +
+      '<label class="field"><span>Setup notes</span><textarea id="eSetup">' + esc(ex.setup) + '</textarea></label>' +
+      '<label class="field"><span>Increment (' + esc(data.unit) + ', blank = Settings default)</span><input id="eInc" inputmode="decimal" value="' + esc(ex.increment) + '"></label>' +
+      checkbox('eWarm', 'Warm-up ladder', ex.warmup) +
+      checkbox('eSame', 'Same gym only', ex.sameGym, 'Last and Goal use only this gym\'s sessions') +
+      checkbox('eActive', 'Active', ex.active, 'Inactive exercises are hidden from pickers; history stays') +
+      '<p class="muted">Renaming keeps all history and updates routines that use it.</p></div>';
+    setBar([{ id: 'eBack', label: 'Back' }, { id: 'eSave', label: 'Save', primary: true }]);
+    $('#eBack').onclick = function () { renderExercises(); };
+    $('#eSave').onclick = function () {
+      $('#eSave').disabled = true;
+      var oldName = ex.name;
+      call('webAppUpdateExercise', { id: ex.id, name: $('#eName').value, equipment: $('#eEq').value, setup: $('#eSetup').value,
+        increment: $('#eInc').value, warmup: $('#eWarm').checked, sameGym: $('#eSame').checked, active: $('#eActive').checked })
+        .then(function (updated) {
+          for (var k in updated) ex[k] = updated[k];
+          if (oldName !== ex.name) data.routines.forEach(function (r) { r.exercises = r.exercises.map(function (n) { return n === oldName ? ex.name : n; }); });
+          data.exercises.sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
+          toast('Saved ' + ex.name + '.'); renderExercises();
+        }).catch(function (e) { $('#eSave').disabled = false; toast(e.message); });
+    };
+  }
+
+  // ---- routines -------------------------------------------------------------------
+  function renderRoutines() {
+    screen = 'routines';
+    var item = function (r) {
+      return '<button class="list-item" data-routine="' + esc(r.name) + '"><div>' + esc(r.name) + '</div><div class="sub">' +
+        esc(r.workout) + ' · ' + r.exercises.length + ' exercise' + (r.exercises.length === 1 ? '' : 's') + '</div></button>';
+    };
+    var active = data.routines.filter(function (r) { return r.active !== false; });
+    var archived = data.routines.filter(function (r) { return r.active === false; });
+    $('#app').innerHTML = nav('routines') + active.map(item).join('') +
+      (archived.length ? '<h2 style="margin-top:18px">Archived</h2><p class="muted">Kept, but not offered when starting a workout.</p>' + archived.map(item).join('') : '');
+    wireNav();
+    setBar([{ id: 'rNew', label: '+ New routine', primary: true }]);
+    $('#rNew').onclick = function () { editRoutine({ name: '', workout: '', active: true, exercises: [] }, true); };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-routine]'), function (b) {
+      b.onclick = function () {
+        var r = data.routines.filter(function (x) { return x.name === b.getAttribute('data-routine'); })[0];
+        editRoutine({ name: r.name, workout: r.workout, active: r.active !== false, exercises: r.exercises.slice() }, false, r.name);
+      };
+    });
+  }
+
+  function editRoutine(r, isNew, originalName) {
+    screen = 'routine-edit';
+    var workouts = data.workouts || [];
+    /** Copies the form fields into r (before any redraw, so typing is never lost). */
+    function keep() {
+      if (!$('#rName')) return;
+      r.name = $('#rName').value; r.workout = $('#rWorkout').value; r.active = $('#rActive').checked;
+    }
+    function draw() {
+      keep();
+      var rows = r.exercises.map(function (n, i) {
+        return '<div class="order-row"><span>' + esc(n) + '</span>' +
+          '<button class="btn" data-up="' + i + '"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+          '<button class="btn" data-down="' + i + '"' + (i === r.exercises.length - 1 ? ' disabled' : '') + '>↓</button>' +
+          '<button class="btn" data-del="' + i + '">✕</button></div>';
+      }).join('');
+      $('#app').innerHTML = '<h1>' + (isNew ? 'New routine' : 'Edit routine') + '</h1><div class="card">' +
+        '<label class="field"><span>Name</span><input id="rName" value="' + esc(r.name) + '" placeholder="e.g. Push Day 1"></label>' +
+        '<label class="field"><span>Workout (groups history, e.g. Push)</span><input id="rWorkout" list="workoutList" value="' + esc(r.workout) + '">' +
+        '<datalist id="workoutList">' + workouts.map(function (x) { return '<option value="' + esc(x) + '">'; }).join('') + '</datalist></label>' +
+        checkbox('rActive', 'Active', r.active, 'Unchecked = archived: kept but hidden when starting a workout') +
+        '</div><div class="card"><b>Exercises</b>' + (rows || '<p class="muted">None yet.</p>') +
+        '<button class="btn block" id="rAdd" style="margin-top:10px">+ Add exercise</button></div>';
+      setBar([{ id: 'rBack', label: 'Back' }, { id: 'rSave', label: 'Save', primary: true }]);
+      Array.prototype.forEach.call(document.querySelectorAll('[data-up],[data-down],[data-del]'), function (b) {
+        b.onclick = function () {
+          keep();
+          var up = b.getAttribute('data-up'), down = b.getAttribute('data-down'), del = b.getAttribute('data-del');
+          var i = parseInt(up || down || del, 10);
+          if (del !== null) r.exercises.splice(i, 1);
+          else { var j = up !== null ? i - 1 : i + 1; var t = r.exercises[i]; r.exercises[i] = r.exercises[j]; r.exercises[j] = t; }
+          draw();
+        };
+      });
+      $('#rAdd').onclick = function () {
+        keep();
+        pickExercise(r.exercises, function (ex) { r.exercises.push(ex.name); draw(); });
+      };
+      $('#rBack').onclick = function () { renderRoutines(); };
+      $('#rSave').onclick = function () {
+        keep();
+        $('#rSave').disabled = true;
+        call('webAppSaveRoutine', { originalName: originalName || '', name: r.name, workout: r.workout, active: r.active, exercises: r.exercises })
+          .then(function (routines) {
+            data.routines = routines;
+            if (r.workout && workouts.indexOf(r.workout) < 0) workouts.push(r.workout);
+            toast('Saved ' + r.name + '.'); renderRoutines();
+          }).catch(function (e) { $('#rSave').disabled = false; toast(e.message); });
+      };
+    }
+    if ($('#rName')) $('#rName').id = 'rNameOld';
+    if (!data.workouts) {
+      call('webAppWorkouts').then(function (list) { data.workouts = list; workouts = list; if (screen === 'routine-edit') draw(); }).catch(function () {});
+    }
+    draw();
+  }
+
+  /** Searchable picker that returns an exercise (used by the routine editor). */
+  function pickExercise(exclude, done) {
+    var bg = document.createElement('div');
+    bg.className = 'sheet-bg';
+    bg.innerHTML = '<div class="sheet"><div class="row"><input id="peFind" placeholder="Search exercises" autocomplete="off">' +
+      '<button class="btn" id="peClose" style="flex:0">Close</button></div><div id="peList"></div></div>';
+    document.body.appendChild(bg);
+    function close() { if (bg.parentNode) document.body.removeChild(bg); }
+    function draw() {
+      var q = $('#peFind').value.trim().toLowerCase();
+      var list = data.exercises.filter(function (e) { return e.active && exclude.indexOf(e.name) < 0 && (!q || e.name.toLowerCase().indexOf(q) >= 0); });
+      $('#peList').innerHTML = (list.length ? list.map(function (e) { return '<button class="pick" data-id="' + esc(e.id) + '">' + esc(e.name) + '</button>'; }).join('')
+        : '<p class="muted">No matches.</p>') + '<button class="btn block" id="peNew" style="margin-top:12px">+ New exercise</button>';
+      Array.prototype.forEach.call(document.querySelectorAll('#peList .pick'), function (b) {
+        b.onclick = function () { close(); done(exById(b.getAttribute('data-id'))); };
+      });
+      $('#peNew').onclick = function () { var q2 = $('#peFind').value; close(); openNewExercise(q2, false, done); };
+    }
+    $('#peFind').oninput = draw;
+    $('#peClose').onclick = close;
+    bg.onclick = function (e) { if (e.target === bg) close(); };
+    draw();
+    $('#peFind').focus();
+  }
+
+  // ---- settings -------------------------------------------------------------------
+  function renderSettings() {
+    screen = 'settings';
+    $('#app').innerHTML = nav('settings') + '<div class="loading">Loading settings…</div>';
+    wireNav();
+    setBar([]);
+    call('webAppGetSettings').then(function (fields) {
+      if (screen !== 'settings') return;
+      var html = nav('settings') + '<div class="card">' + fields.map(function (f, i) {
+        var input = f.type === 'select'
+          ? '<select data-setting="' + i + '">' + f.options.map(function (o) { return '<option' + (String(o) === String(f.value) ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>'
+          : '<input data-setting="' + i + '"' + (f.type === 'number' ? ' inputmode="decimal"' : '') + ' value="' + esc(f.value) + '">';
+        return '<label class="field"><span>' + esc(f.label) + (f.help ? ' · ' + esc(f.help) : '') + '</span>' + input + '</label>';
+      }).join('') + '</div><p class="muted">Saved to the Master tab.</p>';
+      $('#app').innerHTML = html;
+      wireNav();
+      setBar([{ id: 'sSave', label: 'Save settings', primary: true }]);
+      $('#sSave').onclick = function () {
+        var values = {};
+        Array.prototype.forEach.call(document.querySelectorAll('[data-setting]'), function (el) {
+          values[fields[parseInt(el.getAttribute('data-setting'), 10)].label] = el.value;
+        });
+        $('#sSave').disabled = true;
+        call('webAppSaveSettings', values).then(function () {
+          toast('Settings saved.');
+          return call('webAppLoad');
+        }).then(function (d) {
+          var bw = data.bodyweight; data = d; data.bodyweight = bw;
+          renderSettings();
+        }).catch(function (e) { toast(e.message); if ($('#sSave')) $('#sSave').disabled = false; });
+      };
+    }).catch(function (e) { $('#app').innerHTML = nav('settings') + '<div class="err">' + esc(e.message) + '</div>'; wireNav(); });
+  }
+
+  // ---- history --------------------------------------------------------------------
+  var hist = null;   // webAppHistory() result, loaded once per visit
+  var histFilter = { range: 'All time', gym: '', workout: '', q: '', lines: 'best' };
+
+  function renderHistory() {
+    screen = 'history';
+    setBar([]);
+    if (!hist) {
+      $('#app').innerHTML = nav('history') + '<div class="loading">Loading history…</div>';
+      wireNav();
+      call('webAppHistory').then(function (h) { hist = h; if (screen === 'history') renderHistory(); })
+        .catch(function (e) { $('#app').innerHTML = nav('history') + '<div class="err">' + esc(e.message) + '</div>'; wireNav(); });
+      return;
+    }
+    var uniq = function (k) { var seen = {}; return hist.rows.map(function (r) { return r[k]; }).filter(function (v) { if (!v || seen[v]) return false; seen[v] = 1; return true; }).sort(); };
+    var opt = function (v, cur, label) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(label || v) + '</option>'; };
+    var ranges = ['All time', 'This month', 'Last 3 months', 'This year'].concat(hist.quarters.slice().sort().reverse());
+    var html = nav('history') + '<div class="filters">' +
+      '<select id="hRange">' + ranges.map(function (r) { return opt(r, histFilter.range); }).join('') + '</select>' +
+      '<select id="hGym">' + opt('', histFilter.gym, 'All gyms') + uniq('gym').map(function (g) { return opt(g, histFilter.gym); }).join('') + '</select>' +
+      '<select id="hWorkout">' + opt('', histFilter.workout, 'All workouts') + uniq('workout').map(function (x) { return opt(x, histFilter.workout); }).join('') + '</select>' +
+      '<select id="hLines">' + opt('best', histFilter.lines, 'Chart: best 1RM') + opt('sets', histFilter.lines, 'Chart: each set') + '</select>' +
+      '<input class="full" id="hFind" placeholder="Search exercise (e.g. bench)" value="' + esc(histFilter.q) + '"></div>' +
+      '<div id="hBody"></div>';
+    $('#app').innerHTML = html;
+    wireNav();
+    var update = function () {
+      histFilter = { range: $('#hRange').value, gym: $('#hGym').value, workout: $('#hWorkout').value, q: $('#hFind').value, lines: $('#hLines').value };
+      drawHistoryBody();
+    };
+    ['#hRange', '#hGym', '#hWorkout', '#hLines'].forEach(function (id) { $(id).onchange = update; });
+    $('#hFind').oninput = update;
+    drawHistoryBody();
+  }
+
+  function rangeStart(range) {
+    var t = data.today, y = parseInt(t.slice(0, 4), 10), m = parseInt(t.slice(5, 7), 10);
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var q = String(range).match(/^Q([1-4]) (\d{4})$/);
+    if (q) { var sm = (parseInt(q[1], 10) - 1) * 3 + 1; return [q[2] + '-' + pad(sm) + '-01', q[2] + '-' + pad(sm + 2) + '-31']; }
+    if (range === 'This month') return [y + '-' + pad(m) + '-01', '9999'];
+    if (range === 'Last 3 months') { var mm = m - 2, yy = y; if (mm < 1) { mm += 12; yy--; } return [yy + '-' + pad(mm) + '-01', '9999']; }
+    if (range === 'This year') return [y + '-01-01', '9999'];
+    return ['0000', '9999'];
+  }
+
+  function drawHistoryBody() {
+    var f = histFilter, span = rangeStart(f.range), q = f.q.trim().toLowerCase();
+    var rows = hist.rows.filter(function (r) {
+      return r.date >= span[0] && r.date <= span[1] && (!f.gym || r.gym === f.gym) && (!f.workout || r.workout === f.workout) &&
+        (!q || r.exercise.toLowerCase().indexOf(q) >= 0);
+    });
+    var names = {}; rows.forEach(function (r) { names[r.exercise] = 1; });
+    var single = Object.keys(names).length === 1;
+    var html = '<p class="muted">Showing ' + rows.length + ' of ' + hist.rows.length + ' · weights in ' + esc(hist.unit) + '</p>';
+    if (single) html += exerciseStats(rows);
+    else if (rows.length) html += '<p class="muted">Search for one exercise to see its stats and chart.</p>';
+    html += '<div class="card">' + (rows.slice(0, 200).map(function (r) {
+      return '<div class="hist-row"><div class="row" style="justify-content:space-between"><b style="flex:1">' + esc(r.exercise) + '</b>' +
+        '<span class="muted" style="flex:0 0 auto">' + esc(shortDate(r.date)) + '</span></div>' +
+        '<div class="sets">' + r.sets.filter(String).map(esc).join(' &nbsp;|&nbsp; ') + '</div>' +
+        '<div class="sub muted" style="font-size:13px">' + esc(r.gym) + ' · ' + esc(r.workout) + (r.best ? ' · best 1RM ' + r.best : '') +
+        (r.notes ? ' · ' + esc(r.notes) : '') + '</div></div>';
+    }).join('') || '<p class="muted">No matching workouts.</p>') + (rows.length > 200 ? '<p class="muted">Showing the 200 most recent. Narrow the filters to see more.</p>' : '') + '</div>';
+    $('#hBody').innerHTML = html;
+  }
+
+  function bodyweightOn(date) {
+    var best = null;
+    hist.bodyweights.forEach(function (b) { if (b.date <= date && (!best || b.date >= best.date)) best = b; });
+    return best;
+  }
+  function toUnit(v, from) { if (!from || from === hist.unit) return v; return hist.unit === 'kg' ? v / 2.20462262 : v * 2.20462262; }
+
+  function exerciseStats(rows) {
+    var byDate = rows.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    var first = byDate[0], last = byDate[byDate.length - 1];
+    var best = rows.reduce(function (m, r) { return Math.max(m, r.best); }, 0);
+    var gain = byDate.length < 2 ? 'Only one session' : !(first.best > 0) ? 'No 1RM to compare'
+      : (last.best - first.best >= 0 ? '+' : '') + Math.round((last.best - first.best) * 10) / 10 + ' ' + hist.unit +
+        ' (' + (last.best - first.best >= 0 ? '+' : '') + Math.round((last.best - first.best) / first.best * 100) + '%)';
+    var ratio = function (r) { var bw = bodyweightOn(r.date); return bw && r.best > 0 ? r.best / toUnit(bw.weight, bw.unit) : null; };
+    var latestBw = bodyweightOn(last.date);
+    var bestRatio = byDate.reduce(function (m, r) { var x = ratio(r); return x !== null && (m === null || x > m) ? x : m; }, null);
+    var stat = function (k, v) { return '<div class="stat"><span>' + esc(k) + '</span><span>' + esc(v) + '</span></div>'; };
+    var html = '<div class="card"><h2>' + esc(rows[0].exercise) + '</h2>' +
+      stat('Times done', rows.length) + stat('Best 1RM', best ? best + ' ' + hist.unit : '—') + stat('Last done', shortDate(last.date)) +
+      stat('Strength gain', gain) +
+      stat('Relative strength', ratio(last) !== null ? ratio(last).toFixed(2) + '× bodyweight (' + Math.round(toUnit(latestBw.weight, latestBw.unit)) + ' ' + hist.unit + ')' : '—') +
+      stat('Best relative strength', bestRatio !== null ? bestRatio.toFixed(2) + '×' : '—') +
+      chart(byDate) + '</div>';
+    return html;
+  }
+
+  /** Small inline SVG line chart: best 1RM per session, or 1RM per set. */
+  function chart(byDate) {
+    var series = histFilter.lines === 'sets'
+      ? [0, 1, 2, 3, 4].map(function (i) { return byDate.map(function (r) { return r.oneRms[i] || null; }); }).filter(function (s) { return s.some(Boolean); })
+      : [byDate.map(function (r) { return r.best || null; })];
+    var colors = histFilter.lines === 'sets' ? ['#e06666', '#6aa84f', '#3c78d8', '#f1c232', '#8e7cc3'] : ['var(--accent)'];
+    var vals = [].concat.apply([], series).filter(Boolean);
+    if (vals.length < 2) return '';
+    var W = 320, H = 200, L = 34, R = 8, T = 10, B = 22;
+    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    if (max === min) { max += 1; min -= 1; }
+    var n = byDate.length;
+    var x = function (i) { return L + (n === 1 ? 0 : i * (W - L - R) / (n - 1)); };
+    var y = function (v) { return T + (max - v) * (H - T - B) / (max - min); };
+    var svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="1RM over time">';
+    [min, (min + max) / 2, max].forEach(function (v) {
+      svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)"/>' +
+        '<text x="' + (L - 4) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + Math.round(v) + '</text>';
+    });
+    svg += '<text x="' + L + '" y="' + (H - 6) + '">' + esc(shortDate(byDate[0].date)) + '</text>' +
+      '<text x="' + (W - R) + '" y="' + (H - 6) + '" text-anchor="end">' + esc(shortDate(byDate[n - 1].date)) + '</text>';
+    series.forEach(function (s, si) {
+      var pts = s.map(function (v, i) { return v ? x(i) + ',' + y(v) : null; }).filter(Boolean);
+      svg += '<polyline fill="none" stroke="' + colors[si % colors.length] + '" stroke-width="2" points="' + pts.join(' ') + '"/>';
+      s.forEach(function (v, i) { if (v) svg += '<circle cx="' + x(i) + '" cy="' + y(v) + '" r="2.5" fill="' + colors[si % colors.length] + '"/>'; });
+    });
+    return svg + '</svg>' + (histFilter.lines === 'sets' ? '<div class="muted" style="font-size:12px">' + series.map(function (s, i) {
+      return '<span style="color:' + colors[i] + '">●</span> Set ' + (i + 1);
+    }).join(' &nbsp; ') + '</div>' : '');
   }
 
   // ---- bottom bar ---------------------------------------------------------------

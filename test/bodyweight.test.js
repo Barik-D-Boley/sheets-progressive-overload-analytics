@@ -36,7 +36,7 @@ function setup() {
   gs.setupEntryForm();
   const master2 = app.ss.getSheetByName('Master');
   const routineCol = 27; // AA
-  master2.getRange(3, routineCol, 1, 3).setValues([['Push', 'Push', 'Bench press (BB)']]);
+  master2.getRange(3, routineCol, 1, 4).setValues([['Push', 'Push', true, 'Bench press (BB)']]);
   const sheet = app.ss.getSheetByName('Workout Entry');
   const edit = (a1, value) => { sheet.getRange(a1).setValue(value); gs.entryOnEdit({ range: sheet.getRange(a1), value: value === true ? 'TRUE' : value }); };
   return { app, gs, sheet, edit, master: master2 };

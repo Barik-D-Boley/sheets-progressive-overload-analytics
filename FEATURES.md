@@ -177,6 +177,16 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Speed:** one load call; history for the whole routine is read in one pass; taps update the page instantly.
 - **Tests:** server functions in `test/webapp.test.js`; the page itself in headless Chromium against the sheet fake (`npm run test:ui`).
 
+### Web App: Full Management (Round 13)
+
+- **Navigation:** Log · History · Exercises · Routines · Settings across the top of the app.
+- **Exercises:** searchable list (tags for warm-up, same gym, inactive, setup notes); edit name, equipment, setup notes, increment, Warm-up, Same Gym Only, Active; create from movement + equipment + detail (name formatted automatically). Renaming keeps the ID and history, re-sorts Master, and updates routines that use the exercise.
+- **Routines:** active and archived lists; create or edit name, workout type, Active (unchecked = archived: kept but not offered when starting a workout, in the app or the sheet form), and the exercise list (add via search or a new exercise, reorder, remove).
+- **Routines table layout v3:** `Routine | Workout | Active | Exercise 1..14` on Master (AA:AQ). Setup converts the earlier layouts; a routine with more than 14 exercises must be shortened first. The sheet form's Routine dropdown lists active routines only.
+- **Settings:** the Master settings (profile, weight system, rep range mode, custom rep range, target RIR, sets, increment, stall threshold, strength goal, 1RM formula) with dropdowns where values are fixed; RIR is stored as text.
+- **History:** all records loaded once, filtered instantly on the phone by time frame (including quarters), gym, workout, and exercise search; one-exercise stats (times done, best 1RM, last done, strength gain, relative strength) and a chart (best 1RM or each set).
+- **Fixes:** date input stays inside its card; the new-gym field only shows for "+ New gym"; RIR is required for each logged set; warm-ups are listed lightest first (also on the sheet form).
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.
