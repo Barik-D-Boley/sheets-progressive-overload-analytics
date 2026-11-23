@@ -8,6 +8,17 @@
  */
 var RIR_OPTIONS = ['0', '1-2', '3-4', '5+'];
 
+/**
+ * Google Sheets turns "1-2" and "3-4" into dates (Jan 2, Mar 4). Converts such a
+ * date back to the RIR text; anything else is returned as trimmed text.
+ */
+function normalizeRir(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return (value.getMonth() + 1) + '-' + value.getDate();
+  }
+  return String(value === null || value === undefined ? '' : value).trim();
+}
+
 /** Lower bound of an RIR value ('1-2' -> 1, '5+' -> 5); null when blank. */
 function rirLow(value) {
   if (value === null || value === undefined || value === '') return null;
@@ -29,7 +40,7 @@ function progressionSettings(settings, exerciseIncrement) {
   var ps = {
     mode: mode === 'powerlifting' ? 'powerlifting' : (mode === 'custom' ? 'custom' : 'bodybuilding'),
     repMin: 8, repMax: 12,
-    targetRir: String(settings['target rir'] || '1-2'),
+    targetRir: normalizeRir(settings['target rir']) || '1-2',
     increment: parseFloat(exerciseIncrement) || parseFloat(settings['load increment']) || 5,
     stall: parseInt(settings['stall threshold (sessions)'], 10) || 3,
     strengthPct: pct ? parseFloat(pct[1]) / 100 : 0.9,

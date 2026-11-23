@@ -50,3 +50,11 @@ test('powerlifting: % of best 1RM, +increment when sets were easy', () => {
   const easy = g.computeGoals([session([300, 3, '3-4'], [300, 3, '5+'])], 3, pl);
   assert.strictEqual(easy.goals[0].load, 300);
 });
+
+test('RIR values that Sheets turned into dates are read back as text', () => {
+  assert.strictEqual(g.normalizeRir(new Date(2026, 0, 2)), '1-2');
+  assert.strictEqual(g.normalizeRir(new Date(2026, 2, 4)), '3-4');
+  assert.strictEqual(g.normalizeRir('5+'), '5+');
+  assert.strictEqual(g.normalizeRir(0), '0');
+  assert.strictEqual(g.progressionSettings({ 'target rir': new Date(2026, 0, 2) }).targetRir, '1-2');
+});

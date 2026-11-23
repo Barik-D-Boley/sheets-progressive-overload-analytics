@@ -326,7 +326,7 @@ function bodyweightVariantId_(item, packedSets) {
 
 function readInputs_() {
   var v = entrySheet_().getRange(ENTRY.INPUT_FIRST_ROW, 2, 6, 1).getValues();
-  return { weight: v[0][0], reps: v[1][0], assisted: v[2][0], partial: v[3][0], rir: v[4][0], note: v[5][0] };
+  return { weight: v[0][0], reps: v[1][0], assisted: v[2][0], partial: v[3][0], rir: normalizeRir(v[4][0]), note: v[5][0] };
 }
 
 function exerciseIndex_() {
