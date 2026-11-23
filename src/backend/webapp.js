@@ -5,18 +5,31 @@
  *
  * Functions called from the page (google.script.run) must not end in "_".
  */
+var WEBAPP = { PROP_KEY: 'WEBAPP_KEY', PROP_URL: 'WEBAPP_URL' };
+
 /**
- * Only the sheet's owner may use the app. The Apple Health link needs a deployment that
- * anyone can call; on that deployment visitors are anonymous and get nothing here.
+ * The app is opened with a private key in its link (?key=...), and every call from the
+ * page sends it back. This works for personal Google accounts (which do not reveal the
+ * viewer's identity to a script running as the owner) and keeps the "Anyone" deployment
+ * that the Apple Health link needs from serving the app.
  */
-function requireOwner_() {
-  var active = Session.getActiveUser().getEmail();
-  if (!active || active !== Session.getEffectiveUser().getEmail()) throw new Error('Not authorized');
+function webAppKey_() {
+  var props = PropertiesService.getDocumentProperties();
+  var key = props.getProperty(WEBAPP.PROP_KEY);
+  if (!key) { key = Utilities.getUuid().replace(/-/g, ''); props.setProperty(WEBAPP.PROP_KEY, key); }
+  return key;
 }
 
-function serveWebApp_() {
-  try { requireOwner_(); } catch (err) {
-    return HtmlService.createHtmlOutput('<p style="font:16px sans-serif">Not available.</p>').setTitle('Overload Tracker');
+function requireKey_(key) {
+  var stored = PropertiesService.getDocumentProperties().getProperty(WEBAPP.PROP_KEY);
+  if (!stored || String(key || '') !== stored) throw new Error('Not authorized. Open the app from Overload Tracker → Open phone app.');
+}
+
+function serveWebApp_(e) {
+  var key = e && e.parameter ? e.parameter.key : '';
+  try { requireKey_(key); } catch (err) {
+    return HtmlService.createHtmlOutput('<p style="font:16px sans-serif;padding:16px">This link is missing its key. ' +
+      'In the sheet, open <b>Overload Tracker → Open phone app</b> and use the link shown there.</p>').setTitle('Overload Tracker');
   }
   return HtmlService.createHtmlOutputFromFile('ui/app')
     .setTitle('Overload Tracker')
@@ -24,17 +37,44 @@ function serveWebApp_() {
     .addMetaTag('apple-mobile-web-app-capable', 'yes');
 }
 
-/** Menu: shows the web app link (deploy as a web app first). */
+/** "https://script.google.com/macros/s/<id>/exec" (optionally with /u/N/), or ''. */
+function cleanWebAppUrl_(text) {
+  var m = String(text || '').trim().match(/^(https:\/\/script\.google\.com\/(?:a\/[^/]+\/)?macros\/(?:u\/\d+\/)?s\/[A-Za-z0-9_-]+\/exec)/);
+  return m ? m[1] : '';
+}
+
+/**
+ * Menu: shows the phone link. The first time, asks for the Web app URL from
+ * Deploy → Manage deployments (Google's own URL lookup is unreliable from a menu).
+ */
 function showWebAppLink() {
-  var url = ScriptApp.getService().getUrl();
-  var html = '<div style="font:14px sans-serif;line-height:1.5">' + (url
-    ? '<p>Open this on your phone, then <b>Share → Add to Home Screen</b>:</p>' +
-      '<textarea style="width:100%;height:60px" readonly>' + url + '</textarea>'
-    : '<p><b>First deploy it:</b> Extensions → Apps Script → Deploy → New deployment → Web app. ' +
-      'Execute as: <i>Me</i>. Who has access: <i>Only myself</i>. Then open this again.</p>') +
-    '<p style="color:#666">The app only opens for you, the sheet owner. If you also use the Apple Health link, ' +
-    'that needs its own deployment with access set to <i>Anyone</i>.</p></div>';
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutput(html).setWidth(420).setHeight(200), 'Phone app');
+  var ui = SpreadsheetApp.getUi();
+  var props = PropertiesService.getDocumentProperties();
+  var url = props.getProperty(WEBAPP.PROP_URL);
+  if (!url) {
+    var res = ui.prompt('Connect the phone app',
+      'Paste the Web app URL from Extensions → Apps Script → Deploy → Manage deployments (it ends in /exec).\n\n' +
+      'No deployment yet? Deploy → New deployment → Web app, Execute as: Me, Who has access: Only myself.',
+      ui.ButtonSet.OK_CANCEL);
+    if (res.getSelectedButton() !== ui.Button.OK) return;
+    url = cleanWebAppUrl_(res.getResponseText());
+    if (!url) { ui.alert('That does not look like a web app URL. It should start with https://script.google.com/macros/s/ and end in /exec.'); return; }
+    props.setProperty(WEBAPP.PROP_URL, url);
+  }
+  var link = url + '?key=' + webAppKey_();
+  var html = '<div style="font:14px sans-serif;line-height:1.5">' +
+    '<p>Open this on your phone in Safari, then <b>Share → Add to Home Screen</b>. Keep it private: the key in the link opens your log.</p>' +
+    '<textarea style="width:100%;height:80px" readonly onclick="this.select()">' + link + '</textarea>' +
+    '<p style="color:#666">Wrong link, or want to revoke it? <b>Overload Tracker → Advanced → Reset phone app link</b>.</p></div>';
+  ui.showModalDialog(HtmlService.createHtmlOutput(html).setWidth(460).setHeight(260), 'Phone app');
+}
+
+/** Menu: forgets the saved URL and replaces the key (old links stop working). */
+function resetWebAppLink() {
+  var props = PropertiesService.getDocumentProperties();
+  props.deleteProperty(WEBAPP.PROP_URL);
+  props.setProperty(WEBAPP.PROP_KEY, Utilities.getUuid().replace(/-/g, ''));
+  SpreadsheetApp.getUi().alert('Old phone links no longer work. Open "Open phone app" to set up the new one.');
 }
 
 function todayIsoForScript_() {
@@ -42,8 +82,8 @@ function todayIsoForScript_() {
 }
 
 /** Everything the page needs to start. */
-function webAppLoad() {
-  requireOwner_();
+function webAppLoad(key) {
+  requireKey_(key);
   var settings = readSettings_();
   var exercises = readRegistryRows('exercises').map(function (r) {
     var sameGym = r['Same Gym Only'];
@@ -92,8 +132,8 @@ function webAppLoad() {
  * Last / Goal / warm-up for each exercise (one read of the quarter tabs).
  * @param {{id: string, excludeRecordId?: string}[]} items
  */
-function webAppExerciseViews(items, gymName) {
-  requireOwner_();
+function webAppExerciseViews(key, items, gymName) {
+  requireKey_(key);
   var settings = readSettings_();
   var unit = weightUnit_(settings);
   var setCount = settingSetCount_(settings);
@@ -141,8 +181,8 @@ function webAppExerciseViews(items, gymName) {
  * an exercise with no sets left deletes its existing record.
  * payload: {date, gym, workout, exerciseId, recordId, tab, sets: [{weight, reps, assisted, partial, rir, note}]}
  */
-function webAppSaveExercise(payload) {
-  requireOwner_();
+function webAppSaveExercise(key, payload) {
+  requireKey_(key);
   var lock = LockService.getDocumentLock();
   lock.waitLock(20000);
   try {
@@ -183,14 +223,14 @@ function webAppSaveExercise(payload) {
 }
 
 /** Finish: refresh Compiled Data (best effort). */
-function webAppFinish() {
-  requireOwner_();
+function webAppFinish(key) {
+  requireKey_(key);
   try { refreshCompiledData(); return { refreshed: true }; } catch (err) { return { refreshed: false, error: err.message }; }
 }
 
 /** payload: {date, gym, activity, duration, speed, speedUnit, distance, distanceUnit, calories, notes} */
-function webAppSaveCardio(payload) {
-  requireOwner_();
+function webAppSaveCardio(key, payload) {
+  requireKey_(key);
   var activity = String(payload.activity || '').trim();
   if (!activity) throw new Error('Pick the cardio activity.');
   var num = function (x) { return String(x === null || x === undefined ? '' : x).trim() === '' ? '' : parseFloat(x); };
@@ -214,8 +254,8 @@ function webAppSaveCardio(payload) {
   }
 }
 
-function webAppSaveBodyweight(payload) {
-  requireOwner_();
+function webAppSaveBodyweight(key, payload) {
+  requireKey_(key);
   var parsed = parseBodyweightInput(String(payload.weight || ''), weightUnit_(readSettings_()));
   if (!parsed) throw new Error('Enter your weight as a number, e.g. 172.4');
   var date = /^\d{4}-\d{2}-\d{2}$/.test(String(payload.date)) ? payload.date : todayIsoForScript_();
@@ -223,14 +263,14 @@ function webAppSaveBodyweight(payload) {
   return { date: date, weight: parsed.weight, unit: parsed.unit };
 }
 
-function webAppSnoozeBodyweight() {
-  requireOwner_();
+function webAppSnoozeBodyweight(key) {
+  requireKey_(key);
   PropertiesService.getDocumentProperties().setProperty(BODYWEIGHT.PROP_SNOOZE, addDays_(todayIsoForScript_(), BODYWEIGHT.SNOOZE_DAYS));
   return true;
 }
 
-function webAppSaveSetupNotes(exerciseId, text) {
-  requireOwner_();
+function webAppSaveSetupNotes(key, exerciseId, text) {
+  requireKey_(key);
   updateRegistryValue('exercises', exerciseId, 'Setup Notes', String(text || ''));
   return true;
 }

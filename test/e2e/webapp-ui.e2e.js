@@ -26,16 +26,16 @@ function setupGas() {
     ['L-b', D(13), 'GY-01', 'WO-01', ids['bench press (bb)'], 'lb', '', 'entry', '275x6 @1-2', '275x5', '265x6'],
     ['L-c', D(12), 'GY-02', 'WO-01', ids['pec flys (machine)'], 'lb', '', 'entry', '150x10', '150x9', '150x8'],
   ]);
-  return { app, g, ids, q };
+  return { app, g, ids, q, key: g.webAppKey_() };
 }
 
-async function openPage(browser, g, opts) {
+async function openPage(browser, g, key, opts) {
   const page = await browser.newPage(opts || { viewport: { width: 390, height: 844 } });
   await page.exposeFunction('__gas', (fn, argsJson) => {
     try { return JSON.stringify({ ok: g[fn].apply(null, JSON.parse(argsJson)) }); }
     catch (e) { return JSON.stringify({ error: e.message }); }
   });
-  await page.addInitScript(() => {
+  await page.addInitScript(appKey => {
     function runner(ok, fail) {
       return new Proxy({}, { get(_, name) {
         if (name === 'withSuccessHandler') return f => runner(f, fail);
@@ -46,8 +46,8 @@ async function openPage(browser, g, opts) {
         }); };
       } });
     }
-    window.google = { script: { run: runner() } };
-  });
+    window.google = { script: { run: runner(), url: { getLocation: cb => setTimeout(() => cb({ parameter: { key: appKey } }), 10) } } };
+  }, key);
   const html = fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'ui', 'app.html'), 'utf8');
   await page.route('http://app.test/**', route => route.fulfill({ contentType: 'text/html', body: html }));
   page.on('pageerror', e => console.error('page error:', e.message));
@@ -61,8 +61,8 @@ async function openPage(browser, g, opts) {
   try {
     // 1. A routine workout: last/goal per set, weight carry-over, RIR, background saves, finish.
     {
-      const { g, ids, q } = setupGas();
-      const page = await openPage(browser, g);
+      const { g, ids, q, key } = setupGas();
+      const page = await openPage(browser, g, key);
       await page.click('text=Not now');
       await page.selectOption('#gym', 'Eos');
       await page.selectOption('#routine', 'Push Day 1');
@@ -109,8 +109,8 @@ async function openPage(browser, g, opts) {
 
     // 2. Custom workout: search picker, bodyweight exercise without weight, validation message, draft resume.
     {
-      const { g, ids, q } = setupGas();
-      const page = await openPage(browser, g);
+      const { g, ids, q, key } = setupGas();
+      const page = await openPage(browser, g, key);
       await page.click('text=Not now');
       await page.selectOption('#routine', 'Custom');
       await page.click('#start');
@@ -141,8 +141,8 @@ async function openPage(browser, g, opts) {
 
     // 3. Cardio and bodyweight from the start screen.
     {
-      const { app, g } = setupGas();
-      const page = await openPage(browser, g);
+      const { app, g, key } = setupGas();
+      const page = await openPage(browser, g, key);
       await page.fill('#bwInput', '172.4');
       await page.click('#bwSave');
       await page.waitForSelector('text=Bodyweight saved');

@@ -11,7 +11,8 @@ function onOpen() {
       .addItem('3. Run import', 'migrationImport'))
     .addSubMenu(ui.createMenu('Advanced')
       .addItem('Connect Apple Health (optional, iPhone)', 'showAppleHealthSetup')
-      .addItem('Reset Apple Health link', 'resetAppleHealthLink'))
+      .addItem('Reset Apple Health link', 'resetAppleHealthLink')
+      .addItem('Reset phone app link', 'resetWebAppLink'))
     .addToUi();
 }
 

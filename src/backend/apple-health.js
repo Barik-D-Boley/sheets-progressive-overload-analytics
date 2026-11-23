@@ -11,7 +11,7 @@ var APPLE_HEALTH = { PROP_TOKEN: 'APPLE_HEALTH_TOKEN' };
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.token || p.weight) return handleHealthRequest_(e);
-  return serveWebApp_();
+  return serveWebApp_(e);
 }
 function doPost(e) { return handleHealthRequest_(e); }
 

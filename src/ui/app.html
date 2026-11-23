@@ -103,8 +103,9 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
   var screen = 'start';
 
   // ---- helpers ------------------------------------------------------------
+  var appKey = '';   // from the link (?key=...); sent with every call
   function call(fn) {
-    var args = Array.prototype.slice.call(arguments, 1);
+    var args = [appKey].concat(Array.prototype.slice.call(arguments, 1));
     return new Promise(function (resolve, reject) {
       var runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (e) {
         reject(e && e.message ? e : new Error(String(e)));
@@ -548,11 +549,14 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
   }
 
   // ---- boot -----------------------------------------------------------------------
-  call('webAppLoad').then(function (d) {
-    data = d;
-    renderStart();
-  }).catch(function (e) {
-    $('#app').innerHTML = '<div class="card"><b>Could not load your sheet.</b><div class="err">' + esc(e.message) + '</div></div>';
+  google.script.url.getLocation(function (loc) {
+    appKey = (loc && loc.parameter && loc.parameter.key) || '';
+    call('webAppLoad').then(function (d) {
+      data = d;
+      renderStart();
+    }).catch(function (e) {
+      $('#app').innerHTML = '<div class="card"><b>Could not load your sheet.</b><div class="err">' + esc(e.message) + '</div></div>';
+    });
   });
 })();
 </script>
