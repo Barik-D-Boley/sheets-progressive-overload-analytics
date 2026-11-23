@@ -15,6 +15,7 @@ function columnLetterToIndex(letter) {
 function getMasterSheet_() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEETS.MASTER);
   if (!sheet) throw new Error('Missing "' + CONFIG.SHEETS.MASTER + '" tab.');
+  ensureMasterLayout_(sheet);
   return sheet;
 }
 
@@ -190,6 +191,7 @@ function fillMissingRegistryIds(kind) {
       if (r[h('Active')] === '') r[h('Active')] = true;
       if (r[h('Warm-up')] === '') r[h('Warm-up')] = false;
       if (r[h('Same Gym Only')] === '') r[h('Same Gym Only')] = isGymSpecificEquipment(r[h('Equipment')]);
+      if (r[h('Top Set')] === '') r[h('Top Set')] = false;
     } else if (h('Active') >= 0 && r[h('Active')] === '') {
       r[h('Active')] = true;
     }
@@ -197,7 +199,7 @@ function fillMissingRegistryIds(kind) {
   });
   if (!added) return 0;
   range.setValues(values);
-  ['Active', 'Warm-up', 'Same Gym Only'].forEach(function (name) {
+  ['Active', 'Warm-up', 'Same Gym Only', 'Top Set'].forEach(function (name) {
     if (h(name) >= 0) sheet.getRange(REGISTRY_FIRST_DATA_ROW, col + h(name), values.length, 1).insertCheckboxes();
   });
   if (CONFIG.SORTED_REGISTRIES.indexOf(kind) >= 0) sortRegistry(kind);

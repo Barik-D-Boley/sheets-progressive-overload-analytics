@@ -14,16 +14,21 @@ var CONFIG = {
     MIGRATION_PREVIEW: 'Migration Preview',
   },
 
-  /** Registries on Master: title in row 1, headers in row 2, data from row 3. */
+  /**
+   * Master layout v2 (columns). Older sheets (v1: exercises G:P, workouts Q, gyms T,
+   * cardio W, routines AA, tags AR) are moved here automatically (master-layout.js).
+   * Registries: title in row 1, headers in row 2, data from row 3.
+   */
+  MASTER_LAYOUT_VERSION: '2',
   REGISTRIES: {
     exercises: { column: 'G', idPrefix: 'EX-', idDigits: 4, title: 'Exercises',
       headers: ['Exercise ID', 'Name', 'Equipment', 'Primary Muscle', 'Secondary Muscle', 'Active', 'Warm-up',
-        'Setup Notes', 'Increment', 'Same Gym Only'] },
-    workouts: { column: 'Q', idPrefix: 'WO-', idDigits: 2, title: 'Workouts',
+        'Setup Notes', 'Increment', 'Same Gym Only', 'Rep Range', 'Top Set'] },
+    workouts: { column: 'T', idPrefix: 'WO-', idDigits: 2, title: 'Workouts',
       headers: ['Workout ID', 'Name'] },
-    gyms: { column: 'T', idPrefix: 'GY-', idDigits: 2, title: 'Gyms',
+    gyms: { column: 'W', idPrefix: 'GY-', idDigits: 2, title: 'Gyms',
       headers: ['Gym ID', 'Name'] },
-    cardio: { column: 'W', idPrefix: 'CA-', idDigits: 2, title: 'Cardio',
+    cardio: { column: 'Z', idPrefix: 'CA-', idDigits: 2, title: 'Cardio',
       headers: ['Cardio ID', 'Name', 'Active'] },
   },
 
@@ -31,10 +36,13 @@ var CONFIG = {
   SORTED_REGISTRIES: ['exercises', 'cardio'],
 
   /** Routine templates on Master: Routine | Workout | Active | exercise names left to right (see routines.js). */
-  ROUTINES: { column: 'AA', title: 'Routines (edit to change a workout template)', maxExercises: 14 },
+  ROUTINES: { column: 'AD', title: 'Routines (edit to change a workout template)', maxExercises: 14 },
 
   /** Equipment -> tag table on Master; overrides NAMING_DEFAULTS.equipmentTags when filled in. */
-  NAMING_TABLE: { column: 'AR', title: 'Exercise name tags', headers: ['Equipment', 'Tag'] },
+  NAMING_TABLE: { column: 'AV', title: 'Exercise name tags', headers: ['Equipment', 'Tag'] },
+
+  /** Named rep ranges on Master (see rep-ranges.js). */
+  REP_RANGES: { column: 'AY', title: 'Rep ranges', headers: ['Rep Range', 'Min Reps', 'Max Reps', 'Target RIR', 'Built-in'] },
 
   QUARTER_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Workout ID', 'Exercise ID', 'Unit', 'Notes', 'Source'],
   CARDIO_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Activity ID', 'Duration (min)', 'Speed', 'Speed Unit',
@@ -54,6 +62,8 @@ var CONFIG = {
   PROP_LEGACY_IMPORT_DONE: 'LEGACY_IMPORT_DONE',
   PROP_ENTRY_STATE: 'ENTRY_STATE',
 };
+
+var WEEK_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 /** Quarter tab name for a 'YYYY-MM-DD' date, e.g. '2026-11-20' -> 'Q4 2026'. */
 function quarterTabName(isoDate) {

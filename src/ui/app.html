@@ -44,6 +44,7 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
 .btn.ghost { background: transparent; color: var(--accent); padding: 0 8px; }
 .btn.block { width: 100%; }
 .row { display: flex; gap: 10px; align-items: center; }
+.row > .field { flex: 1; }
 .row > * { flex: 1; }
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }
@@ -253,7 +254,7 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
       .map(function (i) { return { id: i.id, excludeRecordId: i.recordId || '' }; });
     if (!items.length) return;
     var token = w;
-    call('webAppExerciseViews', items, w.gym).then(function (views) {
+    call('webAppExerciseViews', items, w.gym, w.date).then(function (views) {
       if (w !== token) return;
       Object.keys(views).forEach(function (id) { w.views[id] = views[id]; });
       saveDraft();
@@ -287,7 +288,8 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
       : item.status === 'saved' && !item.dirty ? '<span class="badge saved">Saved</span>' : '';
     html += '<div class="card"><div class="row" style="align-items:flex-start"><div><h2>' + esc(item.name) + badge + '</h2>' +
       '<div class="muted">' + (view ? (view.lastDate ? 'Last · ' + esc(shortDate(view.lastDate)) + (view.lastGym ? ' ' + esc(view.lastGym) : '') +
-        (view.reason ? ' · ' + esc(view.reason) : '') : 'First time') : 'Loading history…') + '</div></div></div>';
+        (view.reason ? ' · ' + esc(view.reason) : '') : 'First time') + (view.repRange ? '<div class="sub">Rep range ' + esc(view.repRange) + '</div>' : '')
+        : 'Loading history…') + '</div></div></div>';
     if (view && view.warmup && view.warmup.length) {
       html += '<div class="warm">Warm-up: ' + view.warmup.map(function (s) { return esc(s.load) + '×' + esc(s.reps); }).join(' · ') + '</div>';
     }
@@ -299,8 +301,10 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
       var v = view && view.sets[i];
       var last = v && v.last ? setText(v.last) : '';
       var goal = v && v.goal ? v.goal.load + ' × ' + v.goal.reps : '';
-      html += '<div class="set" data-set="' + i + '"><div class="set-head"><b>Set ' + (i + 1) + '</b><div class="hint">' +
-        (last ? 'Last ' + esc(last) : '') + (goal ? (last ? ' · ' : '') + '<span class="goal">Goal ' + esc(goal) + '</span>' : '') + '</div></div>' +
+      var top = v && v.goal && v.goal.top;
+      html += '<div class="set" data-set="' + i + '"><div class="set-head"><b>Set ' + (i + 1) + (top ? ' <span class="tag blue">Top set</span>' : '') +
+        '</b><div class="hint">' +
+        (last ? 'Last ' + esc(last) : '') + (goal ? (last ? ' · ' : '') + '<span class="goal">' + (top ? 'Top ' : 'Goal ') + esc(goal) + '</span>' : '') + '</div></div>' +
         '<div class="inputs"><div><input data-k="weight" inputmode="' + (plates ? 'text' : 'decimal') + '" value="' + esc(s.weight) +
         '" placeholder="' + esc(v && v.goal ? v.goal.load : '') + '"><div class="unit">' + esc(data.unit) + (plates ? ' · plates OK (2*45+25)' : '') + '</div></div>' +
         '<div><input data-k="reps" inputmode="decimal" value="' + esc(s.reps) + '" placeholder="' + esc(v && v.goal ? v.goal.reps : '') +
@@ -666,6 +670,7 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
     var item = function (e) {
       return '<button class="list-item" data-ex="' + esc(e.id) + '"><div>' + esc(e.name) + '</div><div>' +
         (e.warmup ? '<span class="tag blue">Warm-up</span>' : '') + (e.sameGym ? '<span class="tag">Same gym</span>' : '') +
+        (e.repRange ? '<span class="tag">' + esc(e.repRange) + '</span>' : '') + (e.topSet ? '<span class="tag blue">Top set</span>' : '') +
         (e.active ? '' : '<span class="tag">Inactive</span>') + (e.setup ? '<span class="tag">Setup notes</span>' : '') + '</div></button>';
     };
     $('#app').innerHTML = nav('exercises') + '<input id="exFind" placeholder="Search ' + data.exercises.length + ' exercises" value="' + esc(query || '') + '">' +
@@ -690,6 +695,11 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
       '<label class="field"><span>Equipment</span><select id="eEq">' + eqOptions + '</select></label>' +
       '<label class="field"><span>Setup notes</span><textarea id="eSetup">' + esc(ex.setup) + '</textarea></label>' +
       '<label class="field"><span>Increment (' + esc(data.unit) + ', blank = Settings default)</span><input id="eInc" inputmode="decimal" value="' + esc(ex.increment) + '"></label>' +
+      '<label class="field"><span>Rep range</span><select id="eRange"><option value="">Default (' + esc(data.defaultRepRange) + ')</option>' +
+        (data.repRanges || []).map(function (r) {
+          return '<option value="' + esc(r.name) + '"' + (r.name === ex.repRange ? ' selected' : '') + '>' + esc(rangeLabel(r)) + '</option>';
+        }).join('') + '</select></label>' +
+      checkbox('eTop', 'Weekly top set', ex.topSet, 'First workout of the week: set 1 is a heavy set at the Top set range') +
       checkbox('eWarm', 'Warm-up ladder', ex.warmup) +
       checkbox('eSame', 'Same gym only', ex.sameGym, 'Last and Goal use only this gym\'s sessions') +
       checkbox('eActive', 'Active', ex.active, 'Inactive exercises are hidden from pickers; history stays') +
@@ -700,13 +710,72 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
       $('#eSave').disabled = true;
       var oldName = ex.name;
       call('webAppUpdateExercise', { id: ex.id, name: $('#eName').value, equipment: $('#eEq').value, setup: $('#eSetup').value,
-        increment: $('#eInc').value, warmup: $('#eWarm').checked, sameGym: $('#eSame').checked, active: $('#eActive').checked })
+        increment: $('#eInc').value, warmup: $('#eWarm').checked, sameGym: $('#eSame').checked, active: $('#eActive').checked,
+        repRange: $('#eRange').value, topSet: $('#eTop').checked })
         .then(function (updated) {
           for (var k in updated) ex[k] = updated[k];
           if (oldName !== ex.name) data.routines.forEach(function (r) { r.exercises = r.exercises.map(function (n) { return n === oldName ? ex.name : n; }); });
           data.exercises.sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });
           toast('Saved ' + ex.name + '.'); renderExercises();
         }).catch(function (e) { $('#eSave').disabled = false; toast(e.message); });
+    };
+  }
+
+  function rangeLabel(r) { return r.name + ' · ' + r.min + '-' + r.max + ' reps @ RIR ' + r.targetRir; }
+
+  /** Applies webAppSaveRepRange / webAppDeleteRepRange results to the loaded data. */
+  function applyRangeState(st) {
+    data.repRanges = st.ranges;
+    data.defaultRepRange = st.defaultRepRange;
+    st.exercises.forEach(function (x) { var ex = exById(x.id); if (ex) ex.repRange = x.repRange; });
+  }
+
+  function repRangesCard() {
+    return '<div class="card"><h2>Rep ranges</h2><p class="muted">Every exercise uses the default unless its own Rep range is set. ' +
+      'Built-in ranges are locked.</p>' + (data.repRanges || []).map(function (r) {
+        return '<button class="list-item" data-range="' + esc(r.name) + '"><div>' + esc(r.name) +
+          (r.name === data.defaultRepRange ? ' <span class="tag blue">Default</span>' : '') + (r.builtIn ? ' <span class="tag">Built in</span>' : '') +
+          '</div><div class="sub">' + esc(r.min + '-' + r.max + ' reps · target RIR ' + r.targetRir) + '</div></button>';
+      }).join('') + '<button class="btn ghost" id="rangeNew">+ Add rep range</button></div>';
+  }
+
+  function wireRepRanges() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-range]'), function (b) {
+      b.onclick = function () {
+        var r = (data.repRanges || []).filter(function (x) { return x.name === b.getAttribute('data-range'); })[0];
+        if (r && r.builtIn) { toast(r.name + ' is built in. Add your own range to change the numbers.'); return; }
+        if (r) editRepRange(r);
+      };
+    });
+    if ($('#rangeNew')) $('#rangeNew').onclick = function () { editRepRange(null); };
+  }
+
+  function editRepRange(r) {
+    screen = 'range-edit';
+    var v = r || { name: '', min: '', max: '', targetRir: '1-2' };
+    $('#app').innerHTML = '<h1>' + (r ? 'Edit rep range' : 'New rep range') + '</h1><div class="card">' +
+      '<label class="field"><span>Name</span><input id="rName" value="' + esc(v.name) + '" placeholder="e.g. Strength"></label>' +
+      '<div class="row"><label class="field"><span>Min reps</span><input id="rMin" inputmode="numeric" value="' + esc(v.min) + '"></label>' +
+      '<label class="field"><span>Max reps</span><input id="rMax" inputmode="numeric" value="' + esc(v.max) + '"></label></div>' +
+      '<label class="field"><span>Target RIR</span><select id="rRir">' + data.rirOptions.map(function (o) {
+        return '<option' + (o === String(v.targetRir) ? ' selected' : '') + '>' + esc(o) + '</option>';
+      }).join('') + '</select></label>' +
+      '<p class="muted">Hit the max reps on every working set at the target RIR (or more in reserve) and the next goal adds one increment and drops to the min reps.</p></div>';
+    var buttons = [{ id: 'rBack', label: 'Back' }];
+    if (r) buttons.push({ id: 'rDelete', label: 'Delete' });
+    buttons.push({ id: 'rSave', label: 'Save', primary: true });
+    setBar(buttons);
+    $('#rBack').onclick = function () { renderSettings(); };
+    if (r) $('#rDelete').onclick = function () {
+      if (!confirm('Delete "' + r.name + '"? Exercises using it go back to the default.')) return;
+      call('webAppDeleteRepRange', r.name).then(function (st) { applyRangeState(st); toast('Deleted ' + r.name + '.'); renderSettings(); })
+        .catch(function (e) { toast(e.message); });
+    };
+    $('#rSave').onclick = function () {
+      $('#rSave').disabled = true;
+      call('webAppSaveRepRange', { originalName: r ? r.name : '', name: $('#rName').value, min: $('#rMin').value, max: $('#rMax').value,
+        targetRir: $('#rRir').value }).then(function (st) { applyRangeState(st); toast('Saved.'); renderSettings(); })
+        .catch(function (e) { $('#rSave').disabled = false; toast(e.message); });
     };
   }
 
@@ -869,12 +938,13 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
         }
         var label = f.type === 'height' ? 'Height' : f.label;
         return '<label class="field"><span>' + esc(label) + (f.help ? ' · ' + esc(f.help) : '') + '</span>' + input + '</label>';
-      }).join('') + '</div><p class="muted">Saved to the Master tab.</p>';
+      }).join('') + '</div>' + repRangesCard() + '<p class="muted">Saved to the Master tab.</p>';
       var typed = $('#bwInput') ? $('#bwInput').value : '';   // keep a weight typed while settings loaded
       $('#app').innerHTML = html;
       $('#bwInput').value = typed;
       wireNav();
       wireBodyweight();
+      wireRepRanges();
       var formulaSelect = Array.prototype.filter.call(document.querySelectorAll('select[data-setting]'), function (el) {
         return fields[parseInt(el.getAttribute('data-setting'), 10)].label === '1RM Formula';
       })[0];

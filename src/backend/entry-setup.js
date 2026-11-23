@@ -10,6 +10,7 @@ function setupEntryForm() {
   Object.keys(CONFIG.REGISTRIES).forEach(function (kind) { ensureRegistryHeaders_(kind); fillMissingRegistryIds(kind); });
   ensureNamingTable_();
   ensureRoutinesTable_();
+  ensureRepRangesTable_();
   CONFIG.SORTED_REGISTRIES.forEach(function (kind) { sortRegistry(kind); });
   formatExerciseCheckboxes_();
   ensureCardioHeaders_();
@@ -30,7 +31,7 @@ function setupEntryForm() {
   ss.setActiveSheet(sheet);
 }
 
-var ENTRY_FORM_MARKER = 'entry-form-v3';
+var ENTRY_FORM_MARKER = 'entry-form-v4';
 
 /** Any version of the generated form (rebuilt in place); anything else is the user's own tab. */
 function isEntryFormSheet_(sheet) {
@@ -52,10 +53,6 @@ function buildEntryLayout_(sheet) {
   var listRule = function (values, allowInvalid) {
     return SpreadsheetApp.newDataValidation().requireValueInList(values, true).setAllowInvalid(!!allowInvalid).build();
   };
-  var rangeRule = function (a1, allowInvalid) {
-    return SpreadsheetApp.newDataValidation().requireValueInRange(getMasterSheet_().getRange(a1), true)
-      .setAllowInvalid(!!allowInvalid).build();
-  };
   var label = function (a1, text) { cell(a1).setValue(text).setBackground(ENTRY_COLORS.label).setFontWeight('bold'); };
   var button = function (row, text, quiet) {
     sheet.getRange(row, 1).setValue(text).setHorizontalAlignment('right');
@@ -68,8 +65,7 @@ function buildEntryLayout_(sheet) {
   label('A1', 'Date');
   cell(ENTRY.DATE).setNumberFormat('ddd m/d/yyyy').setFontWeight('bold');
   label('A2', 'Gym');
-  cell(ENTRY.GYM).setDataValidation(rangeRule(registryNameRangeA1('gyms'), true))
-    .setNote('Pick your gym (a new name is added automatically).');
+  cell(ENTRY.GYM).setNote('Pick your gym (a new name is added automatically).');
   label('A3', 'Routine');
   cell(ENTRY.ROUTINE).setFontWeight('bold'); // dropdown of active routines: refreshRoutineDropdown_()
 
@@ -105,7 +101,7 @@ function buildEntryLayout_(sheet) {
   var c0 = ENTRY.CARDIO_ROWS[0];
   sheet.getRange('A' + c0 + ':C' + c0).merge().setValue('CARDIO').setBackground(ENTRY_COLORS.title).setFontWeight('bold').setHorizontalAlignment('center');
   label('A' + (c0 + 1), 'Activity');
-  cell(ENTRY.CARDIO_ACTIVITY).setDataValidation(rangeRule(registryNameRangeA1('cardio'), true));
+  applyEntryMasterValidations_(sheet);
   ['Duration (min)', 'Speed', 'Distance', 'Calories', 'Notes'].forEach(function (t, i) { label('A' + (ENTRY.CARDIO_FIRST_ROW + i), t); });
   sheet.getRange(ENTRY.CARDIO_FIRST_ROW, 2).setDataValidation(listRule(['10', '15', '20', '30', '45', '60'], true));
   cell(ENTRY.CARDIO_SPEED_UNIT).setDataValidation(listRule(['mph', 'kph', 'level'], true));
@@ -123,6 +119,17 @@ function buildEntryLayout_(sheet) {
   cell(ENTRY.BW_INPUT).setBackground(ENTRY_COLORS.input).setBorder(true, true, true, true, false, false).setFontSize(16);
   button(ENTRY.BW_ROWS[1] - 1, 'Save');
   button(ENTRY.BW_ROWS[1], 'Not now');
+}
+
+/** Entry-form dropdowns that list names from Master (gyms, cardio activities). */
+function applyEntryMasterValidations_(sheet) {
+  var master = getMasterSheet_();
+  var rule = function (kind) {
+    return SpreadsheetApp.newDataValidation().requireValueInRange(master.getRange(registryNameRangeA1(kind)), true)
+      .setAllowInvalid(true).build();
+  };
+  sheet.getRange(ENTRY.GYM).setDataValidation(rule('gyms'));
+  sheet.getRange(ENTRY.CARDIO_ACTIVITY).setDataValidation(rule('cardio'));
 }
 
 /** Equipment/tag table on Master (buyers edit it to change name tags). */
@@ -177,7 +184,13 @@ function formatExerciseCheckboxes_() {
     return [isGymSpecificEquipment(eq[i][0] || equipmentFromName(names[i][0]))];
   });
   master.getRange(REGISTRY_FIRST_DATA_ROW, sameCol, height, 1).setValues(same);
-  ['Active', 'Warm-up', 'Same Gym Only'].forEach(function (h) {
+  var topCol = col + spec.headers.indexOf('Top Set');
+  master.getRange(REGISTRY_FIRST_DATA_ROW, topCol, height, 1).setValues(
+    master.getRange(REGISTRY_FIRST_DATA_ROW, topCol, height, 1).getValues().map(function (r, i) {
+      return [r[0] === true ? true : (String(names[i][0]).trim() ? false : '')];
+    }));
+  applyRepRangeDropdown_();
+  ['Active', 'Warm-up', 'Same Gym Only', 'Top Set'].forEach(function (h) {
     master.getRange(REGISTRY_FIRST_DATA_ROW, col + spec.headers.indexOf(h), height, 1).insertCheckboxes();
   });
 }

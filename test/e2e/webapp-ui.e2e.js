@@ -17,9 +17,9 @@ function setupGas() {
   const ids = g.ensureRegistryEntries('exercises', ['Bench press (BB)', 'Pec flys (Machine)', 'Dips (BW)', 'Bicep curls (DB)'],
     name => [g.equipmentFromName(name), '', '', true, name === 'Bench press (BB)', name === 'Bench press (BB)' ? 'pins 28' : '', '', g.isGymSpecificEquipment(g.equipmentFromName(name))]);
   const m = app.ss.getSheetByName('Master');
-  m.getRange(1, 27).setValue('Routines');
-  m.getRange(2, 27, 1, 5).setValues([['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2']]);
-  m.getRange(3, 27, 3, 5).setValues([['Push Day 1', 'Push', true, 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', true, '', ''],
+  m.getRange(1, 30).setValue('Routines');
+  m.getRange(2, 30, 1, 5).setValues([['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 30, 3, 5).setValues([['Push Day 1', 'Push', true, 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', true, '', ''],
     ['Old Push', 'Push', false, 'Dips (BW)', '']]);
   const q = g.getOrCreateQuarterSheet('Q4 2026');
   const D = d => new app.globals.Date(Date.UTC(2026, 10, d));
@@ -230,7 +230,7 @@ async function openPage(browser, g, key, opts) {
       await page.waitForSelector('text=Saved Bench press (BB, Paused).');
       const row = master().find(r => r[6] === ids['bench press (bb)']);
       assert.deepStrictEqual([row[7], row[14]], ['Bench press (BB, Paused)', 10]);
-      assert.ok(master().some(r => r[26] === 'Push Day 1' && r[29] === 'Bench press (BB, Paused)'), 'routine follows the rename');
+      assert.ok(master().some(r => r[29] === 'Push Day 1' && r[32] === 'Bench press (BB, Paused)'), 'routine follows the rename');
 
       await page.click('[data-nav="routines"]');
       await page.click('#rNew');
@@ -245,7 +245,7 @@ async function openPage(browser, g, key, opts) {
       assert.deepStrictEqual(await page.$$eval('.order-row span', s => s.map(x => x.textContent)), ['Dips (BW)', 'Bicep curls (DB)']);
       await page.click('#rSave');
       try { await page.waitForSelector('text=Saved Arms.', { timeout: 5000 }); } catch (e) { console.error('TOAST:', await page.textContent('#toast')); throw e; }
-      assert.ok(master().some(r => r[26] === 'Arms' && r[27] === 'Pull' && r[28] === true && r[29] === 'Dips (BW)' && r[30] === 'Bicep curls (DB)'));
+      assert.ok(master().some(r => r[29] === 'Arms' && r[30] === 'Pull' && r[31] === true && r[32] === 'Dips (BW)' && r[33] === 'Bicep curls (DB)'));
       await page.click('[data-routine="Push Day 1"]');
       await page.uncheck('#rActive');
       await page.click('#rSave');
@@ -255,11 +255,11 @@ async function openPage(browser, g, key, opts) {
 
       await page.click('[data-nav="settings"]');
       await page.waitForSelector('#sSave');
-      const rirSelect = await page.$('label:has-text("Target RIR") select');
-      await rirSelect.selectOption('3-4');
+      const weekSelect = await page.$('label:has-text("Start of week") select');
+      await weekSelect.selectOption('Sunday');
       await page.click('#sSave');
       await page.waitForSelector('text=Settings saved.');
-      assert.strictEqual(master().find(r => r[0] === 'Target RIR')[1], '3-4');
+      assert.strictEqual(master().find(r => r[0] === 'Start of week')[1], 'Sunday');
 
       await page.click('[data-nav="history"]');
       await page.waitForSelector('#hFind');
@@ -280,6 +280,52 @@ async function openPage(browser, g, key, opts) {
       await page.waitForSelector('text=Times done');
       assert.match(await page.textContent('#hBody h2'), /^Bench press \(BB, Paused\)$/, 'equipment filter narrows to the barbell exercise');
       if (process.env.SHOT_DIR) await page.screenshot({ path: path.join(process.env.SHOT_DIR, 'history.png'), fullPage: true });
+      await page.close();
+    }
+
+    // 5. Rep ranges in Settings; an exercise's rep range and weekly top set show on the workout.
+    {
+      const { app, g, key, ids } = setupGas();
+      const page = await openPage(browser, g, key);
+      const master = () => app.ss.getSheetByName('Master').data;
+      await page.click('[data-nav="settings"]');
+      await page.waitForSelector('text=Rep ranges');
+      await page.click('[data-range="Bodybuilding"]');
+      await page.waitForSelector('text=is built in');
+      await page.click('#rangeNew');
+      await page.fill('#rName', 'Strength');
+      await page.fill('#rMin', '4');
+      await page.fill('#rMax', '6');
+      await page.selectOption('#rRir', '0');
+      await page.click('#rSave');
+      await page.waitForSelector('[data-range="Strength"]');
+      assert.ok(master().some(r => r[50] === 'Strength' && r[51] === 4 && r[52] === 6 && r[53] === '0' && r[54] === false));
+      const defaultSelect = await page.$('label:has-text("Default rep range") select');
+      assert.deepStrictEqual(await defaultSelect.$$eval('option', o => o.map(x => x.textContent)), ['Bodybuilding', 'Powerlifting', 'Strength']);
+
+      await page.click('[data-nav="exercises"]');
+      await page.fill('#exFind', 'bench');
+      await page.click('[data-ex]');
+      assert.strictEqual(await page.$eval('#eRange option', o => o.textContent), 'Default (Bodybuilding)');
+      await page.selectOption('#eRange', 'Strength');
+      await page.check('#eTop');
+      await page.click('#eSave');
+      await page.waitForSelector('text=Saved Bench press (BB).');
+      const row = master().find(r => r[6] === ids['bench press (bb)']);
+      assert.deepStrictEqual([row[16], row[17]], ['Strength', true]);
+      assert.ok(await page.isVisible('[data-ex] .tag:has-text("Top set")'));
+
+      await page.click('[data-nav="start"]');
+      await page.fill('#date', '2026-11-16');   // Monday: first bench session of the week
+      await page.selectOption('#gym', 'BYUI');
+      await page.selectOption('#routine', 'Push Day 1');
+      await page.click('#start');
+      await page.waitForSelector('text=Top 305 × 2');
+      assert.ok(await page.isVisible('.set[data-set="0"] .tag:has-text("Top set")'));
+      assert.ok(await page.isVisible('text=Rep range Strength 4-6'));
+      const hints = await page.$$eval('.set .hint', els => els.map(e => e.textContent));
+      assert.deepStrictEqual(hints.slice(1), ['Last 275 × 5 · Goal 275 × 6', 'Last 265 × 6 · Goal 275 × 6']);
+      if (process.env.SHOT_DIR) await page.screenshot({ path: path.join(process.env.SHOT_DIR, 'top-set.png'), fullPage: true });
       await page.close();
     }
 

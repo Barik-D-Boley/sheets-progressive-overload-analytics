@@ -12,9 +12,9 @@ function setup() {
   const ids = g.ensureRegistryEntries('exercises', ['Bench press (BB)', 'Pec flys (Machine)', 'Dips (BW)', 'Lying leg raises (DB)', 'Lying leg raises (BW)'],
     name => [g.equipmentFromName(name), '', '', true, name === 'Bench press (BB)', 'pins 28', '', g.isGymSpecificEquipment(g.equipmentFromName(name))]);
   const m = app.ss.getSheetByName('Master');
-  m.getRange(1, 27).setValue('Routines');
-  m.getRange(2, 27, 1, 5).setValues([['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2']]);
-  m.getRange(3, 27, 3, 5).setValues([['Push Day 1', 'Push', true, 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', true, '', ''],
+  m.getRange(1, 30).setValue('Routines');
+  m.getRange(2, 30, 1, 5).setValues([['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 30, 3, 5).setValues([['Push Day 1', 'Push', true, 'Bench press (BB)', 'Pec flys (Machine)'], ['Custom', 'Custom', true, '', ''],
     ['Old Push', 'Push', false, 'Dips (BW)', '']]);
   const q = g.getOrCreateQuarterSheet('Q4 2026');
   const D = (d) => new app.globals.Date(Date.UTC(2026, 10, d));
@@ -114,20 +114,80 @@ test('Open phone app asks for the deployment URL once, then shows the link with 
   assert.match(app.alerts.pop()[0], /does not look like a web app URL/);
 });
 
-test('settings: read with types, save known fields, keep RIR as text', () => {
+test('settings: read with types, save known fields; rep range from the table', () => {
   const { app, g, key } = setup();
   const fields = JSON.parse(JSON.stringify(g.webAppGetSettings(key)));
   const f = label => fields.find(x => x.label === label);
-  assert.deepStrictEqual(f('Rep range'), Object.assign(f('Rep range'), { value: 'Bodybuilding', type: 'select' }));
+  assert.deepStrictEqual([f('Default rep range').value, f('Default rep range').options], ['Bodybuilding', ['Bodybuilding', 'Powerlifting']]);
+  assert.deepStrictEqual([f('Start of week').value, f('Top set range').value], ['Monday', '90-93%']);
+  assert.ok(!f('Rep range') && !f('Target RIR') && !f('Strength goal'), 'old settings are gone');
   assert.deepStrictEqual(f('1RM Formula').options.slice(0, 2), ['Epley', 'Brzycki']);
-  g.webAppSaveSettings(key, { 'Rep range': 'Powerlifting', 'Target RIR': '3-4', 'Load increment': '2.5', 'Bogus': 'x' });
+  g.webAppSaveSettings(key, { 'Default rep range': 'Powerlifting', 'Top set range': '88 - 92', 'Load increment': '2.5', 'Bogus': 'x' });
   const master = app.ss.getSheetByName('Master').data;
-  assert.strictEqual(master.find(r => r[0] === 'Rep range')[1], 'Powerlifting');
-  assert.strictEqual(master.find(r => r[0] === 'Target RIR')[1], '3-4');
+  assert.strictEqual(master.find(r => r[0] === 'Default rep range')[1], 'Powerlifting');
+  assert.strictEqual(master.find(r => r[0] === 'Top set range')[1], '88-92%');
   assert.strictEqual(master.find(r => r[0] === 'Load increment')[1], 2.5);
   assert.ok(!master.some(r => r[0] === 'Bogus'));
-  assert.throws(() => g.webAppSaveSettings(key, { 'Rep range': 'Yoga' }), /from the list/);
+  assert.throws(() => g.webAppSaveSettings(key, { 'Default rep range': 'Yoga' }), /from the list/);
+  assert.throws(() => g.webAppSaveSettings(key, { 'Start of week': 'Funday' }), /from the list/);
   assert.throws(() => g.webAppSaveSettings(key, { 'Num of sets': 'three' }), /must be a number/);
+});
+
+test('old Rep range / Custom / Target RIR / Strength goal settings move into the rep-range table', () => {
+  const master = [['Profile'], ['Rep range', 'Custom'], ['Custom rep min', 6], ['Custom rep max', 10], ['Target RIR', '0'],
+    ['Strength goal', '85-90%'], ['Weight system', 'Imperial']];
+  const app = createFakeApp({ Master: master });
+  const g = loadGas(app.globals);
+  const ranges = JSON.parse(JSON.stringify(g.readRepRanges_()));
+  assert.deepStrictEqual(ranges, [
+    { name: 'Bodybuilding', min: 8, max: 12, targetRir: '1-2', builtIn: true },
+    { name: 'Powerlifting', min: 3, max: 6, targetRir: '1-2', builtIn: true },
+    { name: 'Custom', min: 6, max: 10, targetRir: '0', builtIn: false }]);
+  const m = app.ss.getSheetByName('Master').data;
+  assert.ok(!m.some(r => ['Rep range', 'Custom rep min', 'Custom rep max', 'Target RIR', 'Strength goal'].includes(r[0])), 'old rows cleared');
+  const s = g.readSettings_();
+  assert.deepStrictEqual([s['default rep range'], s['top set range']], ['Custom', '85-90%']);
+  assert.strictEqual(m[1][50], 'Rep Range', 'table header at AY');
+});
+
+test('rep ranges: add, rename (exercises follow), delete (falls back); built-ins locked', () => {
+  const { app, g, ids, key } = setup();
+  const bench = ids['bench press (bb)'];
+  let st = JSON.parse(JSON.stringify(g.webAppSaveRepRange(key, { name: 'Strength', min: '4', max: '6', targetRir: '0' })));
+  assert.deepStrictEqual(st.ranges.map(r => r.name), ['Bodybuilding', 'Powerlifting', 'Strength']);
+  g.webAppUpdateExercise(key, { id: bench, name: 'Bench press (BB)', equipment: 'BB', warmup: true, sameGym: false, active: true,
+    increment: '', setup: '', repRange: 'Strength', topSet: true });
+  let ex = JSON.parse(JSON.stringify(g.webAppLoad(key).exercises.find(e => e.id === bench)));
+  assert.deepStrictEqual([ex.repRange, ex.topSet], ['Strength', true]);
+  g.webAppSaveSettings(key, { 'Default rep range': 'Strength' });
+  st = JSON.parse(JSON.stringify(g.webAppSaveRepRange(key, { originalName: 'Strength', name: 'Heavy', min: 3, max: 5, targetRir: '1-2' })));
+  assert.strictEqual(st.defaultRepRange, 'Heavy', 'default follows a rename');
+  assert.strictEqual(st.exercises.find(e => e.id === bench).repRange, 'Heavy', 'exercise follows a rename');
+  assert.throws(() => g.webAppSaveRepRange(key, { originalName: 'Bodybuilding', name: 'Bodybuilding', min: 6, max: 10, targetRir: '1-2' }), /built in/);
+  assert.throws(() => g.webAppSaveRepRange(key, { name: 'powerlifting', min: 3, max: 5, targetRir: '1-2' }), /already exists/);
+  assert.throws(() => g.webAppSaveRepRange(key, { name: 'Bad', min: 10, max: 5, targetRir: '1-2' }), /cannot be more/);
+  assert.throws(() => g.webAppDeleteRepRange(key, 'Powerlifting'), /built in/);
+  st = JSON.parse(JSON.stringify(g.webAppDeleteRepRange(key, 'Heavy')));
+  assert.deepStrictEqual([st.defaultRepRange, st.exercises.find(e => e.id === bench).repRange], ['Bodybuilding', '']);
+  assert.throws(() => g.webAppUpdateExercise(key, { id: bench, name: 'Bench press (BB)', repRange: 'Nope' }), /Unknown rep range/);
+  assert.ok(app.ss.getSheetByName('Master'));
+});
+
+test('views: the exercise rep range and the weekly top set', () => {
+  const { g, ids, key } = setup();
+  const bench = ids['bench press (bb)'];
+  g.webAppSaveRepRange(key, { name: 'Strength', min: 4, max: 6, targetRir: '1-2' });
+  g.webAppUpdateExercise(key, { id: bench, name: 'Bench press (BB)', equipment: 'BB', warmup: true, sameGym: false, active: true,
+    increment: '', setup: '', repRange: 'Strength', topSet: true });
+  // Last bench: 11/13 (Fri) 275x6 275x5 265x6. Monday 11/16 is a new week -> top set.
+  const v = JSON.parse(JSON.stringify(g.webAppExerciseViews(key, [{ id: bench }], 'BYUI', '2026-11-16')))[bench];
+  assert.strictEqual(v.repRange, 'Strength 4-6');
+  // Best recent 1RM: 265x8 = 335.7 -> 90-93% = 302-312 -> 310, 2 reps (310x3 would be 341).
+  assert.deepStrictEqual(v.sets[0].goal, { load: 310, reps: 2, top: true });
+  assert.deepStrictEqual([v.sets[1].goal, v.sets[2].goal], [{ load: 275, reps: 6 }, { load: 275, reps: 6 }], 'working sets: +1 rep on the weakest');
+  assert.match(v.reason, /^Set 1: top set 90-93% of 1RM 336 · \+1 rep on set 3$/);
+  const later = JSON.parse(JSON.stringify(g.webAppExerciseViews(key, [{ id: bench }], 'BYUI', '2026-11-14')))[bench];
+  assert.ok(!later.sets[0].goal.top, 'Saturday after Friday\'s session: same week, no top set');
 });
 
 test('exercise edit: rename keeps the ID, re-sorts, renames inside routines; duplicates refused', () => {
@@ -138,7 +198,7 @@ test('exercise edit: rename keeps the ID, re-sorts, renames inside routines; dup
   const master = app.ss.getSheetByName('Master').data;
   const list = master.slice(2).map(r => r[7]).filter(Boolean);
   assert.strictEqual(list[list.length - 1], 'Zercher bench (BB)');
-  assert.ok(master.some(r => r[26] === 'Push Day 1' && r[29] === 'Zercher bench (BB)'), 'routine updated');
+  assert.ok(master.some(r => r[29] === 'Push Day 1' && r[32] === 'Zercher bench (BB)'), 'routine updated');
   assert.throws(() => g.webAppUpdateExercise(key, { id, name: 'Dips (BW)' }), /already exists/);
   assert.throws(() => g.webAppUpdateExercise(key, { id, name: 'X (BB)', increment: '-1' }), /Increment/);
 });
@@ -147,7 +207,7 @@ test('routines: create, edit, rename, archive; unknown exercises and duplicate n
   const { app, g, key } = setup();
   let list = g.webAppSaveRoutine(key, { name: 'Pull Day 1', workout: 'Pull', exercises: ['Dips (BW)', 'Bench press (BB)'] });
   assert.ok(list.some(r => r.name === 'Pull Day 1' && r.workout === 'Pull' && r.active && r.exercises.length === 2));
-  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[17] === 'Pull'), 'new workout registered');
+  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[20] === 'Pull'), 'new workout registered');
   list = g.webAppSaveRoutine(key, { originalName: 'Pull Day 1', name: 'Pull A', workout: 'Pull', active: false, exercises: ['Dips (BW)'] });
   assert.ok(!list.some(r => r.name === 'Pull Day 1'));
   assert.deepStrictEqual(JSON.parse(JSON.stringify(list.find(r => r.name === 'Pull A'))), { name: 'Pull A', workout: 'Pull', active: false, exercises: ['Dips (BW)'] });
@@ -206,4 +266,34 @@ test('settings: birth date as a date, height in inches, bodyweight not written a
   const fields = JSON.parse(JSON.stringify(g.webAppGetSettings(key)));
   assert.strictEqual(fields.find(f => f.label === 'Birth date').value, '2004-03-05');
   assert.throws(() => g.webAppSaveSettings(key, { 'Birth date': 'March 5' }), /must be a date/);
+});
+
+test('an older Master layout (v1) moves its tables right to make room for Rep Range and Top Set', () => {
+  const row = (cells) => { const r = []; Object.keys(cells).forEach(c => { r[c] = cells[c]; }); return Array.from(r, v => v === undefined ? '' : v); };
+  // v1 columns (0-based): exercises 6-15, workouts 16, gyms 19, cardio 22, routines 26, tags 43.
+  const master = [
+    row({ 0: 'Profile', 6: 'Exercises', 16: 'Workouts', 19: 'Gyms', 22: 'Cardio', 26: 'Routines', 43: 'Exercise name tags' }),
+    row({ 6: 'Exercise ID', 7: 'Name', 8: 'Equipment', 9: 'Primary Muscle', 10: 'Secondary Muscle', 11: 'Active', 12: 'Warm-up',
+      13: 'Setup Notes', 14: 'Increment', 15: 'Same Gym Only', 16: 'Workout ID', 17: 'Name', 19: 'Gym ID', 20: 'Name',
+      22: 'Cardio ID', 23: 'Name', 24: 'Active', 26: 'Routine', 27: 'Workout', 28: 'Active', 29: 'Exercise 1', 43: 'Equipment', 44: 'Tag' }),
+    row({ 0: 'Weight system', 1: 'Imperial', 6: 'EX-0001', 7: 'Bench press (BB)', 8: 'Barbell', 11: true, 12: true, 15: false,
+      16: 'WO-01', 17: 'Push', 19: 'GY-01', 20: 'BYUI', 22: 'CA-01', 23: 'Walk', 24: true,
+      26: 'Push Day 1', 27: 'Push', 28: true, 29: 'Bench press (BB)', 43: 'Barbell', 44: 'BB' }),
+  ];
+  const app = createFakeApp({ Master: master });
+  const g = loadGas(app.globals);
+  const plain = v => JSON.parse(JSON.stringify(v));
+  assert.deepStrictEqual(plain(g.readRegistry('gyms')).map(x => x.name), ['BYUI']);
+  assert.deepStrictEqual(plain(g.readRegistry('workouts')).map(x => x.name), ['Push']);
+  assert.deepStrictEqual(plain(g.readRegistry('cardio')).map(x => x.name), ['Walk']);
+  assert.deepStrictEqual(plain(g.readRoutines_()).map(r => [r.name, r.workout, r.exercises]), [['Push Day 1', 'Push', ['Bench press (BB)']]]);
+  assert.strictEqual(g.readNamingSettings_().equipmentTags.Barbell, 'BB');
+  const m = app.ss.getSheetByName('Master').data;
+  assert.deepStrictEqual([m[1][16], m[1][17], m[2][15]], ['', '', false], 'old cells cleared; exercises untouched');
+  g.ensureRegistryHeaders_('exercises');
+  assert.deepStrictEqual(m[1].slice(16, 18), ['Rep Range', 'Top Set']);
+  // Runs once: a second read changes nothing.
+  const before = JSON.stringify(m);
+  g.readRegistry('gyms');
+  assert.strictEqual(JSON.stringify(app.ss.getSheetByName('Master').data), before);
 });

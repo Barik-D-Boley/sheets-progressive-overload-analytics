@@ -84,13 +84,15 @@ function todayIsoForScript_() {
 /** Everything the page needs to start. */
 function webAppLoad(key) {
   requireKey_(key);
+  var ranges = readRepRanges_();   // first: moves old rep settings into the table once
   var settings = readSettings_();
   var exercises = readRegistryRows('exercises').map(function (r) {
     var sameGym = r['Same Gym Only'];
     if (sameGym !== true && sameGym !== false) sameGym = isGymSpecificEquipment(r['Equipment'] || equipmentFromName(r['Name']));
     return { id: String(r['Exercise ID']), name: String(r['Name']), equipment: String(r['Equipment'] || ''),
       warmup: r['Warm-up'] === true, setup: String(r['Setup Notes'] || ''), sameGym: sameGym, active: r['Active'] !== false,
-      increment: r['Increment'] === '' ? '' : r['Increment'] };
+      increment: r['Increment'] === '' ? '' : r['Increment'],
+      repRange: String(r['Rep Range'] || '').trim(), topSet: r['Top Set'] === true };
   });
   var routines = readRoutines_().map(function (r) { return { name: r.name, workout: r.workout, active: r.active, exercises: r.exercises }; });
   var unit = weightUnit_(settings);
@@ -118,6 +120,8 @@ function webAppLoad(key) {
     equipment: Object.keys(readNamingSettings_().equipmentTags),
     bodyweight: { latest: latest, needsWeighIn: needsWeighIn(log, today, snooze) },
     bodyweightKg: bodyweightKgOn_(today),
+    repRanges: ranges,
+    defaultRepRange: findRepRange_(ranges, '', settings).name,
   };
 }
 
@@ -125,9 +129,11 @@ function webAppLoad(key) {
  * Last / Goal / warm-up for each exercise (one read of the quarter tabs).
  * @param {{id: string, excludeRecordId?: string}[]} items
  */
-function webAppExerciseViews(key, items, gymName) {
+function webAppExerciseViews(key, items, gymName, dateIso) {
   requireKey_(key);
+  var ranges = readRepRanges_();
   var settings = readSettings_();
+  var workoutDate = /^\d{4}-\d{2}-\d{2}$/.test(String(dateIso || '')) ? String(dateIso) : todayIsoForScript_();
   var unit = weightUnit_(settings);
   var setCount = settingSetCount_(settings);
   var gymId = '', gymNames = {};
@@ -147,7 +153,9 @@ function webAppExerciseViews(key, items, gymName) {
     var here = gymId ? history.filter(function (h) { return h.gymId === gymId; }) : [];
     if (sameGym && here.length) history = here;
     var last = history[0];
-    var goals = computeGoals(history, setCount, progressionSettings(settings, r['Increment']));
+    var range = findRepRange_(ranges, r['Rep Range'], settings);
+    var goals = computeGoals(history, setCount, progressionSettings(settings, r['Increment'], range, r['Top Set'] === true),
+      { date: workoutDate });
     var warm = [];
     if (r['Warm-up'] === true) {
       var working = goals.goals[0] ? goals.goals[0].load : (last && last.sets[0] ? last.sets[0].loadValue : 0);
@@ -163,7 +171,7 @@ function webAppExerciseViews(key, items, gymName) {
     }
     out[item.id] = {
       lastDate: last ? last.date : '', lastGym: last ? (gymNames[last.gymId] || '') : '',
-      sets: sets, reason: goals.reason, warmup: warm,
+      sets: sets, reason: goals.reason, warmup: warm, repRange: range.name + ' ' + range.min + '-' + range.max,
     };
   });
   return out;
@@ -297,12 +305,12 @@ function webAppCreateExercise(key, payload) {
     var existed = !!exerciseIndex_().byName[name.toLowerCase()];
     if (!existed) {
       ensureRegistryEntries('exercises', [name], function () {
-        return [equipment, '', '', true, payload.warmup === true, String(payload.setup || ''), '', isGymSpecificEquipment(equipment)];
+        return [equipment, '', '', true, payload.warmup === true, String(payload.setup || ''), '', isGymSpecificEquipment(equipment), '', false];
       });
     }
     var ex = exerciseIndex_().byName[name.toLowerCase()];
     return { id: ex.id, name: ex.name, equipment: equipment, warmup: ex.warmup, setup: String(ex.setup || ''),
-      sameGym: ex.sameGym, active: ex.active, existed: existed };
+      sameGym: ex.sameGym, active: ex.active, repRange: ex.repRange, topSet: ex.topSet, existed: existed };
   } finally {
     lock.releaseLock();
   }
@@ -315,14 +323,12 @@ var WEBAPP_SETTING_FIELDS = [
   { label: 'Birth date', type: 'date' },
   { label: 'Height (in)', type: 'height' },
   { label: 'Weight system', type: 'select', options: ['Imperial', 'Metric'] },
-  { label: 'Rep range', type: 'select', options: ['Bodybuilding', 'Powerlifting', 'Custom'] },
-  { label: 'Custom rep min', type: 'number' },
-  { label: 'Custom rep max', type: 'number' },
-  { label: 'Target RIR', type: 'select', options: RIR_OPTIONS },
+  { label: 'Default rep range', type: 'select', options: 'repRanges' },
   { label: 'Num of sets', type: 'number' },
   { label: 'Load increment', type: 'number' },
   { label: 'Stall threshold (sessions)', type: 'number' },
-  { label: 'Strength goal', type: 'text' },
+  { label: 'Top set range', type: 'text', help: 'e.g. 90-93%: the top set uses the heaviest load in your increment inside this range' },
+  { label: 'Start of week', type: 'select', options: WEEK_DAYS },
   { label: '1RM Formula', type: 'select', options: Object.keys(ONE_RM_FORMULAS) },
 ];
 
@@ -331,11 +337,12 @@ function webAppGetSettings(key) {
   var values = readSettings_();
   var help = {};
   SETTING_DEFAULTS.forEach(function (d) { help[d[0].toLowerCase()] = d[2]; });
+  var rangeNames = readRepRanges_().map(function (r) { return r.name; });
   return WEBAPP_SETTING_FIELDS.map(function (f) {
     var v = values[f.label.toLowerCase()];
-    if (f.label === 'Target RIR') v = normalizeRir(v);
+    if (f.options === 'repRanges') v = findRepRange_(readRepRanges_(), v, {}).name;
     else if (Object.prototype.toString.call(v) === '[object Date]') v = dateToIso_(v);
-    return { label: f.label, type: f.type, options: f.options || null, help: f.help || help[f.label.toLowerCase()] || '',
+    return { label: f.label, type: f.type, options: f.options === 'repRanges' ? rangeNames : (f.options || null), help: f.help || help[f.label.toLowerCase()] || '',
       value: v === undefined || v === null ? '' : v };
   });
 }
@@ -358,7 +365,12 @@ function webAppSaveSettings(key, values) {
       if (isNaN(parseFloat(v))) throw new Error(label + ' must be a number.');
       v = parseFloat(v);
     }
-    if (f.type === 'select' && f.options.indexOf(String(v)) < 0) throw new Error('Pick ' + label + ' from the list.');
+    var options = f.options === 'repRanges' ? readRepRanges_().map(function (r) { return r.name; }) : f.options;
+    if (f.type === 'select' && options.indexOf(String(v)) < 0) throw new Error('Pick ' + label + ' from the list.');
+    if (label === 'Top set range' && String(v).trim()) {
+      var p = parsePercentRange_(v);
+      v = Math.round(p[0] * 1000) / 10 + (p[1] > p[0] ? '-' + Math.round(p[1] * 1000) / 10 : '') + '%';
+    }
     setMasterSetting_(label, v, f.type === 'text' || f.type === 'select');
   });
   return webAppGetSettings(key);
@@ -390,6 +402,12 @@ function webAppUpdateExercise(key, e) {
     values['Active'] = e.active !== false;
     values['Increment'] = increment === '' ? '' : parseFloat(increment);
     values['Setup Notes'] = String(e.setup || '');
+    if (e.repRange !== undefined) {
+      var rr = String(e.repRange || '').trim();
+      if (rr && !readRepRanges_().some(function (x) { return x.name === rr; })) throw new Error('Unknown rep range "' + rr + '".');
+      values['Rep Range'] = rr;
+    }
+    if (e.topSet !== undefined) values['Top Set'] = e.topSet === true;
     getMasterSheet_().getRange(row._row, columnLetterToIndex(spec.column), 1, spec.headers.length)
       .setValues([spec.headers.map(function (h) { return values[h]; })]);
     if (oldName !== name) {
@@ -400,6 +418,39 @@ function webAppUpdateExercise(key, e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** r: {originalName, name, min, max, targetRir}; returns {ranges, defaultRepRange}. */
+function webAppSaveRepRange(key, r) {
+  requireKey_(key);
+  var lock = LockService.getDocumentLock();
+  lock.waitLock(20000);
+  try {
+    saveRepRange_(r || {});
+    return repRangeState_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function webAppDeleteRepRange(key, name) {
+  requireKey_(key);
+  var lock = LockService.getDocumentLock();
+  lock.waitLock(20000);
+  try {
+    deleteRepRange_(name);
+    return repRangeState_();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function repRangeState_() {
+  var ranges = readRepRanges_();
+  var exercises = readRegistryRows('exercises').map(function (r) {
+    return { id: String(r['Exercise ID']), repRange: String(r['Rep Range'] || '').trim() };
+  });
+  return { ranges: ranges, defaultRepRange: findRepRange_(ranges, '', readSettings_()).name, exercises: exercises };
 }
 
 /** Routines store exercise names, so a rename is applied to them too. */

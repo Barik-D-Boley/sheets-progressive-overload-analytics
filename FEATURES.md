@@ -64,14 +64,14 @@ The supplied workbook currently contains `Workout Entry`, `Compiled Data`, `Mast
 
 ### Progression Rules (approved)
 
-All modes share these settings on Master: rep range (min–max), load increment (default 5 lb / 2.5 kg; 10 lb / 5 kg for lower-body compounds), target RIR, and stall threshold (default 3 sessions).
+Updated in Round 15: one progression method for every rep range, plus an optional weekly top set.
 
-- **Bodybuilding: double progression.** Rep range 8–12 at RIR 1–2.
-  - When every working set reaches the top of the range at or above the target RIR, the next session's goal is +1 increment with reps reset to the bottom of the range.
-  - Otherwise, keep the load and aim for +1 rep on the weakest set.
-- **Powerlifting: percentage-based.** Rep range 3–6. The goal load is the Master "Strength goal" percentage (e.g. 85–93%) of the current best estimated 1RM, rounded to the increment.
-  - When RIR comes in above the target, the next session's goal is +1 increment.
-- **Custom:** the user sets the rep range, increment, and target RIR. It uses the double-progression logic.
+- **Rep ranges are named** (Master table at AY: Rep Range | Min Reps | Max Reps | Target RIR | Built-in). Built-ins: **Bodybuilding** 8–12 @ RIR 1–2 and **Powerlifting** 3–6 @ RIR 1–2 (locked). Users add their own named ranges. The **Default rep range** setting applies to every exercise; an exercise's own **Rep Range** column overrides it.
+- **Double progression (every range):** when every working set reaches the top of the range at or above the target RIR, the next goal is +1 increment with reps reset to the bottom of the range. Otherwise keep the load and aim for +1 rep on the weakest set. Shared settings: load increment (an exercise's Increment overrides it) and stall threshold.
+- **Weekly top set (per-exercise Top Set checkbox):** on the first session of the week (**Start of week** setting, default Monday), set 1 is a heavy top set; the other sets follow double progression.
+  - Load: the heaviest load in the exercise's increment that falls inside the **Top set range** (default 90–93%) of the best estimated 1RM from the last 5 sessions. If no step lands inside the range, the step nearest the middle.
+  - Reps: the most reps that load allows by the selected 1RM formula (at least 1).
+  - Later sessions that week have no top set. A past session counts as a top-set session (its set 1 is left out of the working sets) only if it was the first of its week and set 1 was heavier than set 2.
 - **Stall / reset (all modes):** if estimated 1RM does not improve for the stall threshold of consecutive sessions, recommend a 10% load reduction and rebuild. Deload-week frequency (Master) is surfaced in the weekly prompt.
 - Recommendations are shown as "Goal" values on `Workout Entry` and are never written as recorded results.
 
@@ -183,7 +183,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Exercises:** searchable list (tags for warm-up, same gym, inactive, setup notes); edit name, equipment, setup notes, increment, Warm-up, Same Gym Only, Active; create from movement + equipment + detail (name formatted automatically). Renaming keeps the ID and history, re-sorts Master, and updates routines that use the exercise.
 - **Routines:** active and archived lists; create or edit name, workout type, Active (unchecked = archived: kept but not offered when starting a workout, in the app or the sheet form), and the exercise list (add via search or a new exercise, reorder, remove).
 - **Routines table layout v3:** `Routine | Workout | Active | Exercise 1..14` on Master (AA:AQ). Setup converts the earlier layouts; a routine with more than 14 exercises must be shortened first. The sheet form's Routine dropdown lists active routines only.
-- **Settings:** the Master settings (profile, weight system, rep range mode, custom rep range, target RIR, sets, increment, stall threshold, strength goal, 1RM formula) with dropdowns where values are fixed; RIR is stored as text.
+- **Settings:** the Master settings (profile, weight system, rep range mode, custom rep range, target RIR, sets, increment, stall threshold, strength goal, 1RM formula; rep settings replaced in Round 15) with dropdowns where values are fixed; RIR is stored as text.
 - **History:** all records loaded once, filtered instantly on the phone by time frame (including quarters), gym, workout, and exercise search; one-exercise stats (times done, best 1RM, last done, strength gain, relative strength) and a chart (best 1RM or each set).
 - **Fixes:** date input stays inside its card; the new-gym field only shows for "+ New gym"; RIR is required for each logged set; warm-ups are listed lightest first (also on the sheet form).
 
@@ -194,6 +194,13 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Calories:** blank calories are estimated on save (and previewed live) from the activity, your bodyweight on that date, and handrail use: ACSM walking/running equations with grade for treadmill/walk/run (downhill counted at one third), the ACSM stepping equation for stair climbers (16 × 0.2 m steps per floor), METs for bike/row/elliptical/swim, × 0.8 when holding the handrails. A typed number always wins.
 - **History:** quarters listed newest first; equipment filter; a multi-select exercise picker with exact names (one exercise shows stats and its 1RM chart with a Best set / Each set toggle; several, up to 6, are compared on one chart); search still available when nothing is picked.
 - **Settings:** birth date uses a date picker; height is entered as ft + in (stored in inches); each 1RM formula is shown under the selector.
+
+### Rep Ranges & Weekly Top Set (Round 15)
+
+- **Settings:** "Rep range", "Custom rep min/max", "Target RIR" and "Strength goal" are replaced by **Default rep range**, **Top set range** (e.g. `90-93%`), and **Start of week**. Setup (or the first read) moves the old values: Custom min/max/RIR become a "Custom" range, the old Rep range becomes the default, Strength goal becomes the Top set range; the old rows are cleared.
+- **Master layout v2:** the exercise list gains **Rep Range** (dropdown of range names, blank = default) and **Top Set** (checkbox), so tables to its right shift: workouts Q→T, gyms T→W, cardio W→Z, routines AA→AD, name tags AR→AV; rep ranges at AY. Existing sheets are moved automatically once, and the checkboxes and dropdowns that point at those tables are re-applied.
+- **Phone app:** Settings lists the rep ranges (add / edit / delete your own; built-ins locked). The exercise editor has a Rep range picker ("Default (…)" or a named range) and a Weekly top set switch. The workout screen shows the exercise's rep range, marks the top set ("Top set" tag, "Top 305 × 2"), and the warm-up ladder builds up to the top set.
+- **Sheet form:** Goal shows the top set as "305x2 (top)".
 
 ### Implementation Notes (Module 1)
 
