@@ -38,7 +38,7 @@ var CONFIG = {
 
   QUARTER_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Workout ID', 'Exercise ID', 'Unit', 'Notes', 'Source'],
   CARDIO_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Activity ID', 'Duration (min)', 'Speed', 'Speed Unit',
-    'Distance', 'Distance Unit', 'Calories', 'Notes', 'Source'],
+    'Distance', 'Distance Unit', 'Calories', 'Notes', 'Source', 'Incline (%)', 'Handrails'],
   BODYWEIGHT_HEADERS: ['Date', 'Weight', 'Unit', 'Source'],
 
   /**

@@ -12,6 +12,8 @@ function setupEntryForm() {
   ensureRoutinesTable_();
   CONFIG.SORTED_REGISTRIES.forEach(function (kind) { sortRegistry(kind); });
   formatExerciseCheckboxes_();
+  ensureCardioHeaders_();
+  mergeTreadmillVariants_();
 
   var existing = ss.getSheetByName(CONFIG.SHEETS.ENTRY);
   if (existing && !isEntryFormSheet_(existing)) {

@@ -187,6 +187,14 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **History:** all records loaded once, filtered instantly on the phone by time frame (including quarters), gym, workout, and exercise search; one-exercise stats (times done, best 1RM, last done, strength gain, relative strength) and a chart (best 1RM or each set).
 - **Fixes:** date input stays inside its card; the new-gym field only shows for "+ New gym"; RIR is required for each logged set; warm-ups are listed lightest first (also on the sheet form).
 
+### Web App Refinements (Round 14)
+
+- **Bodyweight lives in Settings:** weigh-in card (log, "Not now" when due) at the top of Settings; the Settings tab shows a dot when a weigh-in is due. Removed from the Log screen.
+- **Treadmill:** one "Treadmill" activity with an **Incline (% grade)** field (negative allowed) and a **Held the handrails** option. Setup merges "Treadmill (N%)" activities into it, storing each session's incline; the old names become inactive. Cardio tab gains `Incline (%)` and `Handrails` columns.
+- **Calories:** blank calories are estimated on save (and previewed live) from the activity, your bodyweight on that date, and handrail use: ACSM walking/running equations with grade for treadmill/walk/run (downhill counted at one third), the ACSM stepping equation for stair climbers (16 × 0.2 m steps per floor), METs for bike/row/elliptical/swim, × 0.8 when holding the handrails. A typed number always wins.
+- **History:** quarters listed newest first; equipment filter; a multi-select exercise picker with exact names (one exercise shows stats and its 1RM chart with a Best set / Each set toggle; several, up to 6, are compared on one chart); search still available when nothing is picked.
+- **Settings:** birth date uses a date picker; height is entered as ft + in (stored in inches); each 1RM formula is shown under the selector.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.

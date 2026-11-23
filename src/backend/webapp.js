@@ -117,6 +117,7 @@ function webAppLoad(key) {
     routines: routines, exercises: exercises, cardio: cardio,
     equipment: Object.keys(readNamingSettings_().equipmentTags),
     bodyweight: { latest: latest, needsWeighIn: needsWeighIn(log, today, snooze) },
+    bodyweightKg: bodyweightKgOn_(today),
   };
 }
 
@@ -220,27 +221,40 @@ function webAppFinish(key) {
   try { refreshCompiledData(); return { refreshed: true }; } catch (err) { return { refreshed: false, error: err.message }; }
 }
 
-/** payload: {date, gym, activity, duration, speed, speedUnit, distance, distanceUnit, calories, notes} */
+/**
+ * payload: {date, gym, activity, duration, speed, speedUnit, distance, distanceUnit, calories, notes, incline, handrails}
+ * Blank calories are estimated from the activity, your bodyweight on that date, and handrail use.
+ */
 function webAppSaveCardio(key, payload) {
   requireKey_(key);
   var activity = String(payload.activity || '').trim();
   if (!activity) throw new Error('Pick the cardio activity.');
   var num = function (x) { return String(x === null || x === undefined ? '' : x).trim() === '' ? '' : parseFloat(x); };
-  var nums = [payload.duration, payload.speed, payload.distance, payload.calories].map(num);
-  if (nums.some(function (n) { return n !== '' && isNaN(n); })) throw new Error('Duration, speed, distance and calories must be numbers.');
-  if (nums.every(function (n) { return n === ''; })) throw new Error('Enter at least the duration or distance.');
+  var nums = [payload.duration, payload.speed, payload.distance, payload.calories, payload.incline].map(num);
+  if (nums.some(function (n) { return n !== '' && isNaN(n); })) throw new Error('Duration, speed, distance, incline and calories must be numbers.');
+  if ([nums[0], nums[1], nums[2], nums[3]].every(function (n) { return n === ''; })) throw new Error('Enter at least the duration or distance.');
   var lock = LockService.getDocumentLock();
   lock.waitLock(20000);
   try {
     var date = /^\d{4}-\d{2}-\d{2}$/.test(String(payload.date)) ? payload.date : todayIsoForScript_();
+    var handrails = payload.handrails === true;
+    var calories = nums[3];
+    var estimated = false;
+    if (calories === '') {
+      var est = estimateCardioCalories({ activity: activity, durationMin: nums[0], speed: nums[1], speedUnit: payload.speedUnit,
+        inclinePct: nums[4], distance: nums[2], distanceUnit: payload.distanceUnit, handrails: handrails, weightKg: bodyweightKgOn_(date) });
+      if (est !== null) { calories = est; estimated = true; }
+    }
     var gymName = String(payload.gym || '').trim();
     var gymId = gymName ? ensureRegistryEntries('gyms', [gymName])[gymName.toLowerCase()] : '';
     var cardioId = ensureRegistryEntries('cardio', [activity], function () { return [true]; })[activity.toLowerCase()];
-    var target = getOrCreateSheet_(CONFIG.SHEETS.CARDIO, CONFIG.CARDIO_HEADERS, false);
+    var target = ensureCardioHeaders_();
     var id = newRecordId_('C');
+    var notes = String(payload.notes || '').trim();
+    if (estimated) notes = [notes, 'calories estimated'].filter(String).join('; ');
     appendRows_(target, [[id, isoToDate_(date), gymId, cardioId, nums[0], nums[1], payload.speedUnit || '',
-      nums[2], payload.distanceUnit || '', nums[3], String(payload.notes || '').trim(), 'app']]);
-    return { recordId: id };
+      nums[2], payload.distanceUnit || '', calories, notes, 'app', nums[4], handrails]]);
+    return { recordId: id, calories: calories, estimated: estimated };
   } finally {
     lock.releaseLock();
   }
@@ -297,9 +311,9 @@ function webAppCreateExercise(key, payload) {
 // ---- Settings, exercises, routines, history (the app's admin screens) ----------
 
 var WEBAPP_SETTING_FIELDS = [
-  { label: 'Current weight', type: 'number', help: 'Updated by bodyweight logging' },
-  { label: 'Birth date', type: 'text' },
-  { label: 'Height (in)', type: 'number' },
+  { label: 'Current weight', type: 'bodyweight', help: 'Saving a new weight logs a weigh-in for today' },
+  { label: 'Birth date', type: 'date' },
+  { label: 'Height (in)', type: 'height' },
   { label: 'Weight system', type: 'select', options: ['Imperial', 'Metric'] },
   { label: 'Rep range', type: 'select', options: ['Bodybuilding', 'Powerlifting', 'Custom'] },
   { label: 'Custom rep min', type: 'number' },
@@ -335,12 +349,17 @@ function webAppSaveSettings(key, values) {
     var f = known[label];
     if (!f) return;
     var v = values[label];
-    if (f.type === 'number' && String(v).trim() !== '') {
+    if (f.type === 'bodyweight') return; // logged with webAppSaveBodyweight
+    if (f.type === 'date' && String(v).trim() !== '') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(v))) throw new Error(label + ' must be a date.');
+      v = isoToDate_(String(v));
+    }
+    if ((f.type === 'number' || f.type === 'height') && String(v).trim() !== '') {
       if (isNaN(parseFloat(v))) throw new Error(label + ' must be a number.');
       v = parseFloat(v);
     }
     if (f.type === 'select' && f.options.indexOf(String(v)) < 0) throw new Error('Pick ' + label + ' from the list.');
-    setMasterSetting_(label, v, f.type !== 'number');
+    setMasterSetting_(label, v, f.type === 'text' || f.type === 'select');
   });
   return webAppGetSettings(key);
 }

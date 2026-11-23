@@ -65,7 +65,6 @@ async function openPage(browser, g, key, opts) {
     {
       const { g, ids, q, key } = setupGas();
       const page = await openPage(browser, g, key);
-      await page.click('text=Not now');
       assert.ok(!(await page.isVisible('#newGym')), 'new-gym field hidden while a gym is picked');
       const card = await page.$eval('.card:has(#date)', el => el.getBoundingClientRect().right);
       const date = await page.$eval('#date', el => el.getBoundingClientRect().right);
@@ -124,7 +123,6 @@ async function openPage(browser, g, key, opts) {
     {
       const { g, ids, q, key } = setupGas();
       const page = await openPage(browser, g, key);
-      await page.click('text=Not now');
       await page.selectOption('#routine', 'Custom');
       await page.click('#start');
       await page.waitForSelector('#pickFind');
@@ -158,7 +156,6 @@ async function openPage(browser, g, key, opts) {
     {
       const { app, g, key } = setupGas();
       const page = await openPage(browser, g, key);
-      await page.click('text=Not now');
       await page.selectOption('#routine', 'Custom');
       await page.click('#start');
       await page.fill('#pickFind', 'face pulls');
@@ -173,25 +170,49 @@ async function openPage(browser, g, key, opts) {
       await page.close();
     }
 
-    // 3. Cardio and bodyweight from the start screen.
+    // 3. Bodyweight lives in Settings; cardio has incline, handrails, and a live calorie estimate.
     {
       const { app, g, key } = setupGas();
+      g.ensureRegistryEntries('cardio', ['Treadmill', 'Stairmaster'], () => [true]);
       const page = await openPage(browser, g, key);
-      await page.fill('#bwInput', '172.4');
+      assert.ok(!(await page.isVisible('#bwInput')), 'no bodyweight card on the Log screen');
+      assert.match(await page.textContent('[data-nav="settings"]'), /•/, 'Settings shows a dot when a weigh-in is due');
+      await page.click('[data-nav="settings"]');
+      await page.fill('#bwInput', '170');
       await page.click('#bwSave');
       await page.waitForSelector('text=Bodyweight saved');
+      assert.ok(!/•/.test(await page.textContent('[data-nav="settings"]')));
+      await page.waitForSelector('#hFt');
+      await page.fill('#hFt', '5'); await page.fill('#hIn', '9');
+      await page.fill('input[type="date"][data-setting]', '2004-03-05');
+      assert.match(await page.textContent('#formulaText'), /reps \/ 30/);
+      await page.click('#sSave');
+      await page.waitForSelector('text=Settings saved.');
+      const master = app.ss.getSheetByName('Master').data;
+      assert.strictEqual(master.find(r => r[0] === 'Height (in)')[1], 69);
+      assert.strictEqual(g.dateToIso_(master.find(r => r[0] === 'Birth date')[1]), '2004-03-05');
+
+      await page.click('[data-nav="start"]');
       await page.click('#cardio');
-      await page.selectOption('#cAct', '__new');
-      await page.fill('#cNew', 'Treadmill (15%)');
+      await page.selectOption('#cAct', 'Treadmill');
+      assert.ok(await page.isVisible('#cInc') && await page.isVisible('#cRail'));
       await page.click('[data-min="30"]');
-      await page.fill('#cSpeed', '3.1');
-      await page.fill('#cDist', '1.6');
+      await page.fill('#cSpeed', '3');
+      await page.fill('#cInc', '15');
+      assert.strictEqual(await page.getAttribute('#cCal', 'placeholder'), 'Estimate: ' + g.estimateCardioCalories({
+        activity: 'Treadmill', durationMin: 30, speed: 3, speedUnit: 'mph', inclinePct: 15, weightKg: 170 / 2.20462262 }) + ' kcal',
+        'page and server estimates agree');
+      await page.check('#cRail');
       await page.click('#cSave');
-      await page.waitForSelector('text=Saved cardio');
-      assert.deepStrictEqual(app.ss.getSheetByName('Cardio').data[1].slice(3, 9), ['CA-01', 30, 3.1, 'mph', 1.6, 'mi']);
-      assert.strictEqual(app.ss.getSheetByName('Bodyweight Log').data[1][1], 172.4);
+      await page.waitForSelector('text=kcal estimated');
+      const row = app.ss.getSheetByName('Cardio').data[1];
+      assert.deepStrictEqual([row[4], row[5], row[9], row[12], row[13]], [30, 3, 308, 15, true]);
+      await page.click('#cardio');
+      await page.selectOption('#cAct', 'Stairmaster');
+      assert.ok(!(await page.isVisible('#cInc')) && await page.isVisible('#cRail'), 'incline only for treadmill-type activities');
       await page.close();
     }
+
     // 4. Exercises, routines (with archive), settings, and history screens.
     {
       const { app, g, key, ids } = setupGas();
@@ -242,11 +263,22 @@ async function openPage(browser, g, key, opts) {
 
       await page.click('[data-nav="history"]');
       await page.waitForSelector('#hFind');
+      assert.deepStrictEqual((await page.$$eval('#hRange option', o => o.map(x => x.textContent))).slice(4), ['Q4 2026'], 'quarters newest first');
       await page.fill('#hFind', 'pec');
       await page.waitForSelector('text=Times done');
       assert.ok(await page.isVisible('svg.chart'), 'chart drawn for one exercise');
       await page.selectOption('#hLines', 'sets');
       assert.ok(await page.isVisible('text=Set 1'));
+      await page.fill('#hFind', '');
+      await page.click('#hPick');
+      await page.check('#hpList [data-name="Pec flys (Machine)"]');
+      await page.check('#hpList [data-name="Bench press (BB, Paused)"]');
+      await page.click('#hpDone');
+      await page.waitForSelector('text=Best estimated 1RM per session');
+      assert.match(await page.textContent('#hPick'), /2 exercises selected/);
+      await page.selectOption('#hEquip', 'Barbell');
+      await page.waitForSelector('text=Times done');
+      assert.match(await page.textContent('#hBody h2'), /^Bench press \(BB, Paused\)$/, 'equipment filter narrows to the barbell exercise');
       if (process.env.SHOT_DIR) await page.screenshot({ path: path.join(process.env.SHOT_DIR, 'history.png'), fullPage: true });
       await page.close();
     }

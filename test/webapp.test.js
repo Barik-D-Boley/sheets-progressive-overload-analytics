@@ -165,3 +165,45 @@ test('history returns readable rows newest first with 1RMs and bodyweights', () 
     sets: ['200 × 10', '200 × 9', '200 × 8'], oneRms: [267, 260, 253], best: 267, notes: '' });
   assert.strictEqual(h.bodyweights[0].weight, 170);
 });
+
+test('calorie estimates: treadmill incline, downhill, handrails, stairs, unknown activities', () => {
+  const { g } = setup();
+  const kg = 170 / 2.20462262;
+  const tm = o => g.estimateCardioCalories(Object.assign({ activity: 'Treadmill', durationMin: 30, speed: 3, speedUnit: 'mph', weightKg: kg }, o));
+  const flat = tm({}), up = tm({ inclinePct: 15 }), down = tm({ inclinePct: -5 }), rails = tm({ inclinePct: 15, handrails: true });
+  assert.strictEqual(flat, 134);
+  assert.strictEqual(up, 385, 'your treadmill showed 374 for this session');
+  assert.ok(down < flat && down > 0);
+  assert.strictEqual(rails, Math.round(up * 0.8));
+  assert.strictEqual(g.estimateCardioCalories({ activity: 'Stairmaster', durationMin: 10, distance: 41, distanceUnit: 'floors', weightKg: kg }), 185);
+  assert.strictEqual(g.estimateCardioCalories({ activity: 'Yoga', durationMin: 30, weightKg: kg }), null);
+  assert.strictEqual(tm({ weightKg: '' }), null);
+});
+
+test('saving cardio estimates blank calories from the bodyweight on that date; treadmill variants merge', () => {
+  const { app, g, key } = setup();
+  g.webAppSaveBodyweight(key, { weight: '170', date: '2026-11-01' });
+  const r = g.webAppSaveCardio(key, { date: '2026-11-20', activity: 'Treadmill', duration: '30', speed: '3', speedUnit: 'mph', incline: '15', handrails: false });
+  assert.deepStrictEqual([r.calories, r.estimated], [385, true]);
+  const row = app.ss.getSheetByName('Cardio').data[1];
+  assert.deepStrictEqual([row[9], row[10], row[12], row[13]], [385, 'calories estimated', 15, false]);
+  g.webAppSaveCardio(key, { date: '2026-11-20', activity: 'Treadmill (10%)', duration: '20', speed: '3', speedUnit: 'mph', calories: '200' });
+  g.webAppSaveCardio(key, { date: '2026-11-21', activity: 'Treadmill (-2.5%)', duration: '20', speed: '3', speedUnit: 'mph', calories: '150' });
+  assert.strictEqual(g.mergeTreadmillVariants_(), 2);
+  const cardio = app.ss.getSheetByName('Cardio').data.slice(1);
+  const treadmillId = cardio[0][3];
+  assert.deepStrictEqual(cardio.map(c => [c[3], c[12]]), [[treadmillId, 15], [treadmillId, 10], [treadmillId, -2.5]]);
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(g.webAppLoad(key).cardio.map(c => c.name))), ['Treadmill'], 'old variants are inactive');
+});
+
+test('settings: birth date as a date, height in inches, bodyweight not written as a setting', () => {
+  const { app, g, key } = setup();
+  g.webAppSaveSettings(key, { 'Birth date': '2004-03-05', 'Height (in)': '69', 'Current weight': '999' });
+  const master = app.ss.getSheetByName('Master').data;
+  assert.strictEqual(g.dateToIso_(master.find(r => r[0] === 'Birth date')[1]), '2004-03-05');
+  assert.strictEqual(master.find(r => r[0] === 'Height (in)')[1], 69);
+  assert.ok(!master.some(r => r[0] === 'Current weight' && r[1] === 999));
+  const fields = JSON.parse(JSON.stringify(g.webAppGetSettings(key)));
+  assert.strictEqual(fields.find(f => f.label === 'Birth date').value, '2004-03-05');
+  assert.throws(() => g.webAppSaveSettings(key, { 'Birth date': 'March 5' }), /must be a date/);
+});
