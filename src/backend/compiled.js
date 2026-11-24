@@ -9,6 +9,10 @@ var COMPILED = {
   TIMEFRAME: 'B1', GYM: 'D1', WORKOUT: 'F1', SEARCH: 'H1', CLEAR_BTN: 'K1',
   ALL_TIME: 'All time', ALL_GYMS: 'All gyms', ALL_WORKOUTS: 'All workouts',
   TIMEFRAMES: ['All time', 'This month', 'Last 3 months', 'This year'],
+  CHART_LINES: 'P1', CHART_LINE_OPTIONS: ['Best 1RM', 'Each set'],
+  CHART_DATA_COL: 30, // AD: hidden helper table the chart reads from
+  SET_COLORS: ['#e06666', '#6aa84f', '#3c78d8', '#f1c232', '#8e7cc3', '#e69138'],
+  BEST_COLOR: '#3c78d8',
 };
 var LB_PER_KG = 2.20462262;
 
@@ -89,7 +93,7 @@ function compileRecords(records, names, opts, filters, todayIso) {
         oneRms.push('');
       }
     }
-    rows.push({ date: r.date, exercise: exercise, best: best,
+    rows.push({ date: r.date, exercise: exercise, best: best, oneRms: oneRms,
       values: [r.tab, r.date, gym, workout, exercise].concat(setTexts, oneRms, [best || '', r.notes || '']) });
   });
   rows.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
@@ -99,16 +103,20 @@ function compileRecords(records, names, opts, filters, todayIso) {
   for (var t = 1; t <= setCount; t++) headers.push('1RM (Set ' + t + ')');
   headers.push('Best 1RM', 'Notes');
 
-  return { headers: headers, rows: rows, total: records.length, panel: exercisePanel_(rows, opts.unit) };
+  var single = exercisePanel_(rows, opts.unit, opts.bodyweights || []);
+  return { headers: headers, rows: rows, total: records.length, panel: single.panel, chart: single.chart, setCount: setCount };
 }
 
-/** Stats when the filtered rows contain exactly one exercise. */
-function exercisePanel_(rows, unit) {
+/**
+ * Stats and chart data when the filtered rows contain exactly one exercise.
+ * Relative strength = a session's best 1RM / the weigh-in in effect on that date.
+ */
+function exercisePanel_(rows, unit, bodyweights) {
   var distinct = {};
   rows.forEach(function (r) { distinct[r.exercise] = true; });
   var list = Object.keys(distinct);
   if (list.length !== 1) {
-    return [['Exercise data', list.length ? 'Search for one exercise to see its stats' : 'No matching rows']];
+    return { panel: [['Exercise data', list.length ? 'Search for one exercise to see its stats and chart' : 'No matching rows']], chart: null };
   }
   var byDate = rows.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
   var best = rows.reduce(function (m, r) { return Math.max(m, r.best); }, 0);
@@ -123,11 +131,37 @@ function exercisePanel_(rows, unit) {
   } else {
     gain = 'Only one session';
   }
-  return [
+
+  var ratioOf = function (r) {
+    var bw = bodyweightOn(r.date, bodyweights);
+    if (!bw || !(r.best > 0)) return null;
+    return { ratio: r.best / convertLoad_(bw.weight, bw.unit, unit), bw: bw };
+  };
+  var latestRatio = ratioOf(last);
+  var bestRatio = null;
+  var missing = 0;
+  byDate.forEach(function (r) {
+    var x = ratioOf(r);
+    if (!x) { if (r.best > 0) missing++; return; }
+    if (!bestRatio || x.ratio > bestRatio.ratio) bestRatio = { ratio: x.ratio, date: r.date };
+  });
+  var fmtRatio = function (v) { return (Math.round(v * 100) / 100).toFixed(2) + '× bodyweight'; };
+  var latestText = latestRatio
+    ? fmtRatio(latestRatio.ratio) + ' (' + roundLoad_(convertLoad_(latestRatio.bw.weight, latestRatio.bw.unit, unit)) + ' ' + unit +
+      ' on ' + latestRatio.bw.date + ')'
+    : (last.best > 0 ? 'No bodyweight logged on or before ' + last.date : '—');
+
+  var panel = [
     ['Exercise data', list[0]],
     ['Times done', rows.length],
     ['Best 1RM', best ? best + ' ' + unit : '—'],
     ['Last done', last.date],
     ['Strength gain in time frame', gain],
+    ['Relative strength (latest)', latestText],
+    ['Best relative strength', bestRatio ? fmtRatio(bestRatio.ratio) + ' on ' + bestRatio.date : '—'],
   ];
+  if (missing) panel.push(['Sessions without bodyweight', missing]);
+
+  var chart = byDate.map(function (r) { return { date: r.date, best: r.best || null, sets: r.oneRms.map(function (v) { return v || null; }) }; });
+  return { panel: panel, chart: chart };
 }

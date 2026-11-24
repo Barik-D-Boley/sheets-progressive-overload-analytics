@@ -28,7 +28,7 @@ function rcToA1(row, col) {
 class FakeSheet {
   constructor(name, data = []) {
     this.name = name; this.data = data.map(r => r.slice()); this.hidden = false; this.frozen = 0;
-    this.hiddenRows = new Set(); this.validations = {}; this.notes = {};
+    this.hiddenRows = new Set(); this.validations = {}; this.notes = {}; this.charts = []; this.hiddenCols = new Set();
     return chainable(this);
   }
   getName() { return this.name; }
@@ -49,6 +49,20 @@ class FakeSheet {
   hideRows(start, n) { for (let i = 0; i < n; i++) this.hiddenRows.add(start + i); }
   showRows(start, n) { for (let i = 0; i < n; i++) this.hiddenRows.delete(start + i); }
   deleteRow(r) { this.data.splice(r - 1, 1); }
+  getCharts() { return this.charts.slice(); }
+  removeChart(c) { this.charts = this.charts.filter(x => x !== c); }
+  insertChart(c) { this.charts.push(c); }
+  newChart() {
+    const spec = { ranges: [], options: {} };
+    const b = chainable({
+      addRange(r) { spec.ranges.push(r); return b; },
+      setOption(k, v) { spec.options[k] = v; return b; },
+      setPosition(row, col) { spec.row = row; spec.col = col; return b; },
+      build() { return spec; },
+    });
+    return b;
+  }
+  hideColumns(start, n) { for (let i = 0; i < n; i++) this.hiddenCols.add(start + i); }
   value(a1) { return this.getRange(a1).getValue(); }
 }
 class FakeRange {
@@ -130,6 +144,7 @@ function createFakeApp(sheets) {
         formatDate: (d, tz, fmt) => d.toISOString().slice(0, 10),
       },
       Session: { getScriptTimeZone: () => 'UTC' },
+      Charts: { ChartType: { LINE: 'LINE' } },
       ScriptApp: {
         triggers: [],
         getProjectTriggers() { return this.triggers; },

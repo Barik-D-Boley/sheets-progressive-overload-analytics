@@ -54,12 +54,27 @@ test('filters: time frame, quarter, gym, workout, search', () => {
   assert.strictEqual(count({ gym: 'All gyms', workout: 'All workouts', timeframe: 'All time' }), 4);
 });
 
-test('exercise panel when one exercise matches', () => {
-  const r = g.compileRecords(records, names, opts, { search: 'bench', timeframe: 'This year' }, '2026-11-20');
+test('exercise panel: stats, relative strength from date-matched bodyweight, chart points', () => {
+  const bodyweights = [{ date: '2026-10-01', weight: 170, unit: 'lb' }, { date: '2026-11-10', weight: 80, unit: 'kg' }];
+  const r = g.compileRecords(records, names, Object.assign({}, opts, { bodyweights }), { search: 'bench', timeframe: 'This year' }, '2026-11-20');
   assert.deepStrictEqual(plain(r.panel), [['Exercise data', 'Bench press (BB)'], ['Times done', 2], ['Best 1RM', '298 lb'],
-    ['Last done', '2026-11-13'], ['Strength gain in time frame', '+13 lb (+5%)']]);
+    ['Last done', '2026-11-13'], ['Strength gain in time frame', '+13 lb (+5%)'],
+    ['Relative strength (latest)', '1.69× bodyweight (176.5 lb on 2026-11-10)'],
+    ['Best relative strength', '1.69× bodyweight on 2026-11-13']]);
+  assert.deepStrictEqual(plain(r.chart), [
+    { date: '2026-10-02', best: 285, sets: [285, 270, 265] },
+    { date: '2026-11-13', best: 298, sets: [298, 282, null] }]);
+
+  const early = g.compileRecords(records, names, Object.assign({}, opts, { bodyweights: [{ date: '2026-11-01', weight: 170, unit: 'lb' }] }),
+    { search: 'bench', timeframe: 'This year' }, '2026-11-20');
+  assert.deepStrictEqual(plain(early.panel.slice(5)), [['Relative strength (latest)', '1.75× bodyweight (170 lb on 2026-11-01)'],
+    ['Best relative strength', '1.75× bodyweight on 2026-11-13'], ['Sessions without bodyweight', 1]]);
+  const none = g.compileRecords(records, names, opts, { search: 'bench', timeframe: 'This year' }, '2026-11-20');
+  assert.strictEqual(none.panel[5][1], 'No bodyweight logged on or before 2026-11-13');
+
   const many = g.compileRecords(records, names, opts, {}, '2026-11-20');
   assert.match(many.panel[0][1], /Search for one exercise/);
+  assert.strictEqual(many.chart, null);
 });
 
 test('sheet: setup keeps the mockup, filters refresh, clear button, nightly trigger, refresh on Finish', () => {
@@ -87,7 +102,19 @@ test('sheet: setup keeps the mockup, filters refresh, clear button, nightly trig
   assert.strictEqual(sheet.value('E4'), 'Bench press (BB)');
   assert.strictEqual(sheet.value('E5'), '', 'old rows cleared');
   assert.strictEqual(sheet.value('O3'), 'Exercise data'); assert.strictEqual(sheet.value('P3'), 'Bench press (BB)');
+  assert.strictEqual(sheet.charts.length, 1, 'chart drawn for one exercise');
+  assert.match(sheet.charts[0].options.title, /Bench press \(BB\) - best estimated 1RM/);
+  const chartData = sheet.getRange('AD1:AE2').getValues();
+  assert.deepStrictEqual(chartData[0], ['Date', 'Best 1RM']);
+  assert.strictEqual(chartData[1][0].toISOString().slice(0, 10), '2026-11-02');
+  assert.strictEqual(chartData[1][1], 285);
+  assert.ok(sheet.hiddenCols.has(30), 'helper data columns hidden');
+  edit('P1', 'Each set');
+  assert.strictEqual(sheet.charts.length, 1, 'chart replaced, not duplicated');
+  assert.deepStrictEqual([...sheet.charts[0].options.colors], ['#e06666', '#6aa84f', '#3c78d8']);
+  assert.deepStrictEqual(sheet.getRange('AD1:AG1').getValues()[0], ['Date', 'Set 1', 'Set 2', 'Set 3']);
   edit('K1', true);
+  assert.strictEqual(sheet.charts.length, 0, 'no chart when several exercises match');
   assert.strictEqual(sheet.value('H1'), ''); assert.strictEqual(sheet.value('K1'), false);
   assert.match(sheet.value('A2'), /^Showing 2 of 2/);
   assert.ok(sheet.validations.B1.list.includes('Q4 2026'));
