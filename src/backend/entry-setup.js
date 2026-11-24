@@ -32,12 +32,12 @@ function isEntryFormSheet_(sheet) {
 
 function buildEntryLayout_(sheet) {
   sheet.clear();
-  sheet.getRange('A1:C40').breakApart().clearDataValidations();
-  sheet.showRows(1, 40);
+  sheet.getRange('A1:C45').breakApart().clearDataValidations();
+  sheet.showRows(1, 45);
   sheet.setColumnWidth(1, 125);
   sheet.setColumnWidth(2, 175);
   sheet.setColumnWidth(3, 60);
-  sheet.getRange('A1:C40').setFontSize(12).setVerticalAlignment('middle').setWrap(true);
+  sheet.getRange('A1:C45').setFontSize(12).setVerticalAlignment('middle').setWrap(true);
   sheet.getRange('C1').setNote('entry-form-v1');
   var cell = function (a1) { return sheet.getRange(a1); };
   var listRule = function (values, allowInvalid) {
@@ -83,6 +83,8 @@ function buildEntryLayout_(sheet) {
   button(18, 'Finish workout');
   sheet.getRange('A19:B19').merge().setBackground(ENTRY_COLORS.message).setFontStyle('italic');
   sheet.setRowHeight(19, 40);
+  sheet.getRange(20, 1).setValue('⚖ Log bodyweight').setHorizontalAlignment('right').setFontColor('#666666');
+  sheet.getRange(ENTRY.BODYWEIGHT_BTN).insertCheckboxes().setHorizontalAlignment('center');
 
   // Cardio block
   sheet.getRange('A21:C21').merge().setValue('CARDIO').setBackground(ENTRY_COLORS.title).setFontWeight('bold').setHorizontalAlignment('center');
@@ -106,6 +108,15 @@ function buildEntryLayout_(sheet) {
   cell(ENTRY.NEW_PREVIEW).setFontWeight('bold');
   button(38, 'Create');
   button(39, 'Cancel');
+
+  // Bodyweight block
+  sheet.getRange('A41:C41').merge().setValue('BODYWEIGHT').setBackground(ENTRY_COLORS.title).setFontWeight('bold').setHorizontalAlignment('center');
+  sheet.getRange('A42:B42').merge().setFontStyle('italic');
+  sheet.setRowHeight(42, 40);
+  label('A43', 'Weight');
+  cell(ENTRY.BW_INPUT).setBackground(ENTRY_COLORS.input).setBorder(true, true, true, true, false, false).setFontSize(16);
+  button(44, 'Save');
+  button(45, 'Not now');
 }
 
 /** Equipment/tag table on Master (buyers edit it to change name tags). */

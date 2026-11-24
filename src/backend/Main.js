@@ -8,6 +8,9 @@ function onOpen() {
       .addItem('1. Build name review', 'migrationBuildReview')
       .addItem('2. Preview import', 'migrationPreview')
       .addItem('3. Run import', 'migrationImport'))
+    .addSubMenu(ui.createMenu('Advanced')
+      .addItem('Connect Apple Health (optional, iPhone)', 'showAppleHealthSetup')
+      .addItem('Reset Apple Health link', 'resetAppleHealthLink'))
     .addToUi();
 }
 
