@@ -3,9 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const PURE_FILES = ['config.js', 'naming.js', 'set-format.js', 'one-rm.js', 'progression.js', 'warmup.js', 'compiled.js', 'bodyweight.js',
+const PURE_FILES = ['config.js', 'naming.js', 'set-format.js', 'one-rm.js', 'progression.js', 'warmup.js', 'compiled.js', 'bodyweight.js', 'cardio.js',
   'legacy-parser.js', 'migration-plan.js', 'legacy-name-map.js'];
-const SHEET_FILES = ['settings.js', 'registry.js', 'migration.js', 'workout-log.js', 'entry.js', 'entry-setup.js', 'compiled-sheet.js', 'apple-health.js', 'webapp.js'];
+const SHEET_FILES = ['settings.js', 'registry.js', 'migration.js', 'workout-log.js', 'entry.js', 'routines.js', 'entry-setup.js', 'compiled-sheet.js', 'apple-health.js', 'webapp.js'];
 
 module.exports = function loadGas(globals) {
   const context = vm.createContext(Object.assign({}, globals || {}));

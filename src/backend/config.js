@@ -30,15 +30,15 @@ var CONFIG = {
   /** Registries kept sorted A-Z by name on Master (rows move; IDs never change). */
   SORTED_REGISTRIES: ['exercises', 'cardio'],
 
-  /** Routine templates on Master: Routine | Workout | exercise names left to right. */
-  ROUTINES: { column: 'AA', title: 'Routines (edit to change a workout template)', maxExercises: 15 },
+  /** Routine templates on Master: Routine | Workout | Active | exercise names left to right (see routines.js). */
+  ROUTINES: { column: 'AA', title: 'Routines (edit to change a workout template)', maxExercises: 14 },
 
   /** Equipment -> tag table on Master; overrides NAMING_DEFAULTS.equipmentTags when filled in. */
   NAMING_TABLE: { column: 'AR', title: 'Exercise name tags', headers: ['Equipment', 'Tag'] },
 
   QUARTER_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Workout ID', 'Exercise ID', 'Unit', 'Notes', 'Source'],
   CARDIO_HEADERS: ['Record ID', 'Date', 'Gym ID', 'Activity ID', 'Duration (min)', 'Speed', 'Speed Unit',
-    'Distance', 'Distance Unit', 'Calories', 'Notes', 'Source'],
+    'Distance', 'Distance Unit', 'Calories', 'Notes', 'Source', 'Incline (%)', 'Handrails'],
   BODYWEIGHT_HEADERS: ['Date', 'Weight', 'Unit', 'Source'],
 
   /**
