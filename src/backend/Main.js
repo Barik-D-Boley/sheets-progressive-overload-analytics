@@ -18,5 +18,6 @@ function onEdit(e) {
   if (!e || !e.range) return;
   if (entryOnEdit(e)) return;
   if (compiledOnEdit(e)) return;
+  if (registryOnEdit(e)) return;
   popups(e);
 }

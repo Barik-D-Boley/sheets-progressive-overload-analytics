@@ -99,7 +99,7 @@ All modes share these settings on Master: rep range (min–max), load increment 
   - Hanging leg raises are `DB` when any set uses weight and `BW` when no set does. During migration this is the review tab's optional "Name If No Weight" column; on the entry form the BW version is chosen when all sets are logged at 0.
 - **Details** (attachments, angles) follow the tag after a comma and are capitalized: `Pullovers (Cable, Bar)`, `Pec flys (Cable, Low-to-high)`.
 - **Cardio** is a separate list on Master (not in the exercise list). Incline goes in parentheses: `Treadmill (15°)`.
-- **New exercises** added from the entry form are formatted automatically: the user picks equipment from a dropdown and enters the movement, and the name is built from the format.
+- **New exercises** are added on Master (typed into the exercise list; the ID and defaults fill in). The naming format applies to names typed there.
 - **Configurable for buyers:** the template, separator, equipment tags, and proper nouns are settings (`NAMING_DEFAULTS` in `src/backend/naming.js`). Module 2 adds an editable equipment/tag table on Master that overrides the defaults. Existing exercises can be renamed in the registry at any time because records reference IDs.
 
 ### Workout Entry Form (Round 5)
@@ -141,6 +141,31 @@ All modes share these settings on Master: rep range (min–max), load increment 
 - **Lines:** a "Chart lines" dropdown (P1): **Best 1RM** (default: best estimated 1RM per session) or **Each set** (1RM per set: red, green, blue, yellow, ...). Y axis in the Master unit. Chart data lives in hidden helper columns (AD onward).
 - **Gym:** the existing Gym filter (default All gyms) applies to the chart too.
 - **Relative strength** is a statistic in the panel rather than a chart toggle: latest (last session's best 1RM ÷ the weigh-in in effect on that date, with the weigh-in shown) and best relative strength in the time frame. Sessions before the first weigh-in are counted as "Sessions without bodyweight"; no current weight is substituted.
+
+### Entry Form Layout & Routines (Round 9)
+
+- **Labels in column A, values/dropdowns in column B:** Date (B1), Gym (B2), Routine (B3), Exercise (B4, label shows "Exercise (2 of 6)"), then Setup, the set title, Last, Goal, Warm-up, inputs, and Back / Next / Finish.
+- **Log cardio and Log bodyweight** buttons sit below the exercise inputs and buttons (rows 20-21).
+- **Last** shows the date with the year: "Last · 11/14/26 BYUI".
+- **Routines** on Master (AA): `Routine | Workout | Exercise 1..15`, e.g. "Push Day 1 | Push | Bench press (BB) | ...". The Routine dropdown lists routine names; records are saved under the routine's Workout so history and the Compiled Data workout filter stay grouped (Push/Pull/Legs). The older `Workout | Exercise...` layout is converted automatically by *Set up workout entry form*.
+- The six routines from the old sheet (Push/Pull/Legs, Day 1 and Day 2) are the starting templates.
+
+### Gym-Specific History (Round 10)
+
+- **Last and Goal** use every gym's history for free weights (BB, DB, EZ, BW) and the current gym's history for Machine, Cable, PL, and Smith exercises, falling back to any gym when the exercise has never been done at the current gym.
+- Each exercise has a **Same Gym Only** checkbox on Master (exercise list, column P), filled in from its equipment by *Set up workout entry form* and editable for exceptions. The default equipment list is `CONFIG.GYM_SPECIFIC_EQUIPMENT`.
+- **Sorted lists:** the Exercises and Cardio lists on Master are kept A-Z by name (on setup and whenever one is added). Rows move; IDs never change, so records are unaffected. IDs therefore aren't in order on the sheet, which is expected.
+- **Automatic IDs:** exercises, cardio activities, gyms, and workouts added from the entry form get the next ID automatically. A name typed straight into a list on Master also gets its ID (plus Equipment, Active, and Same Gym Only defaults for exercises) as soon as it is entered, and renaming re-sorts the list.
+- Possible later addition (not built): a Machines table and a Machine dropdown to tell apart several machines of the same type at one gym; it needs a Machine column in the quarter tabs.
+
+### Entry Form Fixes (Round 11)
+
+- **Exercises are created on Master only.** The form's "+ New exercise…" option and creator block are removed (a name typed on Master gets its ID automatically).
+- **Custom routine:** a routine named "Custom" with no exercises is always available; on the day, exercises are added from the Exercise list and the template stays empty.
+- **Find (B4):** typing part of a name narrows the Exercise list to matching exercises; the day's exercises always stay listed.
+- **Speed:** an exercise's Last / Goal / warm-up for every set are computed once when it is opened and cached; Next/Back between sets reuse them. Writes are batched, and the Exercise dropdown is only rebuilt when its options change.
+- **Layout v3:** rows shift down one below Find; cardio block 24-32, bodyweight block 34-38. The RIR cell is plain text so "1-2" is not turned into a date.
+- **Next:** a phone-first web app (Apps Script web app) becomes the main way to log; the sheet form remains as a fallback.
 
 ### Implementation Notes (Module 1)
 
