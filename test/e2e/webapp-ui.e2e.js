@@ -224,7 +224,13 @@ async function openPage(browser, g, key, opts) {
       await page.fill('#exFind', 'bench');
       assert.deepStrictEqual(await page.$$eval('[data-ex]', els => els.length), 1);
       await page.click('[data-ex]');
-      await page.fill('#eName', 'Bench press (BB, Paused)');
+      assert.deepStrictEqual([await page.inputValue('#eMove'), await page.inputValue('#eEq'), await page.inputValue('#eDetail')],
+        ['Bench press', 'Barbell', ''], 'the name is split into movement / equipment / detail');
+      await page.selectOption('#eEq', 'Dumbbell');
+      assert.strictEqual(await page.textContent('#ePreview'), 'Bench press (DB)', 'equipment changes the tag in the name');
+      await page.selectOption('#eEq', 'Barbell');
+      await page.fill('#eDetail', 'paused');
+      assert.strictEqual(await page.textContent('#ePreview'), 'Bench press (BB, Paused)');
       await page.fill('#eInc', '10');
       await page.click('#eSave');
       await page.waitForSelector('text=Saved Bench press (BB, Paused).');

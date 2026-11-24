@@ -118,6 +118,7 @@ function webAppLoad(key) {
     lastGym: String(getEntryState_().gym || ''),
     routines: routines, exercises: exercises, cardio: cardio,
     equipment: Object.keys(readNamingSettings_().equipmentTags),
+    naming: (function (n) { return { tags: n.equipmentTags, properNouns: n.properNouns, separator: n.detailSeparator }; })(readNamingSettings_()),
     bodyweight: { latest: latest, needsWeighIn: needsWeighIn(log, today, snooze) },
     bodyweightKg: bodyweightKgOn_(today),
     repRanges: ranges,
@@ -376,9 +377,18 @@ function webAppSaveSettings(key, values) {
   return webAppGetSettings(key);
 }
 
-/** e: {id, name, equipment, warmup, sameGym, active, increment, setup} */
+/**
+ * e: {id, name, equipment, warmup, sameGym, active, increment, setup, repRange, topSet}.
+ * With e.movement (and e.detail), the name is rebuilt from movement + equipment tag + detail,
+ * so changing the equipment changes the tag in the name.
+ */
 function webAppUpdateExercise(key, e) {
   requireKey_(key);
+  if (e.movement !== undefined) {
+    if (!String(e.movement).trim()) throw new Error('Enter the movement name.');
+    e.name = formatExerciseName({ movement: String(e.movement), equipment: String(e.equipment || ''),
+      detail: String(e.detail || '').trim() }, readNamingSettings_());
+  }
   var name = String(e.name || '').trim();
   if (!name) throw new Error('The name cannot be empty.');
   var lock = LockService.getDocumentLock();

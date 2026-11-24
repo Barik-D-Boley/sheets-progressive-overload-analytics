@@ -20,6 +20,7 @@
     --input: #11141a; --chip: #232832; --shadow: none;
   }
 }
+html { color-scheme: light dark; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; background: var(--bg); color: var(--text);
@@ -687,12 +688,42 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
     });
   }
 
+  /** "Bench press (BB, Paused)" -> {movement: 'Bench press', equipment: 'Barbell', detail: 'Paused'} using the tag table. */
+  function parseExerciseName(name) {
+    var n = data.naming || { tags: {}, properNouns: [], separator: ', ' };
+    var m = String(name).match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+    if (!m) return { movement: String(name).trim(), equipment: '', detail: '' };
+    var parts = m[2].split(n.separator.trim()).map(function (x) { return x.trim(); }).filter(String);
+    var equipment = '';
+    Object.keys(n.tags).forEach(function (k) { if (!equipment && parts.length && n.tags[k] === parts[0]) equipment = k; });
+    return { movement: m[1].trim(), equipment: equipment, detail: (equipment ? parts.slice(1) : parts).join(', ') };
+  }
+
+  /** Client copy of formatExerciseName (naming.js) for the live preview. */
+  function formatExerciseNamePreview(movement, equipment, detail) {
+    var n = data.naming || { tags: {}, properNouns: [], separator: ', ' };
+    var proper = {};
+    (n.properNouns || []).forEach(function (p) { proper[p.toLowerCase()] = p; });
+    var words = String(movement).trim().replace(/\s+/g, ' ').toLowerCase().split(' ');
+    var move = words.map(function (w, i) { return proper[w] || (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w); }).join(' ');
+    var details = [];
+    if (equipment && n.tags[equipment] !== undefined) details.push(n.tags[equipment]);
+    if (String(detail).trim()) details.push(String(detail).trim().replace(/\s+/g, ' ').split(' ').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' '));
+    return details.length ? move + ' (' + details.join(n.separator) + ')' : move;
+  }
+
   function editExercise(ex) {
     screen = 'exercise-edit';
-    var eqOptions = data.equipment.map(function (e) { return '<option' + (e === ex.equipment ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('');
+    var parsed = parseExerciseName(ex.name);
+    var startEq = parsed.equipment || ex.equipment || '';
+    var eqOptions = '<option value=""' + (startEq ? '' : ' selected') + '>None</option>' + data.equipment.map(function (e) {
+      return '<option' + (e === startEq ? ' selected' : '') + '>' + esc(e) + '</option>';
+    }).join('');
     $('#app').innerHTML = '<h1>Edit exercise</h1><div class="card">' +
-      '<label class="field"><span>Name</span><input id="eName" value="' + esc(ex.name) + '"></label>' +
+      '<label class="field"><span>Movement</span><input id="eMove" value="' + esc(parsed.movement) + '"></label>' +
       '<label class="field"><span>Equipment</span><select id="eEq">' + eqOptions + '</select></label>' +
+      '<label class="field"><span>Detail (optional)</span><input id="eDetail" value="' + esc(parsed.detail) + '" placeholder="e.g. rope, paused"></label>' +
+      '<div class="muted" style="margin:-2px 0 8px">Name: <b id="ePreview">' + esc(ex.name) + '</b></div>' +
       '<label class="field"><span>Setup notes</span><textarea id="eSetup">' + esc(ex.setup) + '</textarea></label>' +
       '<label class="field"><span>Increment (' + esc(data.unit) + ', blank = Settings default)</span><input id="eInc" inputmode="decimal" value="' + esc(ex.increment) + '"></label>' +
       '<label class="field"><span>Rep range</span><select id="eRange"><option value="">Default (' + esc(data.defaultRepRange) + ')</option>' +
@@ -706,12 +737,21 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
       '<p class="muted">Renaming keeps all history and updates routines that use it.</p></div>';
     setBar([{ id: 'eBack', label: 'Back' }, { id: 'eSave', label: 'Save', primary: true }]);
     $('#eBack').onclick = function () { renderExercises(); };
+    // The name follows Movement + Equipment + Detail; untouched fields keep the current name exactly.
+    var nameChanged = function () {
+      return $('#eMove').value.trim() !== parsed.movement || $('#eEq').value !== startEq || $('#eDetail').value.trim() !== parsed.detail;
+    };
+    var preview = function () {
+      $('#ePreview').textContent = nameChanged() ? formatExerciseNamePreview($('#eMove').value, $('#eEq').value, $('#eDetail').value) : ex.name;
+    };
+    $('#eMove').oninput = preview; $('#eDetail').oninput = preview; $('#eEq').onchange = preview;
     $('#eSave').onclick = function () {
       $('#eSave').disabled = true;
       var oldName = ex.name;
-      call('webAppUpdateExercise', { id: ex.id, name: $('#eName').value, equipment: $('#eEq').value, setup: $('#eSetup').value,
+      var parts = nameChanged() ? { movement: $('#eMove').value, detail: $('#eDetail').value } : { name: ex.name };
+      call('webAppUpdateExercise', Object.assign({ id: ex.id, equipment: $('#eEq').value, setup: $('#eSetup').value,
         increment: $('#eInc').value, warmup: $('#eWarm').checked, sameGym: $('#eSame').checked, active: $('#eActive').checked,
-        repRange: $('#eRange').value, topSet: $('#eTop').checked })
+        repRange: $('#eRange').value, topSet: $('#eTop').checked }, parts))
         .then(function (updated) {
           for (var k in updated) ex[k] = updated[k];
           if (oldName !== ex.name) data.routines.forEach(function (r) { r.exercises = r.exercises.map(function (n) { return n === oldName ? ex.name : n; }); });
