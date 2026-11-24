@@ -202,6 +202,11 @@ Updated in Round 15: one progression method for every rep range, plus an optiona
 - **Phone app:** Settings lists the rep ranges (add / edit / delete your own; built-ins locked). The exercise editor has a Rep range picker ("Default (…)" or a named range) and a Weekly top set switch. The workout screen shows the exercise's rep range, marks the top set ("Top set" tag, "Top 305 × 2"), and the warm-up ladder builds up to the top set.
 - **Sheet form:** Goal shows the top set as "305x2 (top)".
 
+### Exercise Editor Names (Round 16)
+
+- The phone app's exercise editor splits the name into **Movement**, **Equipment** (including "None"), and **Detail**, with a live preview. Changing the equipment changes the tag in the name (e.g. Barbell → Dumbbell turns "Bench press (BB)" into "Bench press (DB)"). If none of the three fields change, the name is kept exactly as it was.
+- Native form controls (date picker, dropdowns) follow the phone's dark mode.
+
 ### Implementation Notes (Module 1)
 
 - **Registry locations on Master** (title row 1, headers row 2, data from row 3): Exercises at column G (with an Equipment column derived from the tag), Workouts at Q, Gyms at T, Cardio at W. These are configurable in `src/backend/config.js`.

@@ -297,3 +297,15 @@ test('an older Master layout (v1) moves its tables right to make room for Rep Ra
   g.readRegistry('gyms');
   assert.strictEqual(JSON.stringify(app.ss.getSheetByName('Master').data), before);
 });
+
+test('exercise edit: movement + equipment + detail rebuild the name (equipment changes the tag)', () => {
+  const { app, g, ids, key } = setup();
+  const id = ids['lying leg raises (db)'];
+  const out = JSON.parse(JSON.stringify(g.webAppUpdateExercise(key, { id, movement: 'hanging leg raises', equipment: 'Bodyweight', detail: 'straps' })));
+  assert.deepStrictEqual([out.name, out.equipment], ['Hanging leg raises (BW, Straps)', 'Bodyweight']);
+  const none = JSON.parse(JSON.stringify(g.webAppUpdateExercise(key, { id, movement: 'Hanging leg raises', equipment: '', detail: '' })));
+  assert.strictEqual(none.name, 'Hanging leg raises');
+  assert.throws(() => g.webAppUpdateExercise(key, { id, movement: 'Lying leg raises', equipment: 'Bodyweight' }), /already exists/);
+  assert.throws(() => g.webAppUpdateExercise(key, { id, movement: ' ', equipment: '' }), /movement/);
+  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[6] === id && r[7] === 'Hanging leg raises'));
+});
