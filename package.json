@@ -11,7 +11,8 @@
     "open": "clasp open",
     "status": "clasp status",
     "test": "node --test test/*.test.js",
-    "build:map": "node tools/build-name-map.js"
+    "build:map": "node tools/build-name-map.js",
+    "test:ui": "node test/e2e/webapp-ui.e2e.js"
   },
   "repository": {
     "type": "git",

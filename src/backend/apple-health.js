@@ -7,7 +7,12 @@
  */
 var APPLE_HEALTH = { PROP_TOKEN: 'APPLE_HEALTH_TOKEN' };
 
-function doGet(e) { return handleHealthRequest_(e); }
+/** The web app URL serves the logging app; requests carrying a Health token log a weigh-in. */
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.token || p.weight) return handleHealthRequest_(e);
+  return serveWebApp_(e);
+}
 function doPost(e) { return handleHealthRequest_(e); }
 
 function handleHealthRequest_(e) {

@@ -7,10 +7,10 @@ const session = (...sets) => ({ sets: sets.map(([loadValue, reps, rir]) => ({ lo
 const bb = g.progressionSettings({ 'rep range': 'Bodybuilding', 'target rir': '1-2', 'load increment': 5, 'stall threshold (sessions)': 3 });
 
 test('warm-up ladder matches the 275 example and skips steps within 10%', () => {
-  assert.strictEqual(g.formatWarmup(g.warmupLadder(275, 'lb')), '225×1 · 185×2 · 135×4 · 95×6 · 45×8');
-  assert.strictEqual(g.formatWarmup(g.warmupLadder(235, 'lb')), '185×1 · 135×2 · 95×4 · 45×6');
+  assert.strictEqual(g.formatWarmup(g.warmupLadder(275, 'lb')), '45×8 · 95×6 · 135×4 · 185×2 · 225×1');
+  assert.strictEqual(g.formatWarmup(g.warmupLadder(235, 'lb')), '45×6 · 95×4 · 135×2 · 185×1');
   assert.deepStrictEqual(plain(g.warmupLadder(0, 'lb')), []);
-  assert.strictEqual(g.formatWarmup(g.warmupLadder(100, 'kg')), '80×1 · 60×2 · 40×4 · 20×6');
+  assert.strictEqual(g.formatWarmup(g.warmupLadder(100, 'kg')), '20×6 · 40×4 · 60×2 · 80×1');
 });
 
 test('RIR ranges', () => {

@@ -55,7 +55,7 @@ test('a workout: last/goal/warm-up, set-by-set entry, save on move, ✓ in dropd
   assert.strictEqual(sheet.value('A8'), 'Last · 11/13/26 BYUI', 'same gym preferred, with the year');
   assert.strictEqual(sheet.value('B8'), '275 x 6 @1-2');
   assert.strictEqual(sheet.value('B9'), '275x6  (+1 rep on set 2)', 'last: 275x6, 275x5, 265x6 -> set 2 is weakest');
-  assert.strictEqual(sheet.value('B10'), '225×1 · 185×2 · 135×4 · 95×6 · 45×8');
+  assert.strictEqual(sheet.value('B10'), '45×8 · 95×6 · 135×4 · 185×2 · 225×1');
 
   type(275, 7, { rir: new app.globals.Date(2026, 0, 2), note: 'paused' }); // Sheets stores "1-2" as Jan 2
   edit('B18', true);

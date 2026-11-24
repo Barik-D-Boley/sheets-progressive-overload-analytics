@@ -131,24 +131,41 @@ function createFakeApp(sheets) {
     toast(m) { this.toasts.push(m); },
   };
   const alerts = [];
+  const promptReplies = [], dialogs = [];
   const ui = {
-    ButtonSet: { YES_NO: 'YES_NO', OK: 'OK' }, Button: { YES: 'YES', NO: 'NO' },
+    ButtonSet: { YES_NO: 'YES_NO', OK: 'OK', OK_CANCEL: 'OK_CANCEL' }, Button: { YES: 'YES', NO: 'NO', OK: 'OK', CANCEL: 'CANCEL' },
     alert(...args) { alerts.push(args); return 'YES'; },
+    prompt() {
+      const text = promptReplies.shift();
+      return { getSelectedButton: () => (text === undefined ? 'CANCEL' : 'OK'), getResponseText: () => text || '' };
+    },
+    showModalDialog(output) { dialogs.push(output.html || ''); },
   };
   let uuid = 0;
   let now = new Date(Date.UTC(2026, 10, 20, 12));
   return {
-    ss, alerts, store, setNow: d => { now = d; },
+    ss, alerts, store, promptReplies, dialogs, setNow: d => { now = d; },
     globals: {
       SpreadsheetApp: { getActiveSpreadsheet: () => ss, getUi: () => ui, newDataValidation: validationBuilder },
-      PropertiesService: { getDocumentProperties: () => ({ getProperty: k => store[k] || null, setProperty: (k, v) => { store[k] = v; } }) },
+      PropertiesService: { getDocumentProperties: () => ({ getProperty: k => store[k] || null, setProperty: (k, v) => { store[k] = v; },
+        deleteProperty: k => { delete store[k]; } }) },
       LockService: { getDocumentLock: () => ({ waitLock() {}, releaseLock() {} }) },
       Utilities: {
         getUuid: () => (++uuid).toString(16).padStart(8, '0') + '-0000',
         formatDate: (d, tz, fmt) => d.toISOString().slice(0, 10),
       },
-      Session: { getScriptTimeZone: () => 'UTC' },
+      Session: {
+        getScriptTimeZone: () => 'UTC',
+        activeEmail: 'owner@example.com',
+        getActiveUser() { return { getEmail: () => this.activeEmail }; },
+        getEffectiveUser() { return { getEmail: () => 'owner@example.com' }; },
+      },
       Charts: { ChartType: { LINE: 'LINE' } },
+      HtmlService: {
+        createHtmlOutputFromFile: name => chainable({ kind: 'file', name }),
+        createHtmlOutput: html => chainable({ kind: 'html', html: html || '' }),
+      },
+      ContentService: { MimeType: { JSON: 'json' }, createTextOutput: text => chainable({ kind: 'text', text }) },
       ScriptApp: {
         triggers: [],
         getProjectTriggers() { return this.triggers; },

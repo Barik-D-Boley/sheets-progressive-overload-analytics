@@ -20,25 +20,37 @@ function dateToIso_(value) {
  * @return {{recordId, date, gymId, sets: Object[], tab}[]}
  */
 function getExerciseHistory_(exerciseId) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var out = [];
-  ss.getSheets().forEach(function (sheet) {
+  return getHistories_([exerciseId])[String(exerciseId)] || [];
+}
+
+/**
+ * Histories for several exercises from one pass over the quarter tabs, each most recent first.
+ * @return {Object<string, {recordId, date, gymId, sets: Object[], tab}[]>}
+ */
+function getHistories_(exerciseIds) {
+  var wanted = {};
+  exerciseIds.forEach(function (id) { wanted[String(id)] = []; });
+  SpreadsheetApp.getActiveSpreadsheet().getSheets().forEach(function (sheet) {
     if (!QUARTER_TAB_RE.test(sheet.getName())) return;
     var last = sheet.getLastRow();
     if (last < 2) return;
     var width = Math.max(sheet.getLastColumn(), QCOL.firstSet + 1);
     sheet.getRange(2, 1, last - 1, width).getValues().forEach(function (r) {
-      if (String(r[QCOL.exercise]) !== String(exerciseId)) return;
+      var list = wanted[String(r[QCOL.exercise])];
+      if (!list) return;
       var sets = [];
       for (var c = QCOL.firstSet; c < r.length; c++) {
         var parsed = parseSetCell(r[c]);
         if (parsed) sets.push(parsed);
       }
-      out.push({ recordId: String(r[QCOL.id]), date: dateToIso_(r[QCOL.date]), gymId: String(r[QCOL.gym]),
+      list.push({ recordId: String(r[QCOL.id]), date: dateToIso_(r[QCOL.date]), gymId: String(r[QCOL.gym]),
         sets: sets, tab: sheet.getName() });
     });
   });
-  return out.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+  Object.keys(wanted).forEach(function (id) {
+    wanted[id].sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+  });
+  return wanted;
 }
 
 /**
