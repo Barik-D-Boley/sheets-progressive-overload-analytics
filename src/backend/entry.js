@@ -335,7 +335,8 @@ function exerciseIndex_() {
     var sameGym = r['Same Gym Only'];
     if (sameGym !== true && sameGym !== false) sameGym = isGymSpecificEquipment(r['Equipment'] || equipmentFromName(r['Name']));
     var ex = { id: String(r['Exercise ID']), name: String(r['Name']), active: r['Active'] !== false,
-      warmup: r['Warm-up'] === true, setup: r['Setup Notes'], increment: r['Increment'], sameGym: sameGym };
+      warmup: r['Warm-up'] === true, setup: r['Setup Notes'], increment: r['Increment'], sameGym: sameGym,
+      repRange: String(r['Rep Range'] || '').trim(), topSet: r['Top Set'] === true };
     byName[ex.name.toLowerCase()] = ex;
     byId[ex.id] = ex;
   });
@@ -378,13 +379,14 @@ function entryCloseSubform_() {
  * the current gym's sessions, falling back to every gym; free weights use every gym.
  */
 function exerciseView_(item, ex, ctx) {
-  var key = ctx.gymId + '|' + (item.recordId || '');
+  var key = ctx.gymId + '|' + (item.recordId || '') + '|' + (ctx.date || '');
   if (item.view && item.view.key === key) return item.view;
   var history = getExerciseHistory_(item.id).filter(function (h) { return h.recordId !== item.recordId; });
   var hereHistory = ctx.gymId ? history.filter(function (h) { return h.gymId === ctx.gymId; }) : [];
   if (ex.sameGym && hereHistory.length) history = hereHistory;
   var last = history[0];
-  var goals = computeGoals(history, ctx.setCount, progressionSettings(ctx.settings, ex.increment));
+  var ps = progressionSettings(ctx.settings, ex.increment, findRepRange_(ctx.ranges || readRepRanges_(), ex.repRange, ctx.settings), ex.topSet);
+  var goals = computeGoals(history, ctx.setCount, ps, { date: ctx.date });
   var view = { key: key, lastLabel: 'Last', last: [], goals: [], warmup: '' };
   if (last) view.lastLabel = 'Last · ' + shortDate_(last.date) + (ctx.gymNames[last.gymId] ? ' ' + ctx.gymNames[last.gymId] : '');
   for (var i = 0; i < ctx.setCount; i++) {
@@ -438,13 +440,15 @@ function renderEntry_(state, message) {
     return others.length;
   }
 
-  var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '', sameGym: false };
+  var ex = exercises.byId[item.id] || { warmup: false, setup: '', increment: '', sameGym: false, repRange: '', topSet: false };
   var header = sheet.getRange('B2:B3').getValues();
   var gymName = String(header[0][0] || state.gym || '').trim();
   var gyms = readRegistry('gyms');
   var gymId = '', gymNames = {};
   gyms.forEach(function (g) { gymNames[g.id] = g.name; if (g.name.toLowerCase() === gymName.toLowerCase()) gymId = g.id; });
-  var view = exerciseView_(item, ex, { gymId: gymId, gymNames: gymNames, settings: settings, setCount: setCount, unit: unit });
+  var workoutDate = dateToIso_(sheet.getRange(ENTRY.DATE).getValue()) || state.date || '';
+  var view = exerciseView_(item, ex, { gymId: gymId, gymNames: gymNames, settings: settings, setCount: setCount, unit: unit,
+    date: workoutDate });
   var showWarmup = ex.warmup && state.set === 0;
 
   // Inputs: what was entered before, else the previous set's weight.

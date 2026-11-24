@@ -103,6 +103,13 @@ function ensureRoutinesTable_() {
   if (!readRoutines_().some(function (r) { return r.name.toLowerCase() === CUSTOM_ROUTINE.toLowerCase(); })) {
     writeRoutine_({ name: CUSTOM_ROUTINE, workout: CUSTOM_ROUTINE, active: true, exercises: [] });
   }
+  applyRoutineFormatting_(master);
+}
+
+/** Active checkboxes and the exercise/workout dropdowns of the routines table. */
+function applyRoutineFormatting_(master) {
+  var spec = CONFIG.ROUTINES;
+  var col = columnLetterToIndex(spec.column);
   var lastRow = Math.max(master.getLastRow(), 3);
   master.getRange(3, col + ROUTINE_COL.active, lastRow - 2, 1).setValues(
     master.getRange(3, col, lastRow - 2, ROUTINE_COL.active + 1).getValues().map(function (r) {

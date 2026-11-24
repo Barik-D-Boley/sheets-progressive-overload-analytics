@@ -33,14 +33,14 @@ function setup() {
 test('setup keeps the mockup, seeds the routine, and builds the form', () => {
   const { app, sheet } = setup();
   assert.ok(app.ss.getSheetByName('Workout Entry (old mockup)'), 'old tab renamed, not deleted');
-  assert.strictEqual(sheet.getRange('C1').getNote(), 'entry-form-v3');
+  assert.strictEqual(sheet.getRange('C1').getNote(), 'entry-form-v4');
   const master = app.ss.getSheetByName('Master').data;
-  const routineRow = master.find(r => r[26] === 'Push');
-  assert.deepStrictEqual(routineRow.slice(27, 31), ['Push', true, 'Bench press (BB)', 'Lateral raises (DB)'], 'seeded from last session order');
-  assert.deepStrictEqual(master[1].slice(26, 30), ['Routine', 'Workout', 'Active', 'Exercise 1']);
-  assert.ok(master.some(r => r[0] === 'Target RIR'), 'missing settings appended');
+  const routineRow = master.find(r => r[29] === 'Push');
+  assert.deepStrictEqual(routineRow.slice(30, 34), ['Push', true, 'Bench press (BB)', 'Lateral raises (DB)'], 'seeded from last session order');
+  assert.deepStrictEqual(master[1].slice(29, 33), ['Routine', 'Workout', 'Active', 'Exercise 1']);
+  assert.ok(master.some(r => r[0] === 'Top set range'), 'missing settings appended');
   assert.ok(sheet.hiddenRows.has(25) && sheet.hiddenRows.has(36), 'cardio and bodyweight blocks hidden');
-  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[26] === 'Custom' && r[27] === 'Custom'), 'Custom routine added');
+  assert.ok(app.ss.getSheetByName('Master').data.some(r => r[29] === 'Custom' && r[30] === 'Custom'), 'Custom routine added');
   assert.strictEqual(sheet.getRange('B12').getValue(), '');
 });
 
@@ -130,9 +130,9 @@ test('Custom routine starts empty; Find narrows the list; picked exercises are a
   assert.strictEqual(sheet.value('A5'), 'Exercise (2 of 2)');
   type(225, 5); edit('B18', true);
   assert.strictEqual(sheet.value('A7'), 'SET 2 of 3');
-  const routines = app.ss.getSheetByName('Master').data.filter(r => r[26] === 'Custom');
+  const routines = app.ss.getSheetByName('Master').data.filter(r => r[29] === 'Custom');
   assert.strictEqual(routines.length, 1);
-  assert.deepStrictEqual(routines[0].slice(29, 43).filter(Boolean), [], 'the Custom template itself stays empty');
+  assert.deepStrictEqual(routines[0].slice(32, 46).filter(Boolean), [], 'the Custom template itself stays empty');
 });
 
 test('history is read once per exercise; moving between sets reuses it', () => {
@@ -170,16 +170,16 @@ test('an existing routines table in the old layout is converted, and routines re
   g.ensureRegistryEntries('workouts', ['Push']);
   g.ensureRegistryEntries('exercises', ['Bench press (BB)', 'Dips (BW)']);
   const m = app.ss.getSheetByName('Master');
-  m.getRange(1, 27).setValue('Routines (edit to change a workout template)');
-  m.getRange(2, 27, 1, 3).setValues([['Workout', 'Exercise 1', 'Exercise 2']]);
-  m.getRange(3, 27, 2, 3).setValues([['Push', 'Bench press (BB)', 'Dips (BW)'], ['Cardio/Abs', 'Dips (BW)', '']]);
+  m.getRange(1, 30).setValue('Routines (edit to change a workout template)');
+  m.getRange(2, 30, 1, 3).setValues([['Workout', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 30, 2, 3).setValues([['Push', 'Bench press (BB)', 'Dips (BW)'], ['Cardio/Abs', 'Dips (BW)', '']]);
   g.setupEntryForm();
-  assert.deepStrictEqual(m.getRange(2, 27, 3, 5).getValues(), [
+  assert.deepStrictEqual(m.getRange(2, 30, 3, 5).getValues(), [
     ['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2'],
     ['Push', 'Push', true, 'Bench press (BB)', 'Dips (BW)'],
     ['Cardio/Abs', 'Cardio/Abs', true, 'Dips (BW)', '']]);
 
-  m.getRange(6, 27, 1, 4).setValues([['Push Day 2', 'Push', true, 'Dips (BW)']]);
+  m.getRange(6, 30, 1, 4).setValues([['Push Day 2', 'Push', true, 'Dips (BW)']]);
   const sheet = app.ss.getSheetByName('Workout Entry');
   const edit = (a1, value) => { sheet.getRange(a1).setValue(value); g.entryOnEdit({ range: sheet.getRange(a1), value: value === true ? 'TRUE' : value }); };
   edit('B2', 'BYUI');
@@ -236,7 +236,7 @@ test('exercise and cardio lists stay sorted A-Z; IDs and row data move together'
   assert.strictEqual(master.find(r => r[7] === 'Face pulls (Cable)')[6], 'EX-0005', 'new exercise keeps the next ID');
 
   g.ensureRegistryEntries('cardio', ['Walk', 'Stairmaster', 'Treadmill (15%)'], () => [true]);
-  assert.deepStrictEqual(master.slice(2).map(r => r[23]).filter(Boolean), ['Stairmaster', 'Treadmill (15%)', 'Walk']);
+  assert.deepStrictEqual(master.slice(2).map(r => r[26]).filter(Boolean), ['Stairmaster', 'Treadmill (15%)', 'Walk']);
 });
 
 test('a name typed straight into Master gets the next ID, defaults, and a sorted place', () => {
@@ -257,9 +257,9 @@ test('a name typed straight into Master gets the next ID, defaults, and a sorted
   assert.strictEqual(list[list.length - 1], 'Zercher squats (BB)', 'a rename re-sorts');
   assert.strictEqual(m.data.find(r => r[7] === 'Zercher squats (BB)')[6], 'EX-0001', 'and keeps its ID');
 
-  m.getRange(m.getLastRow() + 1, 24).setValue('Rowing machine'); // Cardio name column (X)
-  g.registryOnEdit({ range: m.getRange(m.getLastRow(), 24) });
-  assert.ok(m.data.some(r => r[22] === 'CA-01' && r[23] === 'Rowing machine' && r[24] === true));
+  m.getRange(m.getLastRow() + 1, 27).setValue('Rowing machine'); // Cardio name column (AA)
+  g.registryOnEdit({ range: m.getRange(m.getLastRow(), 27) });
+  assert.ok(m.data.some(r => r[25] === 'CA-01' && r[26] === 'Rowing machine' && r[27] === true));
 });
 
 test('the Routine | Workout | Exercises layout gains an Active column; archived routines leave the sheet dropdown', () => {
@@ -269,17 +269,17 @@ test('the Routine | Workout | Exercises layout gains an Active column; archived 
   g.ensureRegistryEntries('workouts', ['Push']);
   g.ensureRegistryEntries('exercises', ['Bench press (BB)', 'Dips (BW)']);
   const m = app.ss.getSheetByName('Master');
-  m.getRange(1, 27).setValue('Routines (edit to change a workout template)');
-  m.getRange(2, 27, 1, 4).setValues([['Routine', 'Workout', 'Exercise 1', 'Exercise 2']]);
-  m.getRange(3, 27, 2, 4).setValues([['Push Day 1', 'Push', 'Bench press (BB)', 'Dips (BW)'], ['Push Day 2', 'Push', 'Dips (BW)', '']]);
+  m.getRange(1, 30).setValue('Routines (edit to change a workout template)');
+  m.getRange(2, 30, 1, 4).setValues([['Routine', 'Workout', 'Exercise 1', 'Exercise 2']]);
+  m.getRange(3, 30, 2, 4).setValues([['Push Day 1', 'Push', 'Bench press (BB)', 'Dips (BW)'], ['Push Day 2', 'Push', 'Dips (BW)', '']]);
   g.setupEntryForm();
-  assert.deepStrictEqual(m.getRange(2, 27, 3, 5).getValues(), [
+  assert.deepStrictEqual(m.getRange(2, 30, 3, 5).getValues(), [
     ['Routine', 'Workout', 'Active', 'Exercise 1', 'Exercise 2'],
     ['Push Day 1', 'Push', true, 'Bench press (BB)', 'Dips (BW)'],
     ['Push Day 2', 'Push', true, 'Dips (BW)', '']]);
   const sheet = app.ss.getSheetByName('Workout Entry');
   assert.deepStrictEqual([...sheet.validations.B3.list], ['Push Day 1', 'Push Day 2', 'Custom']);
-  m.getRange(4, 29).setValue(false);
+  m.getRange(4, 32).setValue(false);
   g.refreshRoutineDropdown_();
   assert.deepStrictEqual([...sheet.validations.B3.list], ['Push Day 1', 'Custom'], 'archived routine hidden');
 });

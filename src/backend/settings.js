@@ -4,16 +4,14 @@
  * are appended below the existing ones by ensureSettings_().
  */
 var SETTING_DEFAULTS = [
-  ['Rep range', 'Bodybuilding', 'Bodybuilding, Powerlifting, or Custom'],
+  ['Default rep range', 'Bodybuilding', 'A rep range from the Rep ranges table; an exercise\'s Rep Range overrides it'],
   ['1RM Formula', 'Epley', 'Epley, Brzycki, Lombardi, Mayhew, O\'Conner, Wathan, Lander'],
   ['Weight system', 'Imperial', 'Imperial (lb) or Metric (kg)'],
   ['Num of sets', 3, 'Working sets per exercise'],
-  ['Custom rep min', 8, 'Used when Rep range is Custom'],
-  ['Custom rep max', 12, 'Used when Rep range is Custom'],
-  ['Target RIR', '1-2', '0, 1-2, 3-4, or 5+'],
   ['Load increment', 5, 'Default jump in lb/kg; an exercise\'s Increment column overrides it'],
   ['Stall threshold (sessions)', 3, 'Sessions without a 1RM gain before a reset is suggested'],
-  ['Strength goal', '90-93%', 'Powerlifting: % of best estimated 1RM'],
+  ['Top set range', '90-93%', 'Weekly top set (exercises with Top Set ticked): % of best estimated 1RM'],
+  ['Start of week', 'Monday', 'The first workout of the week gets the top set'],
 ];
 
 var SETTINGS_MAX_ROWS = 80;
