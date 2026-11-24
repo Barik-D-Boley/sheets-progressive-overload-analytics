@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity Grid Mockups</title>
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --text: #16181d; --muted: #6b7280; --line: #e4e6eb;
+  --accent: #2563eb; --accent-text: #ffffff; --chip: #eef0f4; --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --empty: #ebedf0; --future: transparent;
+  --lift: #2563eb; --cardio: #f59e0b; --both: #7c3aed;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115; --card: #181b21; --text: #eceef2; --muted: #9aa3b2; --line: #2a2f38;
+    --accent: #4f8bff; --accent-text: #0b1020; --chip: #232832; --shadow: none;
+    --empty: #232832; --lift: #4f8bff; --cardio: #fbbf24; --both: #a78bfa;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+.page { max-width: 1240px; margin: 0 auto; padding: 16px; }
+.intro { max-width: 720px; }
+.intro h1 { font-size: 24px; margin: 8px 0; }
+.muted { color: var(--muted); font-size: 14px; }
+.designs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 20px; margin-top: 16px; }
+.phone { background: var(--bg); border: 1px solid var(--line); border-radius: 22px; padding: 12px 16px; overflow: hidden; }
+.label { font-weight: 700; font-size: 18px; }
+.label small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; margin-top: 2px; }
+.nav { display: flex; gap: 4px; padding: 10px 0; }
+.nav span { flex: 1; text-align: center; border-radius: 999px; padding: 8px 4px; background: var(--chip); font-size: 13px; }
+.nav span.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 12px 0; box-shadow: var(--shadow); }
+.yhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 14px; }
+.yhead:first-of-type { margin-top: 0; }
+.yhead b { font-size: 16px; }
+.yhead .muted { font-size: 12px; text-align: right; }
+.sub { font-size: 13px; font-weight: 600; color: var(--muted); margin: 8px 0 2px; }
+.scroll { overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.grid { display: grid; grid-auto-flow: column; grid-template-rows: 14px repeat(7, 12px); grid-auto-columns: 12px; gap: 3px; width: max-content; }
+.grid .m { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: visible; }
+.grid .wd { font-size: 9px; color: var(--muted); line-height: 12px; }
+.d { width: 12px; height: 12px; border-radius: 3px; background: var(--empty); cursor: pointer; }
+.d.pad { background: transparent; cursor: default; }
+.d.future { background: transparent; outline: 1px dashed var(--line); outline-offset: -1px; cursor: default; }
+.d.sel { outline: 2px solid var(--text); outline-offset: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
+.info { font-size: 13px; margin-top: 8px; min-height: 18px; }
+.seg { display: flex; background: var(--chip); border-radius: 10px; padding: 3px; gap: 3px; margin-bottom: 10px; }
+.seg button { flex: 1; font: inherit; font-size: 14px; border: 0; border-radius: 8px; padding: 6px 0; background: transparent; color: var(--text); cursor: pointer; }
+.seg button.on { background: var(--card); font-weight: 600; box-shadow: var(--shadow); }
+.fake { height: 64px; border-radius: 10px; background: var(--chip); opacity: .6; margin: 10px 0; }
+.note { font-size: 13px; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="intro">
+    <h1>Activity grid: 4 color styles</h1>
+    <p class="muted">Each mockup shows the top of the History screen on a phone, with one grid per year (2026, then 2025). The data is made up. Tap any square to see what that day would show. On a phone, each year scrolls sideways and opens scrolled to the latest week.</p>
+  </div>
+  <div class="designs" id="designs"></div>
+</div>
+<script>
+(function () {
+  var TODAY = '2026-11-24';
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var WORKOUTS = ['Push','Pull','Legs','Upper','Lower'];
+  var CARDIO = ['Treadmill 30 min','Bike 25 min','Stair climber 20 min','Rower 15 min'];
+
+  // Deterministic fake data
+  var seed = 7;
+  function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  function iso(d) { return d.toISOString().slice(0, 10); }
+  var days = {};
+  for (var d = new Date(Date.UTC(2025, 0, 1)); iso(d) <= TODAY; d.setUTCDate(d.getUTCDate() + 1)) {
+    var dow = d.getUTCDay(), r = rnd(), lift = false, cardio = false;
+    if (dow >= 1 && dow <= 5) lift = r < 0.72; else lift = r < 0.18;
+    cardio = rnd() < (dow === 0 || dow === 6 ? 0.45 : 0.28);
+    if (d.getUTCMonth() === 7 && d.getUTCFullYear() === 2025 && d.getUTCDate() > 10 && d.getUTCDate() < 22) { lift = false; cardio = false; } // a vacation gap
+    if (lift || cardio) days[iso(d)] = {
+      lift: lift ? WORKOUTS[Math.floor(rnd() * WORKOUTS.length)] : '',
+      cardio: cardio ? CARDIO[Math.floor(rnd() * CARDIO.length)] : ''
+    };
+  }
+
+  function kind(e) { return !e ? '' : e.lift && e.cardio ? 'both' : e.lift ? 'lift' : 'cardio'; }
+  function pretty(s) { var d = new Date(s + 'T00:00:00Z'); return WD[d.getUTCDay()] + ', ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate(); }
+  function describe(s) {
+    var e = days[s];
+    if (!e) return '<b>' + pretty(s) + '</b>: rest day';
+    return '<b>' + pretty(s) + '</b>: ' + [e.lift ? 'Lifting (' + e.lift + ')' : '', e.cardio ? 'Cardio (' + e.cardio + ')' : ''].filter(Boolean).join(' + ') +
+      '<br><span class="muted">Tapping would filter History to this day.</span>';
+  }
+
+  function counts(year) {
+    var c = { lift: 0, cardio: 0, any: 0 };
+    Object.keys(days).forEach(function (k) {
+      if (k.slice(0, 4) !== String(year)) return;
+      c.any++; if (days[k].lift) c.lift++; if (days[k].cardio) c.cardio++;
+    });
+    return c;
+  }
+
+  /** Builds one year grid. colorOf(entry) returns a CSS background or '' for empty. */
+  function yearGrid(year, colorOf) {
+    var start = new Date(Date.UTC(year, 0, 1)), html = '<div class="scroll"><div class="grid">';
+    // Weekday label column
+    html += '<div></div>' + WD.map(function (w, i) { return '<div class="wd">' + (i % 2 ? w : '') + '</div>'; }).join('');
+    var d = new Date(start); d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+    while (d.getUTCFullYear() <= year) {
+      // month label: first week containing the 1st of a month
+      var label = '';
+      for (var k = 0; k < 7; k++) {
+        var t = new Date(d); t.setUTCDate(t.getUTCDate() + k);
+        if (t.getUTCFullYear() === year && t.getUTCDate() === 1) label = MONTHS[t.getUTCMonth()];
+      }
+      html += '<div class="m">' + label + '</div>';
+      for (var i = 0; i < 7; i++) {
+        var s = iso(d);
+        if (d.getUTCFullYear() !== year) html += '<div class="d pad"></div>';
+        else if (s > TODAY) html += '<div class="d future"></div>';
+        else {
+          var bg = colorOf(days[s]);
+          html += '<div class="d" data-day="' + s + '"' + (bg ? ' style="background:' + bg + '"' : '') + '></div>';
+        }
+        d.setUTCDate(d.getUTCDate() + 1);
+      }
+      if (d.getUTCFullYear() > year) break;
+    }
+    return html + '</div></div>';
+  }
+
+  var C = { lift: 'var(--lift)', cardio: 'var(--cardio)', both: 'var(--both)', empty: 'var(--empty)' };
+  function legend(items) { return '<div class="legend">' + items.map(function (x) { return '<span><i style="background:' + x[1] + '"></i>' + x[0] + '</span>'; }).join('') + '</div>'; }
+  function yhead(y, text) { return '<div class="yhead"><b>' + y + '</b><span class="muted">' + text + '</span></div>'; }
+
+  var threeColor = function (e) { var k = kind(e); return k ? C[k] : ''; };
+  var split = function (e) {
+    if (!e) return '';
+    var a = e.lift ? C.lift : C.empty, b = e.cardio ? C.cardio : C.empty;
+    return 'linear-gradient(135deg, ' + a + ' 50%, ' + b + ' 50%)';
+  };
+
+  var designs = [
+    { title: 'A. Two colors + mixed', blurb: 'Blue = lifting, orange = cardio, purple = both on the same day.',
+      body: function () {
+        return [2026, 2025].map(function (y) { var c = counts(y);
+          return yhead(y, c.any + ' active days · ' + c.lift + ' lifting · ' + c.cardio + ' cardio') + yearGrid(y, threeColor); }).join('') +
+          legend([['Lifting', C.lift], ['Cardio', C.cardio], ['Both', C.both], ['Rest', C.empty]]);
+      } },
+    { title: 'B. Split squares', blurb: 'Top-left half = lifting, bottom-right half = cardio. A full two-tone square means both.',
+      body: function () {
+        return [2026, 2025].map(function (y) { var c = counts(y);
+          return yhead(y, c.any + ' active days · ' + c.lift + ' lifting · ' + c.cardio + ' cardio') + yearGrid(y, split); }).join('') +
+          legend([['Lifting', 'linear-gradient(135deg, var(--lift) 50%, var(--empty) 50%)'], ['Cardio', 'linear-gradient(135deg, var(--empty) 50%, var(--cardio) 50%)'],
+            ['Both', 'linear-gradient(135deg, var(--lift) 50%, var(--cardio) 50%)'], ['Rest', C.empty]]);
+      } },
+    { title: 'C. Two separate grids', blurb: 'Each year has a lifting grid and a cardio grid stacked, so you can compare weeks straight down.',
+      body: function () {
+        return [2026, 2025].map(function (y) { var c = counts(y);
+          return yhead(y, c.any + ' active days') +
+            '<div class="sub">Lifting · ' + c.lift + ' days</div>' + yearGrid(y, function (e) { return e && e.lift ? C.lift : ''; }) +
+            '<div class="sub">Cardio · ' + c.cardio + ' days</div>' + yearGrid(y, function (e) { return e && e.cardio ? C.cardio : ''; });
+        }).join('') + legend([['Lifting', C.lift], ['Cardio', C.cardio], ['Rest', C.empty]]);
+      } },
+    { title: 'D. One grid with a toggle', blurb: 'Switch between lifting, cardio, or all. "All" uses the colors from A.',
+      toggle: true,
+      body: function (mode) {
+        var fn = mode === 'lift' ? function (e) { return e && e.lift ? C.lift : ''; }
+          : mode === 'cardio' ? function (e) { return e && e.cardio ? C.cardio : ''; } : threeColor;
+        var seg = '<div class="seg">' + [['all', 'All'], ['lift', 'Lifting'], ['cardio', 'Cardio']].map(function (b) {
+          return '<button data-mode="' + b[0] + '" class="' + (b[0] === mode ? 'on' : '') + '">' + b[1] + '</button>'; }).join('') + '</div>';
+        var lg = mode === 'lift' ? [['Lifting', C.lift]] : mode === 'cardio' ? [['Cardio', C.cardio]] : [['Lifting', C.lift], ['Cardio', C.cardio], ['Both', C.both]];
+        return seg + [2026, 2025].map(function (y) { var c = counts(y);
+          var n = mode === 'lift' ? c.lift + ' lifting days' : mode === 'cardio' ? c.cardio + ' cardio days' : c.any + ' active days';
+          return yhead(y, n) + yearGrid(y, fn); }).join('') + legend(lg.concat([['Rest', C.empty]]));
+      } }
+  ];
+
+  var host = document.getElementById('designs');
+  designs.forEach(function (ds) {
+    var phone = document.createElement('div');
+    phone.className = 'phone';
+    var mode = 'all';
+    function draw() {
+      phone.innerHTML = '<div class="label">' + ds.title + '<small>' + ds.blurb + '</small></div>' +
+        '<div class="nav"><span>Log</span><span class="on">History</span><span>Exercises</span><span>Routines</span><span>Settings</span></div>' +
+        '<div class="card">' + ds.body(mode) + '<div class="info"><span class="muted">Tap a day for details.</span></div></div>' +
+        '<div class="fake"></div><div class="fake"></div>' +
+        '<div class="note">History filters and the session list continue below.</div>';
+      Array.prototype.forEach.call(phone.querySelectorAll('.scroll'), function (s) { s.scrollLeft = s.scrollWidth; });
+      Array.prototype.forEach.call(phone.querySelectorAll('[data-mode]'), function (b) {
+        b.onclick = function () { mode = b.getAttribute('data-mode'); draw(); };
+      });
+      Array.prototype.forEach.call(phone.querySelectorAll('[data-day]'), function (cell) {
+        cell.onclick = function () {
+          Array.prototype.forEach.call(phone.querySelectorAll('.d.sel'), function (x) { x.classList.remove('sel'); });
+          cell.classList.add('sel');
+          phone.querySelector('.info').innerHTML = describe(cell.getAttribute('data-day'));
+        };
+      });
+    }
+    host.appendChild(phone);
+    draw();
+  });
+})();
+</script>
+</body>
+</html>
