@@ -2,15 +2,17 @@
  * App version and the "update available" check.
  *
  * Every copy of the sheet carries the version it was copied at (APP_VERSION). The
- * latest released version is published in version.json at the root of the GitHub
- * repo; copies read it (cached for a few hours) to tell their owner an update exists.
+ * latest released version is published as version.json in a public gist (the repo is
+ * private); copies read it (cached for a few hours) to tell their owner an update exists.
  *
  * Releasing: bump APP_VERSION here and "version" in version.json (and package.json)
- * together; tests fail if they disagree.
+ * together (tests fail if they disagree), then paste version.json into the gist.
+ * See README "Versions & Updates".
  */
 var APP_VERSION = '2.0.0';
 
 var VERSION_CHECK = {
+  // Raw link to the public gist's version.json, without a commit hash so it always serves the latest edit.
   URL: 'https://raw.githubusercontent.com/Barik-D-Boley/sheets-progressive-overload-analytics/main/version.json',
   CACHE_KEY: 'latestVersionInfo',
   CACHE_SECONDS: 6 * 60 * 60,

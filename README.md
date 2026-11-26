@@ -81,17 +81,20 @@ You can run the core developer workflows using standard `npm` script shortcuts d
 
 ## Versions & Updates
 
-Each copy of the sheet knows its own version (`APP_VERSION` in `src/backend/version.js`). The latest released version is published in [`version.json`](version.json) on `main`. A copy reads it (cached for 6 hours) and shows an **Update available** card at the top of the phone app's Settings. The sheet menu's **Overload Tracker → About / check for updates** does the same check on demand.
+Each copy of the sheet knows its own version (`APP_VERSION` in `src/backend/version.js`). The latest released version is published as a `version.json` file in a **public GitHub gist** (the repo itself is private, so copies can't read from it). `VERSION_CHECK.URL` in `src/backend/version.js` points at that gist's raw link. A copy reads it (cached for 6 hours) and shows an **Update available** card at the top of the phone app's Settings. The sheet menu's **Overload Tracker → About / check for updates** does the same check on demand.
 
 The first time a copy runs the check, Google asks the owner to allow the script to "connect to an external service". The check only downloads `version.json`. If it can't be read (offline, permission not yet granted), the app quietly shows no update.
+
+[`version.json`](version.json) in this repo is the source of truth; the gist is just its public copy.
 
 ### Releasing a new version
 
 1. Bump the version (`MAJOR.MINOR.PATCH`) in **all three** places: `APP_VERSION` in `src/backend/version.js`, `version` in `version.json`, and `version` in `package.json`. `npm test` fails if they disagree.
 2. In `version.json`, set `released` to the release date and replace `notes` with a short list of what changed. Copies show these notes to their owners.
-3. Merge to `main`. Existing copies will see the update within about 6 hours.
+3. Merge to `main`.
+4. Paste the new `version.json` into the gist (gist.github.com → the gist → Edit → Update). Existing copies see the update within about 6 hours.
 
-`version.json` must stay publicly readable at the URL in `VERSION_CHECK.URL`. If this repo becomes private, publish `version.json` somewhere public (for example a public gist) and point that URL there.
+Use the gist's raw link **without** a commit hash (`https://gist.githubusercontent.com/<user>/<gist id>/raw/version.json`), so it always serves the latest edit.
 
 ### Updating your copy
 
