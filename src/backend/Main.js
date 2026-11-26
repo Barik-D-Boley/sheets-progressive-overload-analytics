@@ -13,6 +13,7 @@ function onOpen() {
       .addItem('Connect Apple Health (optional, iPhone)', 'showAppleHealthSetup')
       .addItem('Reset Apple Health link', 'resetAppleHealthLink')
       .addItem('Reset phone app link', 'resetWebAppLink'))
+    .addItem('About / check for updates', 'showAbout')
     .addToUi();
 }
 
