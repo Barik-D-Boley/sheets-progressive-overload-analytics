@@ -1,6 +1,6 @@
 {
   "name": "sheets-progressive-overload-analytics",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Google Apps Script backend for Progressive Overload Tracker 2.0",
   "main": "./src/backend/Main.js",
   "scripts": {

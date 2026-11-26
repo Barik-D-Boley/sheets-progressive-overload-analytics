@@ -44,6 +44,7 @@ button { font: inherit; border: 0; border-radius: 12px; min-height: 46px; paddin
 .btn.primary { background: var(--accent); color: var(--accent-text); font-weight: 600; }
 .btn.ghost { background: transparent; color: var(--accent); padding: 0 8px; }
 .btn.block { width: 100%; }
+.link-btn { display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 12px; text-decoration: none; }
 .row { display: flex; gap: 10px; align-items: center; }
 .row > .field { flex: 1; }
 .row > * { flex: 1; }
@@ -961,7 +962,7 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
     wireBodyweight();
     call('webAppGetSettings').then(function (fields) {
       if (screen !== 'settings') return;
-      var html = nav('settings') + bodyweightCard() + '<div class="card"><h2>Settings</h2>' + fields.map(function (f, i) {
+      var html = nav('settings') + '<div id="updCard">' + updateCard() + '</div>' + bodyweightCard() + '<div class="card"><h2>Settings</h2>' + fields.map(function (f, i) {
         if (f.type === 'bodyweight') return '';
         var input;
         if (f.type === 'select') {
@@ -978,13 +979,14 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
         }
         var label = f.type === 'height' ? 'Height' : f.label;
         return '<label class="field"><span>' + esc(label) + (f.help ? ' · ' + esc(f.help) : '') + '</span>' + input + '</label>';
-      }).join('') + '</div>' + repRangesCard() + '<p class="muted">Saved to the Master tab.</p>';
+      }).join('') + '</div>' + repRangesCard() + '<p class="muted">Saved to the Master tab.</p>' + '<p class="muted center" id="verLine">' + versionLine() + '</p>';
       var typed = $('#bwInput') ? $('#bwInput').value : '';   // keep a weight typed while settings loaded
       $('#app').innerHTML = html;
       $('#bwInput').value = typed;
       wireNav();
       wireBodyweight();
       wireRepRanges();
+      loadUpdateStatus();
       var formulaSelect = Array.prototype.filter.call(document.querySelectorAll('select[data-setting]'), function (el) {
         return fields[parseInt(el.getAttribute('data-setting'), 10)].label === '1RM Formula';
       })[0];
@@ -1010,6 +1012,31 @@ svg.chart text { fill: var(--muted); font-size: 10px; }
         }).catch(function (e) { toast(e.message); if ($('#sSave')) $('#sSave').disabled = false; });
       };
     }).catch(function (e) { $('#app').innerHTML = nav('settings') + '<div class="err">' + esc(e.message) + '</div>'; wireNav(); });
+  }
+
+  // ---- version / updates ------------------------------------------------------------
+  var updateInfo = null;   // webAppUpdateStatus() result, checked once per app open
+  function updateCard() {
+    var u = updateInfo;
+    if (!u || !u.updateAvailable) return '';
+    return '<div class="card"><h2>Update available</h2><p>Version ' + esc(u.latest) + ' is out' + (u.released ? ' (' + esc(u.released) + ')' : '') +
+      '. You have ' + esc(u.current) + '.</p>' +
+      (u.notes.length ? '<ul style="margin:6px 0 10px;padding-left:20px">' + u.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' : '') +
+      (/^https:\/\//.test(u.url) ? '<a class="btn primary block link-btn" href="' + esc(u.url) + '" target="_blank" rel="noopener">How to update</a>' : '') +
+      '</div>';
+  }
+  function versionLine() {
+    var u = updateInfo;
+    return 'Overload Tracker ' + esc(data.version || '') + (u && u.latest && !u.updateAvailable ? ' · up to date' : '');
+  }
+  function loadUpdateStatus() {
+    if (updateInfo) return;
+    call('webAppUpdateStatus').then(function (u) {
+      updateInfo = u;
+      if (screen !== 'settings') return;
+      if ($('#updCard')) $('#updCard').innerHTML = updateCard();
+      if ($('#verLine')) $('#verLine').innerHTML = versionLine();
+    }).catch(function () { /* no update info; the version line stays as is */ });
   }
 
   // ---- history --------------------------------------------------------------------

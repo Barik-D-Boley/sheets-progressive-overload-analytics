@@ -123,6 +123,7 @@ function webAppLoad(key) {
     bodyweightKg: bodyweightKgOn_(today),
     repRanges: ranges,
     defaultRepRange: findRepRange_(ranges, '', settings).name,
+    version: APP_VERSION,
   };
 }
 
@@ -497,6 +498,12 @@ function webAppSaveRoutine(key, r) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Installed vs latest published version (see version.js). Kept out of webAppLoad so a slow check never delays opening the app. */
+function webAppUpdateStatus(key) {
+  requireKey_(key);
+  return checkForUpdate_(false);
 }
 
 /** Workout names for the routine editor. */

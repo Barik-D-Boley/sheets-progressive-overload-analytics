@@ -335,6 +335,26 @@ async function openPage(browser, g, key, opts) {
       await page.close();
     }
 
+    // 6. Settings shows the installed version, and an update card when a newer version is published.
+    {
+      const { g, key } = setupGas();
+      let page = await openPage(browser, g, key);
+      await page.click('[data-nav="settings"]');
+      await page.waitForSelector('text=Overload Tracker ' + g.APP_VERSION);   // the check fails offline: just the version line
+      assert.ok(!(await page.isVisible('text=Update available')));
+      await page.close();
+
+      g.checkForUpdate_ = () => g.updateStatus(g.APP_VERSION, { version: '99.0.0', released: '2027-01-05', notes: ['Activity grid'], url: 'https://example.com/update' });
+      page = await openPage(browser, g, key);
+      await page.click('[data-nav="settings"]');
+      await page.waitForSelector('text=Update available');
+      assert.ok(await page.isVisible('text=Version 99.0.0 is out (2027-01-05). You have ' + g.APP_VERSION + '.'));
+      assert.ok(await page.isVisible('li:has-text("Activity grid")'));
+      assert.strictEqual(await page.getAttribute('a:has-text("How to update")', 'href'), 'https://example.com/update');
+      if (process.env.SHOT_DIR) await page.screenshot({ path: path.join(process.env.SHOT_DIR, 'update.png'), fullPage: true });
+      await page.close();
+    }
+
     console.log('web app UI: all checks passed');
   } finally {
     await browser.close();

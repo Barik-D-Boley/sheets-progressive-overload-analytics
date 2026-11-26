@@ -79,6 +79,24 @@ You can run the core developer workflows using standard `npm` script shortcuts d
   npm run open
   ```
 
+## Versions & Updates
+
+Each copy of the sheet knows its own version (`APP_VERSION` in `src/backend/version.js`). The latest released version is published in [`version.json`](version.json) on `main`. A copy reads it (cached for 6 hours) and shows an **Update available** card at the top of the phone app's Settings. The sheet menu's **Overload Tracker → About / check for updates** does the same check on demand.
+
+The first time a copy runs the check, Google asks the owner to allow the script to "connect to an external service". The check only downloads `version.json`. If it can't be read (offline, permission not yet granted), the app quietly shows no update.
+
+### Releasing a new version
+
+1. Bump the version (`MAJOR.MINOR.PATCH`) in **all three** places: `APP_VERSION` in `src/backend/version.js`, `version` in `version.json`, and `version` in `package.json`. `npm test` fails if they disagree.
+2. In `version.json`, set `released` to the release date and replace `notes` with a short list of what changed. Copies show these notes to their owners.
+3. Merge to `main`. Existing copies will see the update within about 6 hours.
+
+`version.json` must stay publicly readable at the URL in `VERSION_CHECK.URL`. If this repo becomes private, publish `version.json` somewhere public (for example a public gist) and point that URL there.
+
+### Updating your copy
+
+Update steps are listed here for each release that needs them. Your workout data stays in your own sheet.
+
 ## Spreadsheet vs. Fitness Apps
 
 * **One-Time Ownership:** No monthly subscription fees or locked feature paywalls.
